@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_ID" version="2.4"
+	xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>ImageTileServer</display-name>
+	<servlet>
+		<servlet-name>SvgTileServer</servlet-name>
+		<servlet-class>org.its.svg.SvgTileServer</servlet-class>
+
+		<init-param>
+			<param-name>image-path</param-name>
+			<param-value>/home/manager/ImageTileServer/images</param-value>
+			<!--  <param-value>/home/manager/ImageTileServer/images</param-value> -->
+			<!--  <param-value>/home/thomas/tmp/svgviewer/images</param-value> -->
+		</init-param>
+		<init-param>
+			<param-name>tile-path</param-name>
+			<param-value>/home/manager/ImageTileServer/tiles</param-value>
+			<!-- <param-value>/home/manager/ImageTileServer/tiles</param-value> -->
+			<!-- <param-value>/home/thomas/tmp/svgviewer/tiles</param-value> -->
+		</init-param>
+		<init-param>
+			<param-name>zoom</param-name>
+			<param-value>1</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SvgTileServer</servlet-name>
+		<url-pattern>/tiles/*</url-pattern>
+	</servlet-mapping>
+</web-app>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-anim.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-awt-util.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-bridge.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-codec.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-css.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-dom.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-ext.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-extension.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-gvt.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-parser.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-script.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-svg-dom.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-svggen.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-transcoder.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-util.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/batik-xml.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/pdf-transcoder.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/xml-apis-ext.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/xml-apis.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v5.5"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,0 +1,35 @@
+<html>
+<head>
+
+<title>Image Tile Server Example</title>
+<!--  Import the openlayers library -->
+<script src="openlayers/OpenLayers.js"></script>
+<script src="example.js"></script>
+<style type="text/css">
+.olControlLoadingPanel {
+	background-image: url(openlayers/theme/default/img/loading.gif);
+	background-position: top right;
+	background-repeat: no-repeat;
+}
+#map {
+	width: 100%;
+	height: 75%;
+	border: 1px solid black;
+}
+</style>
+</head>
+
+<body onload="init()">
+<h1>Image Tile Server Example</h1>
+<p>An example client that displays images from the Image Tile Server
+using openlayers</p>
+
+<!-- The containers for selecting server and images -->
+<div id="server"><input id="servertext" type="text"
+	value="/ImageTileServer/tiles/1.0.0" /> <input type="button"
+	onclick="setServer();" value="Change server" /></div>
+<div id="images"></div>
+<!-- The container for the openlayers map -->
+<div id="map"></div>
+</body>
+</html>

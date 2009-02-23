@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ImageTileServer" default="war">
+	<property name="build.dir" value="bin" />
+	<property name="src.dir" value="src" />
+	<property name="lib.dir" value="WebContent/WEB-INF/lib" />
+	<property name="proj.name" value="ImageTileServer" />
+	<property name="web.deploy.dir" value="www" />
+	<property name="war.file" value="ImageTileServer.war" />
+	<property name="tmp.war.dir" value="war-tmp"/>
+	
+	<target name="clean">
+		<delete dir="${build.dir}" />
+	</target>
+
+	<fileset id="lib.files" dir="${lib.dir}">
+		<include name="**/*.jar" />
+	</fileset>
+
+	<path id="class.path">
+		<pathelement location="${build.dir}" />
+		<fileset refid="lib.files" />
+	</path>
+
+	<target name="compile">
+		<mkdir dir="${build.dir}" />
+		<javac destdir="${build.dir}" srcdir="${src.dir}">
+			<classpath refid="class.path" />
+		</javac>
+	</target>
+
+	<target name="war" depends="compile">
+		<war destfile="${war.file}" webxml="WebContent/WEB-INF/web.xml">
+			<lib dir="${lib.dir}"/>
+			<classes dir="bin" />
+			<fileset dir="WebContent" />
+		</war>
+	</target>
+</project>

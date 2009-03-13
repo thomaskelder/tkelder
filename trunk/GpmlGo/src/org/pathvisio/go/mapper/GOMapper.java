@@ -23,6 +23,7 @@ public class GOMapper {
 	GOTree goTree;
 	GOAnnotations pathwayAnnotations;
 	ScoreFunction scoreFunction = new SetPercentageFunction();
+	boolean useFileNames = true;
 	
 	public GOMapper(GOTree goTree) {
 		this.goTree = goTree;
@@ -56,7 +57,13 @@ public class GOMapper {
 			Pathway p = new Pathway();
 			p.readFromXml(f, true);
 			String name = p.getMappInfo().getMapInfoName();
-			mapPathway(name + "(" + f.getName() + ")", p, gdb, geneAnnotations);
+			String id = null;
+			if(useFileNames) {
+				id = f.getAbsolutePath();
+			} else {
+				id = name + "(" + f.getName() + ")";
+			}
+			mapPathway(id, p, gdb, geneAnnotations);
 		}
 	}
 	
@@ -124,6 +131,10 @@ public class GOMapper {
 		}
 		
 		return pruned;
+	}
+	
+	public void setUseFileNames(boolean useFileNames) {
+		this.useFileNames = useFileNames;
 	}
 	
 	public ScoreFunction getScoreFunction() {

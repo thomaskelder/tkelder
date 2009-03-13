@@ -44,6 +44,9 @@ public class GOMapperMain {
 	@Option(name = "-mappings", usage = "File to read previously calculated mappings from")
 	private File mapFile;
 	
+	@Option(name = "-code", usage = "System code to use for exporting genes")
+	private String dbCode = "L";
+		
 	@Option(name = "-out", usage = "The file to which the output of the action will be written")
 	private File outFile;
 	
@@ -55,6 +58,11 @@ public class GOMapperMain {
 	
 	@Option(name = "-threshold", usage = "The threshold to use for action 'prune'")
 	private double pruneThreshold = 0.6;
+	
+	@Option(name = "-useFileName", usage = "Use file names for pathways in the output files." +
+			" If not set, human readable names will be used instead (making the output files unusable " +
+			"for the exporting to xrefs action.")
+	private boolean useFileName = false;
 	
 	public static void main(String[] args) {
 		GOMapperMain main = new GOMapperMain();
@@ -68,9 +76,17 @@ public class GOMapperMain {
 		}
 		
 		try {
+			Gdb gdb = null;
+			if(main.gdbFile != null) {
+				gdb = SimpleGdbFactory.createInstance(
+					main.gdbFile.getAbsolutePath(), new DBConnDerby(), DBConnector.PROP_NONE
+				);
+			}
 			GOTree goTree = GOReader.readGOTree(main.oboFile);
 			GOMapper goMapper = new GOMapper(goTree);
 
+			goMapper.setUseFileNames(main.useFileName);
+			
 			GOAnnotations geneAnnot = null;
 			if(main.annotFile != null) {
 				geneAnnot = GOAnnotations.read(main.annotFile, goTree, new GOAnnotationFactory() {
@@ -95,9 +111,6 @@ public class GOMapperMain {
 						"Please specify the -gdb parameter.");
 				}
 				List<File> gpmlFiles = FileUtils.getFiles(main.pathwayDir, main.pathwayExt, true);
-				Gdb gdb = SimpleGdbFactory.createInstance(
-						main.gdbFile.getAbsolutePath(), new DBConnDerby(), DBConnector.PROP_NONE
-				);
 				Logger.log.info("Mapping pathways to GO tree");
 				goMapper.calculate(gpmlFiles, gdb, geneAnnot);
 			} else if(main.mapFile != null) {
@@ -121,6 +134,11 @@ public class GOMapperMain {
 				GOAnnotations pruned = goMapper.prune(main.pruneThreshold);
 				Logger.log.info("Writing pruned mappings to " + main.outFile);
 				pruned.write(main.outFile);
+			}
+			
+			if(ACTION_XREFS.equals(main.action)) {
+				DataSource ds = DataSource.getBySystemCode(main.dbCode);
+				goMapper.getPathwayAnnotations().writeXrefs(main.outFile, gdb, ds);
 			}
 			
 			if(ACTION_MATRIX.equals(main.action)) {
@@ -160,4 +178,10 @@ public class GOMapperMain {
 	private static final String ACTION_PRUNE = "prune";
 	
 	private static final String ACTION_GUI= "gui";
+	
+	/**
+	 * Exports mappings to cross-references from a pathway instead of
+	 * the pathway names.
+	 */
+	private static final String ACTION_XREFS = "xrefs";
 }

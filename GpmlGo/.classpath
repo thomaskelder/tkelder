@@ -5,6 +5,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/PathVisio"/>
-	<classpathentry kind="lib" path="lib/args4j-2.0.10.jar"/>
+	<classpathentry kind="lib" path="/home/thomas/code/googlerepo/lib-shared/args4j-2.0.10.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

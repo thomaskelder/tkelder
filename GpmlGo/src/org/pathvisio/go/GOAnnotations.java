@@ -9,10 +9,22 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.pathvisio.data.DataException;
+import org.pathvisio.data.Gdb;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.go.mapper.ScoreMatrix;
+import org.pathvisio.model.DataSource;
+import org.pathvisio.model.Xref;
+import org.pathvisio.model.XrefWithSymbol;
+import org.pathvisio.util.PathwayParser;
+import org.pathvisio.util.PathwayParser.ParseException;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 public class GOAnnotations {
 	HashMap<GOTerm, Map<String, GOAnnotation>> annotations = new HashMap<GOTerm, Map<String, GOAnnotation>>();
@@ -63,6 +75,39 @@ public class GOAnnotations {
 		for(GOTerm term : annotations.keySet()) {
 			for(GOAnnotation a : getAnnotations(term)) {
 				out.write(a.getId() + "\t" + term.getId() + "\t" + a.getEvidence() + "\n");
+			}
+		}
+		out.close();
+	}
+	
+	public void writeXrefs(File outFile, Gdb gdb, DataSource ds) throws ParseException, IOException, DataException, SAXException {
+		XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+		Map<GOTerm, Set<String>> xrefMap = new HashMap<GOTerm, Set<String>>();
+		BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
+		for(GOTerm term : annotations.keySet()) {
+			for(GOAnnotation a : getAnnotations(term)) {
+				Logger.log.info("Looking up xrefs for term " + term.getId() + ", pathway " + a.getId());
+				File pwFile = new File(a.getId());
+				if(!pwFile.exists()) {
+					throw new IllegalArgumentException("The mappings file doesn't contain valid file names, " +
+							"please use mappings exported with the -useFileName parameter set to true."
+					);
+				}
+				PathwayParser parser = new PathwayParser(pwFile, xmlReader);
+				List<XrefWithSymbol> genes =  parser.getGenes();
+				
+				for(XrefWithSymbol g : genes) {
+					for(Xref x : gdb.getCrossRefs(g.asXref(), ds)) {
+						Set<String> xrefs = xrefMap.get(term);
+						if(xrefs == null) xrefMap.put(term, xrefs = new HashSet<String>());
+						xrefs.add(x.getId());
+					}
+				}
+			}
+		}
+		for(GOTerm t : xrefMap.keySet()) {
+			for(String id : xrefMap.get(t)) {
+				out.write(id + "\t" + t.getId() + "\n");
 			}
 		}
 		out.close();

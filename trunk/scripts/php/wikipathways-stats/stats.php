@@ -17,7 +17,7 @@ set_time_limit(0);
 #### Generate some statistics for WikiPathways ####
 $interval = "month";
 $date = "20070401010000";
-/*
+
 $counts = countNewPathways($date, $interval, array("Curation:Tutorial", "Curation:FeaturedPathway"), false);
 plotCounts($counts, "new_pathways_$interval.png", array("All pathways", "Deleted pathways", "Tagged as tutorial pathway", "Tagged as featured pathway"), 
 	"New pathways created per $interval");
@@ -30,7 +30,7 @@ plotCounts(array_slice($counts, 1, 2, true),
 
 $counts = countUsers($date, $interval);
 plotCounts($counts, "active_users_$interval.png", '', "Active user counts per $interval"); 
-*/
+
 $interval = "hour";
 $date = "20090203200000";
 $end = "20090205000000";

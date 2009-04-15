@@ -9,13 +9,16 @@ import java.util.List;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 import org.pathvisio.go.GOAnnotation;
 import org.pathvisio.go.GOAnnotations;
 import org.pathvisio.go.GOTerm;
 import org.pathvisio.go.GOTree;
+import org.pathvisio.gui.swing.GuiMain;
 
-public class GOInfoPanel extends JPanel {
+public class GOInfoPanel extends JPanel implements HyperlinkListener {
 	JEditorPane text;
 	GOAnnotations annotations;
 	GOTree tree;
@@ -26,6 +29,15 @@ public class GOInfoPanel extends JPanel {
 		text.setEditable( false );
 		setLayout(new BorderLayout());
 		add(new JScrollPane(text), BorderLayout.CENTER);
+
+		text.addHyperlinkListener(this);
+	}
+	
+	public void hyperlinkUpdate(HyperlinkEvent e) {
+		if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+			//Show the pathway in PathVisio
+			GuiMain.main(new String[] { "-o", e.getURL().toString() });
+		}
 	}
 	
 	public void setAnnotations(GOTree tree, GOAnnotations annotations) {
@@ -49,7 +61,7 @@ public class GOInfoPanel extends JPanel {
 		Collections.sort(myAnnot, evidenceComp);
 		
 		for(GOAnnotation a : myAnnot) {
-			html += "<LI>" + a.getId() + "; <B>" + a.getEvidence() + "</B>";
+			html += "<LI>" + annotLink(a) + "; <B>" + a.getEvidence() + "</B>";
 		}
 		html += "</UL>";
 		//Get the annotations for the children
@@ -63,11 +75,15 @@ public class GOInfoPanel extends JPanel {
 		}
 		Collections.sort(childAnnot, evidenceComp);
 		for(GOAnnotation a : childAnnot) {
-			html += "<LI>" + a.getId() + "; <B>" + a.getEvidence() + "</B>";
+			html += "<LI>" + annotLink(a) + "; <B>" + a.getEvidence() + "</B>";
 		}
 		html += "</UL>";
 		
 		text.setText(html);
 		text.setCaretPosition(0);
+	}
+	
+	private String annotLink(GOAnnotation a) {
+		return "<A href='file://" + a.getId() + "'>" + a.getId() + "</A>";
 	}
 }

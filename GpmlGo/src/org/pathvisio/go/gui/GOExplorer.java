@@ -3,6 +3,7 @@ package org.pathvisio.go.gui;
 import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -28,7 +29,8 @@ public class GOExplorer extends JFrame {
 		});
 		
 		getContentPane().setLayout(new BorderLayout());
-		getContentPane().add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treePanel, infoPanel), BorderLayout.CENTER);
+		getContentPane().add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, 
+				new JScrollPane(treePanel), new JScrollPane(infoPanel)), BorderLayout.CENTER);
 	}
 	
 	public void setGO(GOTree tree, GOAnnotations annotations) {

@@ -77,12 +77,14 @@ avgColNames = vector(
 	mode = "character", 
 	length = length(levels(timeFactor)) * length(levels(tissueFactor))
 )
+
 avgData = array(NA, 
 		dim = c(
 			nrow(totalData), 
 			length(levels(timeFactor)) * length(levels(tissueFactor))
 		),
 )
+
 col = 1
 for(tis in levels(tissueFactor)) {
 	for(time in levels(timeFactor)) {
@@ -94,6 +96,12 @@ for(tis in levels(tissueFactor)) {
 }
 colnames(avgData) = avgColNames
 rownames(avgData) = rownames(totalData)
+
+avgTissueFactor = factor(unlist(lapply(levels(tissueFactor), function(t) {
+	rep(t, length(levels(timeFactor)))
+})))
+
+avgTimeFactor = factor(rep(levels(timeFactor), length(levels(tissueFactor))))
 
 ## Calculate expression relative to t=0
 t0 = levels(timeFactor)[1]
@@ -114,19 +122,65 @@ for(tis in levels(tissueFactor)) {
 	for(time in levels(timeFactor)[2:length(levels(timeFactor))]) {
 		avgCol = paste(tis, time, sep="_")
 		relColNames[col] = paste(tis, "relt0", time, sep="_")
-		relData[,col] = avgData[, t0col] - avgData[, avgCol]
+		relData[,col] = avgData[, avgCol] - avgData[, t0col]
 		col = col + 1
 	}
 }
 colnames(relData) = relColNames
 rownames(relData) = rownames(totalData)
 
+## Calculate raw expression relative to average t=0
+relTotalColNames = vector(
+	mode = "character", 
+	length = ncol(totalData) - sum(timeFactor == t0)
+)
+relTotalData = array(NA,
+		dim = c(
+			nrow(totalData),
+			length(relTotalColNames)
+		)
+)
+col = 1
+for(tis in levels(tissueFactor)) {
+	t0AvgCol = paste(tis, t0, sep="_")
+	for(time in levels(timeFactor)[2:length(levels(timeFactor))]) {
+		timeCols = timeFactor == time & tissueFactor == tis
+		for(tc in colnames(totalData)[timeCols]) {
+			relTotalColNames[col] = paste(tis, "relt0_t", time, col, sep="_")
+			relTotalData[, col] = totalData[, tc] - avgData[, t0AvgCol]
+			col = col + 1
+		}
+	}
+}
+colnames(relTotalData) = relTotalColNames
+rownames(relTotalData) = rownames(totalData)
+
+relTissueFactor = tissueFactor[timeFactor != t0]
+relTimeFactor = timeFactor[timeFactor != t0]
+
 ## Get EntrezGene Ids from the rownames
 entrezIds = sub("_at", "", rownames(totalData))
 names(entrezIds) = rownames(totalData)
 
+## Add a column with the max foldchange (relative to t=0)
+maxAbsFc = array(NA, dim = c(nrow(avgData), length(levels(tissueFactor))))
+
+maxAbsFcList = lapply(levels(tissueFactor), function(tis) {
+	cols = avgTissueFactor == tis
+	cols = cols[avgTimeFactor != t0]
+	apply(abs(relData[, cols]), 1, function(row) {
+		max(row, na.rm = TRUE)
+	})
+})
+for(i in 1:length(maxAbsFcList)) {
+	maxAbsFc[,i] = maxAbsFcList[[i]]
+}
+colnames(maxAbsFc) = paste("max_abs_fc_", levels(tissueFactor), sep="")
+rownames(maxAbsFc) = rownames(avgData)
+maxAbsFc[maxAbsFc == -Inf] = NA
+
 ## Save the processed data
-save(entrezIds, timeFactor, tissueFactor, totalData, avgData, relData,
+save(entrezIds, timeFactor, tissueFactor, totalData, avgData, relData, relTotalData, relTissueFactor, relTimeFactor, maxAbsFc,
 	file = paste(outPath, "pps1_log2_combined.Rd", sep=""))
 	
 

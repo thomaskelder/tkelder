@@ -60,6 +60,6 @@ for(tis in tissues) {
 save(anovaData, qvalues, pvalues, file = paste(outPath, "pps1_anova_pqvalues.Rd", sep=""))
 
 # Write a text file for PathVisio
-txtData = cbind(entrezIds, avgData, relData, anovaData)
+txtData = cbind(entrezIds, avgData, relData, anovaData, maxAbsFc)
 write.table(txtData, file = paste(outPath, "pps1_expr_anova.txt", sep=""),
 	row.names = FALSE, sep = "\t", quote = FALSE, na = "NaN")

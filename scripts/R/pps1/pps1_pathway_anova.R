@@ -34,57 +34,24 @@ cols = as.character(lapply(levels(tissueFactor),
 gseData = 1 - anovaData[, cols] # 1-q as gene score
 rownames(gseData) = entrezIds
 colnames(gseData) = levels(tissueFactor)
-gseResults = lapply(levels(tissueFactor), function(tis) {
-	PGSEA(as.matrix(gseData[,tis]), geneSets,
-		range = c(5, 1000),
-		ref = NULL,
-		center = FALSE,
-		enforceRange = TRUE,
-		p.value = TRUE
-	)
-})
-names(gseResults) = levels(tissueFactor)
+
+gseResults = doPGSEA(
+	geneSets = geneSets, 
+	data = gseData, 
+	range = c(5, 1000)
+)
 
 ## Transform everything back to q (instead of q-1)
 gseData.q = -(gseData - 1)
 
 ## Save the results
-delta = sd(gseData.q, na.rm = TRUE)
-pwsizes = as.numeric(lapply(pathways, length))
+writePGSEA(
+	pathways = pathways, 
+	gseResults = gseResults, 
+	gseData = gseData.q, 
+	filePrefix = paste(outPath, "page_anova_q", sep="")
+)
 
-for(tis in levels(tissueFactor)) {
-	mu = mean(gseData.q[,tis], na.rm = TRUE)
-	pwmean = as.numeric(lapply(pathways, function(genes) {
-		dgenes = genes[genes %in% entrezIds]
-		mean(gseData.q[dgenes, tis], na.rm = TRUE)
-	}))
-	pwmsizes = as.numeric(lapply(pathways, function(genes) {
-		mgenes = genes[genes %in% entrezIds]
-		not.na = rownames(gseData)[!is.na(gseData[,tis])]
-		sum(mgenes %in% not.na)
-	}))	
-	
-	o = order(gseResults[[tis]]$results, decreasing = TRUE)
-	results = cbind(
-		rownames(gseResults[[tis]]$results)[o],
-		round(gseResults[[tis]]$results[o], 3),
-		pwsizes[o],
-		pwmsizes[o],
-		round(pwmean[o], 3)
-	)
-	colnames(results) = c("pathway", "z-score", "size", "measured", "mean")
-	
-	con = file(paste(outPath, "page_anova_q_", tis, ".txt", sep=""), open="wt")
-	writeLines(paste("#", tis, sep=""), con)
-	writeLines(paste("#dataset mean:", mu), con)
-	writeLines(paste("#dataset sd:", delta[tis]), con)
-	write.table(results, 
-		file=con, 
-		row.names=FALSE, quote=FALSE, sep="\t"
-	)
-	close(con)
-}
-	
 ## Some testing
 library(nortest)
 

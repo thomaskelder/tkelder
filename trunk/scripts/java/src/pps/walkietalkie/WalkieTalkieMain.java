@@ -9,24 +9,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.bridgedb.DataDerby;
+import org.bridgedb.Gdb;
+import org.bridgedb.SimpleGdbFactory;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.pathvisio.data.DataDerby;
-import org.pathvisio.data.Gdb;
-import org.pathvisio.data.SimpleGdbFactory;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.gex.SimpleGex;
-import org.pathvisio.plugins.statistics.PathwayMap;
 import org.pathvisio.plugins.statistics.StatisticsPathwayResult;
 import org.pathvisio.plugins.statistics.StatisticsResult;
 import org.pathvisio.plugins.statistics.ZScoreCalculator;
-import org.pathvisio.plugins.statistics.PathwayMap.PathwayInfo;
-import org.pathvisio.util.swing.SearchTableModel.Column;
+import org.pathvisio.util.FileUtils;
+import org.pathvisio.util.PathwayParser;
 import org.pathvisio.visualization.colorset.Criterion;
 import org.pathvisio.visualization.colorset.Criterion.CriterionException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import pps.walkietalkie.WalkieTalkie.Parameters;
+import pps.walkietalkie.WalkieTalkie.PathwayInfo;
 
 public class WalkieTalkieMain {
 
@@ -34,7 +36,7 @@ public class WalkieTalkieMain {
 	" to in order to be included in the network.")
 	private int minConnections = 2;
 
-	@Option(name = "-gex", required = true, usage = "The dataset to get the genes from.")
+	@Option(name = "-gex", required = false, usage = "The dataset to get the genes from.")
 	private File gexFile;	
 
 	@Option(name = "-gdb", required = true, usage = "The synonym database to use.")
@@ -79,10 +81,21 @@ public class WalkieTalkieMain {
 		}
 
 		try {
-			SimpleGex gex = new SimpleGex("" + main.gexFile, false, new DataDerby());
+			SimpleGex gex = null;
+			if(main.gexFile != null) {
+				gex = new SimpleGex("" + main.gexFile, false, new DataDerby());
+			}
 			Gdb gdb = SimpleGdbFactory.createInstance("" + main.gdbFile, new DataDerby(), 0);
 			
-			List<PathwayInfo> pathways = new PathwayMap(main.pathwayDir).getPathways();
+			//Read the pathway information
+			XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+			Set<PathwayInfo> pathways = new HashSet<PathwayInfo>();
+			
+			for(File f : FileUtils.getFiles(main.pathwayDir, "gpml", true)) {
+				PathwayParser pp = new PathwayParser(f, xmlReader);
+				pathways.add(new PathwayInfo(f, pp.getName(), pp.getGenes()));
+			}
+			
 			Writer out = new BufferedWriter(new FileWriter(main.sif));
 			
 			Criterion crit = null;

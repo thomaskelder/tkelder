@@ -180,7 +180,7 @@ rownames(maxAbsFc) = rownames(avgData)
 maxAbsFc[maxAbsFc == -Inf] = NA
 
 ## Save the processed data
-save(entrezIds, timeFactor, tissueFactor, totalData, avgData, relData, relTotalData, relTissueFactor, relTimeFactor, maxAbsFc,
+save(entrezIds, timeFactor, tissueFactor, totalData, avgData, relData, relTotalData, relTissueFactor, relTimeFactor, avgTissueFactor, avgTimeFactor, maxAbsFc,
 	file = paste(outPath, "pps1_log2_combined.Rd", sep=""))
 	
 

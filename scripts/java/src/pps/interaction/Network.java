@@ -18,6 +18,7 @@ public class Network {
 	HashMap<Node, String> symbols = new HashMap<Node, String>();
 	
 	Multimap<Node, Node> neighbours = new HashMultimap<Node, Node>();
+	Multimap<Node, Edge> outgoing = new HashMultimap<Node, Edge>();
 	
 	public Network() {
 	}
@@ -28,11 +29,26 @@ public class Network {
 		addNode(edge.getNode2());
 		
 		edges.add(edge);
+		outgoing.put(edge.getNode1(), edge);
 		neighbours.put(edge.getNode1(), edge.getNode2());
+	}
+	
+	public void removeEdge(Edge edge) {
+		edges.remove(edge);
+		outgoing.remove(edge.getNode1(), edge);
+		neighbours.remove(edge.getNode1(), edge.getNode2());
 	}
 	
 	public void addNode(Node node) {
 		nodes.add(node);
+	}
+	
+	public void removeNode(Node node) {
+		nodes.remove(node);
+	}
+	
+	public Collection<Edge> getOutgoing(Node node) {
+		return outgoing.get(node);
 	}
 	
 	public String getSymbol(Node node) {
@@ -44,8 +60,7 @@ public class Network {
 	}
 	
 	public Collection<Node> getFirstNeighbours(Node node) {
-		Collection<Node> result = neighbours.get(node);
-		return result == null ? new HashSet<Node>() : result;
+		return neighbours.get(node);
 	}
 	
 	public Collection<Node> getNodes() {

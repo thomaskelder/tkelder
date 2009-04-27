@@ -83,7 +83,11 @@ public class WalkieTalkie {
 				Xref reporter = row.getXref();
 				if(criterion == null || criterion.evaluate(row.getByName())) {
 					//Significant rpeporter, add gene to set
-					sigXrefs.addAll(gdb.getCrossRefs(reporter, par.getDataSource()));
+					if(reporter.getDataSource() != par.getDataSource()) {
+						sigXrefs.addAll(gdb.getCrossRefs(reporter, par.getDataSource()));
+					} else {
+						sigXrefs.add(reporter);
+					}
 				}
 			}
 		}

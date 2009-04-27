@@ -19,7 +19,6 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.indexer.RelationshipIndexer;
-import org.pathvisio.indexer.RelationshipIndexer.Relation;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.model.PathwayElement;
 import org.pathvisio.util.FileUtils;

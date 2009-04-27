@@ -3,7 +3,10 @@ package pps.interaction;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 import org.bridgedb.DataSource;
 import org.kohsuke.args4j.CmdLineException;
@@ -42,6 +45,9 @@ public class NeighbourPathwayExporter {
 	@Option(name = "-symbols", required = false, usage = "An attribute file containing the gene symbols.")
 	private File symbolFile;
 	
+	@Option(name = "-minScore", required = false, usage = "Minimum score an interaction should have to be included.")
+	private int minScore = 0;
+	
 	public static void main(String[] args) {
 		PreferenceManager.init();
 		Logger.log.setLogLevel(true, true, true, true, true, true);
@@ -67,13 +73,30 @@ public class NeighbourPathwayExporter {
 			}
 			
 			DataSource ds = DataSource.getBySystemCode(main.sysCode);
-			writeGpml(network, main.outPath, main.minCon, ds);
+			writeGpml(network, main.outPath, main.minCon, ds, main.minScore);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	static void writeGpml(Network network, File outPath, int minCon, DataSource targetDs) throws ConverterException {
+	static void writeGpml(Network network, File outPath, int minCon, DataSource targetDs, int minScore) throws ConverterException {
+		int nrPathways = 0;
+		
+		//Clean up network based on minimum score
+		for(Node n : new HashSet<Node>(network.getNodes())) {
+			for(Edge e : new HashSet<Edge>(network.getOutgoing(n))) {
+				int score = Integer.parseInt(e.getType()); //Assumes type is score
+				if(score <= minScore) {
+					network.removeEdge(e);
+				}
+			}
+			if(network.getFirstNeighbours(n).size() >= minCon) {
+				nrPathways++;
+			}
+		}
+		
+		Logger.log.trace(nrPathways + " pathways to be exported.");
+		
 		for(Node n : network.getNodes()) {
 			if(network.getFirstNeighbours(n).size() >= minCon) {
 				Pathway p = toPathway(network, n, targetDs);
@@ -81,7 +104,9 @@ public class NeighbourPathwayExporter {
 						new File(outPath, p.getMappInfo().getMapInfoName() + ".gpml"), 
 						true
 				);
-				p.writeToSvg(new File(outPath, p.getMappInfo().getMapInfoName() + ".svg"));
+				p.writeToSvg(
+						new File(outPath, p.getMappInfo().getMapInfoName() + ".svg")
+				);
 			}
 		}
 	}
@@ -115,9 +140,8 @@ public class NeighbourPathwayExporter {
 		pathway.add(mainElm);
 		
 		//Add the neighbours
-		double nx = 0;
-		double cx = DATANODE_SPACING + dnWidth / 2;
-		double cy = 2 * DATANODE_SPACING + 2 * dnHeight;
+		GridLayout layout = new GridLayout(NR_DATANODE_X);
+		List<PathwayElement> layoutElements = new ArrayList<PathwayElement>();
 		
 		for(Node childNode : neighbours) {
 			PathwayElement childElm = PathwayElement.createPathwayElement(ObjectType.DATANODE);
@@ -129,21 +153,11 @@ public class NeighbourPathwayExporter {
 			sym = network.getSymbol(childNode);
 			if(sym != null) childElm.setTextLabel(sym);
 			
-			childElm.setMCenterX(cx);
-			childElm.setMCenterY(cy);
-			
 			pathway.add(childElm);
-			
-			if(nx >= NR_DATANODE_X) {
-				cx = DATANODE_SPACING + dnWidth / 2;
-				cy += dnHeight + DATANODE_SPACING;
-				nx = 0;
-			} else {
-				cx += DATANODE_SPACING + dnWidth;
-				nx++;
-			}
+			layoutElements.add(childElm);
 		}
 		
+		layout.layout(layoutElements, DATANODE_SPACING, 2 * DATANODE_SPACING + dnHeight);
 		return pathway;
 	}
 }

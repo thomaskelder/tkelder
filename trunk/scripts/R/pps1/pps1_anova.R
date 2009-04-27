@@ -63,3 +63,16 @@ save(anovaData, qvalues, pvalues, file = paste(outPath, "pps1_anova_pqvalues.Rd"
 txtData = cbind(entrezIds, avgData, relData, anovaData, maxAbsFc)
 write.table(txtData, file = paste(outPath, "pps1_expr_anova.txt", sep=""),
 	row.names = FALSE, sep = "\t", quote = FALSE, na = "NaN")
+	
+# Venn diagram to compare nr of sig genes
+png(file = paste(outPath, "venn_anova_q0.01.png", sep=""),
+		pointsize = 30, width = 1500, height = 1500)
+		
+vennCols = paste("anova_qvalue_", levels(tissueFactor), sep="")
+vennDiagram(
+	anovaData[,vennCols] <= 0.01, main = "anova, q <= 0.01",
+	names = levels(tissueFactor)
+)
+dev.off()
+)
+

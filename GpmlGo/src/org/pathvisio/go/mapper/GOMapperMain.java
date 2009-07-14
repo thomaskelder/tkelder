@@ -8,13 +8,16 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
+import org.bridgedb.DataSource;
+import org.bridgedb.bio.BioDataSource;
+import org.bridgedb.bio.Organism;
+import org.bridgedb.rdb.DBConnector;
+import org.bridgedb.rdb.IDMapperRdb;
+import org.bridgedb.rdb.SimpleGdbFactory;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.pathvisio.data.DBConnDerby;
-import org.pathvisio.data.DBConnector;
-import org.pathvisio.data.Gdb;
-import org.pathvisio.data.SimpleGdbFactory;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.go.GOAnnotation;
 import org.pathvisio.go.GOAnnotationFactory;
@@ -24,12 +27,11 @@ import org.pathvisio.go.GOTree;
 import org.pathvisio.go.PathwayAnnotation;
 import org.pathvisio.go.XrefAnnotation;
 import org.pathvisio.go.gui.GOExplorer;
-import org.pathvisio.model.DataSource;
 import org.pathvisio.util.FileUtils;
 
 public class GOMapperMain {
-	@Option(name = "-action", required = true, usage = "The action you want the script to perform " +
-			"(see ACTION_* constants in JavaDoc for details)")
+	@Option(name = "-action", required = true, usage = "The action you want the script to perform, " +
+			"map, prune or gui (see ACTION_* constants in JavaDoc for details)")
 	private String action;
 
 	@Option(name = "-go", required = true, usage = "The GO tree file (obo flat format)")
@@ -37,6 +39,9 @@ public class GOMapperMain {
 	
 	@Option(name = "-annot", usage = "A GO Annotation file, containing two columns: GO-ID, Ensembl ID")
 	private File annotFile;
+	
+	@Option(name = "-org", required = true, usage = "The organism you are mapping")
+	private String org;
 	
 	@Option(name = "-gdb", usage = "The Gene Database for mapping the pathway genes to Ensembl")
 	private File gdbFile;
@@ -65,6 +70,7 @@ public class GOMapperMain {
 	private boolean useFileName = false;
 	
 	public static void main(String[] args) {
+		BioDataSource.init();
 		GOMapperMain main = new GOMapperMain();
 		CmdLineParser parser = new CmdLineParser(main);
 		try {
@@ -76,7 +82,7 @@ public class GOMapperMain {
 		}
 		
 		try {
-			Gdb gdb = null;
+			IDMapperRdb gdb = null;
 			if(main.gdbFile != null) {
 				gdb = SimpleGdbFactory.createInstance(
 					main.gdbFile.getAbsolutePath(), new DBConnDerby(), DBConnector.PROP_NONE
@@ -87,16 +93,30 @@ public class GOMapperMain {
 
 			goMapper.setUseFileNames(main.useFileName);
 			
+			Organism org = Organism.fromLatinName(main.org);
+			if(org == null) {
+				org = Organism.fromCode(main.org);
+			}
+			if(org == null) {
+				org = Organism.fromShortName(main.org);
+			}
+			
 			GOAnnotations geneAnnot = null;
 			if(main.annotFile != null) {
+				final DataSource ds = org == null ? BioDataSource.ENSEMBL : DataSource.getBySystemCode("En" + org.code());
 				geneAnnot = GOAnnotations.read(main.annotFile, goTree, new GOAnnotationFactory() {
 					public GOAnnotation createAnnotation(String id, String evidence) {
-						return new XrefAnnotation(id, DataSource.ENSEMBL, evidence);
+						return new XrefAnnotation(id, ds, evidence);
 					}
 				});
 			}
 			//Calculated the pathway mappings if needed
 			if(ACTION_MAP_TREE.equals(main.action) || main.mapFile == null) {
+				if(org == null) {
+					fatalParamError(
+							"Invalid organism " + main.org + "; please specify correct -org parameter.");
+				}
+				
 				if(geneAnnot == null) {
 					fatalParamError(
 						"Could not read gene annotations from file " + main.annotFile + "\n" +
@@ -112,7 +132,7 @@ public class GOMapperMain {
 				}
 				List<File> gpmlFiles = FileUtils.getFiles(main.pathwayDir, main.pathwayExt, true);
 				Logger.log.info("Mapping pathways to GO tree");
-				goMapper.calculate(gpmlFiles, gdb, geneAnnot);
+				goMapper.calculate(gpmlFiles, gdb, geneAnnot, org);
 			} else if(main.mapFile != null) {
 				//Read existing mappings
 				goMapper.setPathwayAnnotations(GOAnnotations.read(main.mapFile, goTree, new GOAnnotationFactory() {

@@ -4,7 +4,12 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/PathVisio"/>
 	<classpathentry kind="lib" path="/home/thomas/code/googlerepo/lib-shared/args4j-2.0.10.jar"/>
+	<classpathentry kind="lib" path="lib/bridgedb-bio.jar"/>
+	<classpathentry kind="lib" path="lib/bridgedb.jar"/>
+	<classpathentry kind="lib" path="lib/derby.jar"/>
+	<classpathentry kind="lib" path="lib/jdom.jar"/>
+	<classpathentry kind="lib" path="lib/pathvisio.jar"/>
+	<classpathentry kind="lib" path="lib/resources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

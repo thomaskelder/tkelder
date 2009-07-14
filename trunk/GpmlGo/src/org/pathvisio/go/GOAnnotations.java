@@ -13,13 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.pathvisio.data.DataException;
-import org.pathvisio.data.Gdb;
+import org.bridgedb.DataSource;
+import org.bridgedb.IDMapperException;
+import org.bridgedb.Xref;
+import org.bridgedb.XrefWithSymbol;
+import org.bridgedb.rdb.IDMapperRdb;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.go.mapper.ScoreMatrix;
-import org.pathvisio.model.DataSource;
-import org.pathvisio.model.Xref;
-import org.pathvisio.model.XrefWithSymbol;
 import org.pathvisio.util.PathwayParser;
 import org.pathvisio.util.PathwayParser.ParseException;
 import org.xml.sax.SAXException;
@@ -80,7 +80,7 @@ public class GOAnnotations {
 		out.close();
 	}
 	
-	public void writeXrefs(File outFile, Gdb gdb, DataSource ds) throws ParseException, IOException, DataException, SAXException {
+	public void writeXrefs(File outFile, IDMapperRdb gdb, DataSource ds) throws ParseException, IOException, IDMapperException, SAXException {
 		XMLReader xmlReader = XMLReaderFactory.createXMLReader();
 		Map<GOTerm, Set<String>> xrefMap = new HashMap<GOTerm, Set<String>>();
 		BufferedWriter out = new BufferedWriter(new FileWriter(outFile));

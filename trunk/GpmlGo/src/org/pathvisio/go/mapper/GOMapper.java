@@ -5,8 +5,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.pathvisio.data.DataException;
-import org.pathvisio.data.Gdb;
+import org.bridgedb.DataSource;
+import org.bridgedb.IDMapperException;
+import org.bridgedb.Xref;
+import org.bridgedb.bio.BioDataSource;
+import org.bridgedb.bio.Organism;
+import org.bridgedb.rdb.IDMapperRdb;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.go.GOAnnotation;
 import org.pathvisio.go.GOAnnotations;
@@ -15,9 +19,7 @@ import org.pathvisio.go.GOTree;
 import org.pathvisio.go.PathwayAnnotation;
 import org.pathvisio.go.XrefAnnotation;
 import org.pathvisio.model.ConverterException;
-import org.pathvisio.model.DataSource;
 import org.pathvisio.model.Pathway;
-import org.pathvisio.model.Xref;
 
 public class GOMapper {
 	GOTree goTree;
@@ -48,7 +50,7 @@ public class GOMapper {
 	 * @throws DataException
 	 * @throws ConverterException
 	 */
-	public void calculate(List<File> gpmlFiles, Gdb gdb, GOAnnotations geneAnnotations) throws DataException, ConverterException {
+	public void calculate(List<File> gpmlFiles, IDMapperRdb gdb, GOAnnotations geneAnnotations, Organism org) throws IDMapperException, ConverterException {
 		pathwayAnnotations = new GOAnnotations();
 		
 		int i = 0;
@@ -63,14 +65,14 @@ public class GOMapper {
 			} else {
 				id = name + "(" + f.getName() + ")";
 			}
-			mapPathway(id, p, gdb, geneAnnotations);
+			mapPathway(id, p, gdb, geneAnnotations, org);
 		}
 	}
 	
-	private void mapPathway(String id, Pathway p, Gdb gdb, GOAnnotations geneAnnotations) throws DataException {
+	private void mapPathway(String id, Pathway p, IDMapperRdb gdb, GOAnnotations geneAnnotations, Organism org) throws IDMapperException {
 		Set<Xref> pathwayXrefs = new HashSet<Xref>();
 		for(Xref x : p.getDataNodeXrefs()) {
-			pathwayXrefs.addAll(gdb.getCrossRefs(x, DataSource.ENSEMBL));
+			pathwayXrefs.addAll(gdb.getCrossRefs(x, DataSource.getBySystemCode("En" + org.code())));
 		}
 		
 		Logger.log.info(pathwayXrefs.size() + "");

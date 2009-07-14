@@ -1,7 +1,7 @@
 package org.pathvisio.go;
 
-import org.pathvisio.model.DataSource;
-import org.pathvisio.model.Xref;
+import org.bridgedb.DataSource;
+import org.bridgedb.Xref;
 
 public class XrefAnnotation extends Xref implements GOAnnotation {
 	private String evidence;

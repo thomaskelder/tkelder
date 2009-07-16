@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<project name="bridgedb" default="dest" basedir=".">
+  <target name="clean">
+	<antcall target="_allmodules">
+		<param name="allmodules.target" value="clean"/>
+	</antcall>
+  </target>
+
+  <target name="jar">
+	<antcall target="_allmodules">
+		<param name="allmodules.target" value="jar"/>
+	</antcall>
+  </target>
+  
+    <target name="dest">
+	<antcall target="_allmodules">
+		<param name="allmodules.target" value="dest"/>
+	</antcall>
+  </target>
+  
+  <!-- ant "subroutine" that calls all modules -->
+  <target name="_allmodules">
+	<ant dir="RainbowNodes" target="${allmodules.target}"/>
+	<ant dir="WalkieTalkie" target="${allmodules.target}"/>
+	<ant dir="PVTools" target="${allmodules.target}"/>
+  </target>
+</project>

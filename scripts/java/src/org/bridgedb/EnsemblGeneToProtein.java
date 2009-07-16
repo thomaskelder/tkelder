@@ -5,6 +5,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.bridgedb.bio.BioDataSource;
+import org.bridgedb.rdb.DBConnector;
+import org.bridgedb.rdb.DataDerby;
+import org.bridgedb.rdb.SimpleGdb;
+import org.bridgedb.rdb.SimpleGdbFactory;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -57,8 +62,9 @@ public class EnsemblGeneToProtein {
 	 * @param gdbFile
 	 * @throws DataException
 	 * @throws IOException 
+	 * @throws IDMapperException 
 	 */
-	public static void createGdb(File martFile, File gdbFile) throws DataException, IOException {
+	public static void createGdb(File martFile, File gdbFile) throws IOException, IDMapperException {
 		Logger.log.setLogLevel(true, true, true, true, true, true);
 		registerEnspDataSource();
 		
@@ -80,7 +86,7 @@ public class EnsemblGeneToProtein {
 				continue;
 			}
 			
-			Xref gene = new Xref(cols[0], DataSource.ENSEMBL);
+			Xref gene = new Xref(cols[0], BioDataSource.ENSEMBL); // ?? TODO: which ensembl
 			Xref protein = new Xref(cols[1], DataSource.getBySystemCode(ENSP_CODE));
 			
 			Logger.log.trace("Adding " + gene + ", " + protein);

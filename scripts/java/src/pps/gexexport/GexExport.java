@@ -5,10 +5,10 @@ import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
-import org.bridgedb.DataException;
 import org.bridgedb.DataSource;
-import org.bridgedb.Gdb;
+import org.bridgedb.IDMapperException;
 import org.bridgedb.Xref;
+import org.bridgedb.rdb.IDMapperRdb;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.gex.ReporterData;
 import org.pathvisio.gex.SimpleGex;
@@ -24,7 +24,7 @@ public class GexExport {
 	
 	public static void exportDelimited(
 			SimpleGex gex, Writer out, String delimiter, 
-			Gdb gdb, DataSource dataSource, List<String> sampleNames) throws DataException, IOException {
+			IDMapperRdb gdb, DataSource dataSource, List<String> sampleNames) throws IDMapperException, IOException {
 		
 		if(sampleNames == null) sampleNames = gex.getSampleNames();
 		//Write headers

@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Pathway xmlns="http://genmapp.org/GPML/2007" Name="Cholesterol Biosynthesis" Data-Source="GenMAPP 2.0" Version="20041203" Author="Michael Lieberman and Ned Mantei" Email="genmapp@gladstone.ucsf.edu" Copyright="2004, Gladstone Institutes" Organism="Mus musculus">
+  <Comment Source="GenMAPP notes">References: Bard, M., Bruner, D. A., Pierson, C. A., Lees, N. D., Biermann, B., Frye, L., Koegel, C., and Barbuch, R. (1996). Cloning and characterization of ERG25, the Saccharomyces cerevisiae gene encoding C-4 sterol methyl oxidase. Proc Natl Acad Sci U S A 93, 186-190.&#xD;
+Gaylor, J. L. (2002). Membrane-bound enzymes of cholesterol synthesis from lanosterol. Biochem Biophys Res Commun 292, 1139-1146.&#xD;
+Li, L., and Kaplan, J. (1996). Characterization of yeast methyl sterol oxidase (ERG25) and identification of a human homologue. J Biol Chem 271, 16927-16933.&#xD;
+Liu, X. Y., Dangel, A. W., Kelley, R. I., Zhao, W., Denny, P., Botcherby, M., Cattanach, B., Peters, J., Hunsicker, P. R., Mallon, A. M., et al. (1999). The gene mutated in bare patches and striated mice encodes a novel 3beta-hydroxysteroid dehydrogenase. Nat Genet 22, 182-187.&#xD;
+Ohashi, M., Mizushima, N., Kabeya, Y., and Yoshimori, T. (2003). Localization of mammalian NAD(P)H steroid dehydrogenase-like protein on lipid droplets. J Biol Chem 278, 36819-36829.&#xD;
+Sagami, H., Korenaga, T., and Ogura, K. (1993). Geranylgeranyl diphosphate synthase catalyzing the single condensation between isopentenyl diphosphate and farnesyl diphosphate. J Biochem (Tokyo) 114, 118-121.&#xD;
+Yoshida, Y., Noshiro, M., Aoyama, Y., Kawamoto, T., Horiuchi, T., and Gotoh, O. (1997). Structural and evolutionary studies on sterol 14-demethylase P450 (CYP51), the most conserved P450 monooxygenase: II. Evolutionary analysis of protein and gene structures. J Biochem (Tokyo) 122, 1122-1128.&#xD;
+</Comment>
+  <Comment Source="GenMAPP remarks">Right click for notes</Comment>
+  <Comment Source="WikiPathways-category">Metabolic Process</Comment>
+<Graphics BoardWidth="13041.0" BoardHeight="9922.5" WindowWidth="13353.0" WindowHeight="11599.0" />
+  <DataNode TextLabel="Hmgcs1" Type="GeneProduct" BackpageHead="Hmgcs1 | 3-hydroxy-3-methylglutaryl-Coenzyme A ..." GraphId="c27">
+    <Graphics Color="Transparent" CenterX="5450.0" CenterY="2150.5" Width="900.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="208715" />
+  </DataNode>
+  <DataNode TextLabel="Hmgcr" Type="GeneProduct" BackpageHead="Hmgcr | 3-hydroxy-3-methylglutaryl-Coenzyme A r..." GraphId="ad4">
+    <Graphics Color="Transparent" CenterX="5450.0" CenterY="3300.5" Width="900.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="15357" />
+  </DataNode>
+  <DataNode TextLabel="Mvk" Type="GeneProduct" BackpageHead="Mvk | mevalonate kinase" GraphId="c29">
+    <Graphics Color="Transparent" CenterX="5450.0" CenterY="4350.5" Width="900.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="17855" />
+  </DataNode>
+  <DataNode TextLabel="Pmvk" Type="GeneProduct" BackpageHead="Pmvk | phosphomevalonate kinase" GraphId="ae4">
+    <Graphics Color="Transparent" CenterX="5450.0" CenterY="5400.5" Width="1100.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="68603" />
+  </DataNode>
+  <DataNode TextLabel="Mvd" Type="GeneProduct" BackpageHead="Mvd | mevalonate (diphospho) decarboxylase" GraphId="d28">
+    <Graphics Color="Transparent" CenterX="5450.0" CenterY="6500.5" Width="900.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="192156" />
+  </DataNode>
+  <DataNode TextLabel="Sqle" Type="GeneProduct" BackpageHead="Sqle | squalene epoxidase" GraphId="ec2">
+    <Graphics Color="Transparent" CenterX="8100.0" CenterY="8500.5" Width="900.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="20775" />
+  </DataNode>
+  <DataNode TextLabel="Dhcr7" Type="GeneProduct" BackpageHead="Dhcr7 | 7-dehydrocholesterol reductase" GraphId="b21">
+    <Graphics Color="Transparent" CenterX="8100.0" CenterY="3100.5" Width="900.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="13360" />
+  </DataNode>
+  <DataNode TextLabel="Idi1" Type="GeneProduct" BackpageHead="Idi1 | isopentenyl-diphosphate delta isomerase" GraphId="cb1">
+    <Graphics Color="Transparent" CenterX="3000.0" CenterY="7250.5" Width="900.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="319554" />
+  </DataNode>
+  <DataNode TextLabel="Fdps" Type="GeneProduct" BackpageHead="Fdps | farnesyl diphosphate synthetase" GraphId="f5d">
+    <Graphics Color="Transparent" CenterX="1150.0" CenterY="7850.5" Width="1100.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="110196" />
+  </DataNode>
+  <DataNode TextLabel="Lss" Type="GeneProduct" BackpageHead="Lss | lanosterol synthase" GraphId="d59">
+    <Graphics Color="Transparent" CenterX="8100.0" CenterY="7200.5" Width="900.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="16987" />
+  </DataNode>
+  <DataNode TextLabel="Fdps" Type="GeneProduct" BackpageHead="Fdps | farnesyl diphosphate synthetase" GraphId="be4">
+    <Graphics Color="Transparent" CenterX="5450.0" CenterY="7850.5" Width="1100.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="110196" />
+  </DataNode>
+  <DataNode TextLabel="Fdft1" Type="GeneProduct" BackpageHead="Fdft1 | farnesyl diphosphate farnesyl transfera..." GraphId="baf">
+    <Graphics Color="Transparent" CenterX="5450.0" CenterY="9150.5" Width="900.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="14137" />
+  </DataNode>
+  <DataNode TextLabel="Cyp51" Type="GeneProduct" BackpageHead="Cyp51 | cytochrome P450 family 51" GraphId="a60">
+    <Graphics Color="Transparent" CenterX="8100.0" CenterY="6050.5" Width="900.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="13121" />
+  </DataNode>
+  <DataNode TextLabel="Sc4mol" Type="GeneProduct" BackpageHead="Sc4mol | sterol-C4-methyl oxidase-like" GraphId="c65">
+    <Graphics Color="Transparent" CenterX="8100.0" CenterY="5650.5" Width="900.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="66234" />
+  </DataNode>
+  <DataNode TextLabel="Nsdhl" Type="GeneProduct" BackpageHead="Nsdhl | NAD(P) dependent steroid dehydrogenase-..." GraphId="a7d">
+    <Comment Source="GenMAPP remarks">NAD(P) dependent steroid dehydrogenase-like</Comment>
+    <Graphics Color="Transparent" CenterX="8100.0" CenterY="5250.5" Width="900.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="18194" />
+  </DataNode>
+  <DataNode TextLabel="Sc5d" Type="GeneProduct" BackpageHead="Sc5d | sterol-C5-desaturase (fungal ERG3 delt..." GraphId="e69">
+    <Graphics Color="Transparent" CenterX="8100.0" CenterY="4250.5" Width="900.0" Height="300.0" />
+    <Xref Database="Entrez Gene" ID="235293" />
+  </DataNode>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="5450.0" y="950.5" Head="Arrow" />
+      <Point x="5450.0" y="1300.5" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="5450.0" y="2750.5" Head="Arrow" />
+      <Point x="5450.0" y="3800.5" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="5450.0" y="3900.5" Head="Arrow" />
+      <Point x="5450.0" y="4800.0" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="5450.0" y="4900.5" Head="Arrow" />
+      <Point x="5450.0" y="5800.0" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="5450.0" y="6100.5" Head="Arrow" />
+      <Point x="5450.0" y="7050.5" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="5450.0" y="7500.5" Head="Arrow" />
+      <Point x="5450.0" y="8350.5" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="1900.0" y="7850.0" Head="Arrow" />
+      <Point x="2550.0" y="7850.0" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="1150.0" y="7350.5" />
+      <Point x="1150.0" y="7850.5" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="3750.0" y="7850.5" Head="Arrow" />
+      <Point x="4700.0" y="7850.0" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="2900.0" y="7250.5" Head="Arrow" />
+      <Point x="2000.0" y="7250.5" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="3750.0" y="7250.5" Head="Arrow" />
+      <Point x="4400.0" y="7250.0" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="5450.0" y="8600.5" />
+      <Point x="5450.0" y="9150.5" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="6200.0" y="9150.0" Head="Arrow" />
+      <Point x="7450.0" y="9150.5" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="8100.0" y="9100.5" Head="Arrow" />
+      <Point x="8100.0" y="8000.5" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="8100.0" y="7700.5" Head="Arrow" />
+      <Point x="8100.0" y="6700.5" />
+    </Graphics>
+  </Line>
+  <Line Style="Broken">
+    <Graphics Color="000000">
+      <Point x="8100.0" y="6400.5" Head="Arrow" />
+      <Point x="8100.0" y="4850.0" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="8100.0" y="4750.5" Head="Arrow" />
+      <Point x="8100.0" y="3750.5" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="8100.0" y="3450.0" Head="Arrow" />
+      <Point x="8100.0" y="2650.0" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="5450.0" y="1700.5" Head="Arrow" />
+      <Point x="5450.0" y="1950.5" />
+    </Graphics>
+  </Line>
+  <Line>
+    <Graphics Color="000000">
+      <Point x="5450.0" y="2400.5" Head="Arrow" />
+      <Point x="5450.0" y="2600.5" />
+    </Graphics>
+  </Line>
+  <Label TextLabel="Fatty Acid Degradation" GraphId="c37">
+    <Graphics FontWeight="Bold" FontSize="180" Color="0000ff" CenterX="5549.5" CenterY="850.5" Width="2690.0" Height="285.0" />
+  </Label>
+  <Label TextLabel="DiMethylally-PP" GraphId="a56">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="1150.0" CenterY="7250.5" Width="1580.0" Height="240.0" />
+  </Label>
+  <Label TextLabel="Geranyl-PP" GraphId="a9f">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="3250.0" CenterY="7850.5" Width="1160.0" Height="240.0" />
+  </Label>
+  <Label TextLabel="trans-trans-farnesyl-pp" GraphId="dda">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="5550.0" CenterY="8500.5" Width="2180.0" Height="240.0" />
+  </Label>
+  <Label TextLabel="Delta-Isopentenyl-5-PP" GraphId="aff">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="5550.0" CenterY="7250.5" Width="2225.0" Height="240.0" />
+  </Label>
+  <Label TextLabel="Mevalonate-5-P" GraphId="f23">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="5550.0" CenterY="4950.5" Width="1550.0" Height="240.0" />
+  </Label>
+  <Label TextLabel="Mevalonate" GraphId="b57">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="5550.0" CenterY="3950.5" Width="1190.0" Height="240.0" />
+  </Label>
+  <Label TextLabel="HMG-CoA" GraphId="afe">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="5550.0" CenterY="2800.5" Width="980.0" Height="240.0" />
+  </Label>
+  <Label TextLabel="Acetyl-CoA" GraphId="bc6">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="5550.0" CenterY="1500.5" Width="1115.0" Height="240.0" />
+  </Label>
+  <Label TextLabel="Lathosterol" GraphId="ee7">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="8100.0" CenterY="4700.5" Width="1145.0" Height="240.0" />
+  </Label>
+  <Label TextLabel="Lanosterol" GraphId="bdd">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="8100.0" CenterY="6550.5" Width="1085.0" Height="240.0" />
+  </Label>
+  <Label TextLabel="Squalene-2,3-Epoxide" GraphId="fbf">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="8100.0" CenterY="7850.5" Width="2165.0" Height="240.0" />
+  </Label>
+  <Label TextLabel="Squalene" GraphId="ce1">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="8100.0" CenterY="9150.5" Width="995.0" Height="240.0" />
+  </Label>
+  <Label TextLabel="Mevalonate-5-PP" GraphId="fa7">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="5550.0" CenterY="5950.5" Width="1685.0" Height="240.0" />
+  </Label>
+  <Label TextLabel="7-dehydro Cholesterol" GraphId="b8e">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="8100.0" CenterY="3600.5" Width="2165.0" Height="240.0" />
+  </Label>
+  <Label TextLabel="Cholesterol" GraphId="bc2">
+    <Graphics FontWeight="Bold" FontSize="150" Color="000000" CenterX="8100.0" CenterY="2500.5" Width="1160.0" Height="240.0" />
+  </Label>
+  <InfoBox CenterX="125.0" CenterY="75.0" />
+  <Legend CenterX="9875.0" CenterY="775.0" />
+</Pathway>

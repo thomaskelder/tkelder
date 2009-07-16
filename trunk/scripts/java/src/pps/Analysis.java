@@ -5,10 +5,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bridgedb.DataDerby;
-import org.bridgedb.DataException;
-import org.bridgedb.Gdb;
-import org.bridgedb.SimpleGdbFactory;
+import org.bridgedb.IDMapperException;
+import org.bridgedb.rdb.DataDerby;
+import org.bridgedb.rdb.IDMapperRdb;
+import org.bridgedb.rdb.SimpleGdb;
+import org.bridgedb.rdb.SimpleGdbFactory;
 import org.pathvisio.Engine;
 import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.gui.swing.PvDesktop;
@@ -62,7 +63,7 @@ public class Analysis {
 			PreferenceManager.init();
 
 			SimpleGex gex = new SimpleGex("" + gexFile, false, new DataDerby());
-			Gdb gdb = SimpleGdbFactory.createInstance("" + gdbFile, new
+			SimpleGdb gdb = SimpleGdbFactory.createInstance("" + gdbFile, new
 					DataDerby(), 0);
 
 			Engine engine = new Engine();
@@ -101,7 +102,7 @@ public class Analysis {
 		}
 	}
 
-	private static StatisticsResult calculateZscore(SimpleGex gex, Gdb gdb, File pwDir, File report, String critStr) throws DataException, IOException {
+	private static StatisticsResult calculateZscore(SimpleGex gex, IDMapperRdb gdb, File pwDir, File report, String critStr) throws IOException, IDMapperException {
 		Criterion crit = new Criterion ();
 		crit.setExpression(critStr, gex.getSampleNames());
 		ZScoreCalculator zsc = new ZScoreCalculator(

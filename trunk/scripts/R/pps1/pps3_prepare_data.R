@@ -1,47 +1,32 @@
-R##
+##
 # Reads the tab delimited text files, exported from the
 # excel files from the nbx using xls2txt.
-# Combines the data into a single matrix (containing all probesets) and
-# calculates averages per timepoint.
+# Combines the data into a single matrix.
 ##
-inPath = "/home/thomas/projects/pps1/filtered_data/"
+inPath = "/home/thomas/projects/pps3/"
 outPath = inPath
 
-tissues = c(
-	"Liver",
-	"Muscle",
-	"WAT"
+types = c(
+	"overall",
+	"time",
+	"diet",
+	"leptin"
 )
 excelFiles = c(
-	"Liver_customCDF_filteredlist",
-	"Muscle_customCDF_bc_filteredlist",
-	"WAT 38samples_customCDF_filteredlist"
+	"PPS3 Leptin Module Proteomics Pathways by Grahams statistic.xls_0.txt",
+	"PPS3 Leptin Module Proteomics Pathways by Grahams statistic.xls_1.txt",
+	"PPS3 Leptin Module Proteomics Pathways by Grahams statistic.xls_2.txt",
+	"PPS3 Leptin Module Proteomics Pathways by Grahams statistic.xls_3.txt"
 )
-names(excelFiles) = tissues
-
-## Read the excel files
-#Files are converted with naming scheme fn.xls -> fn.xls_sheetnr.txt
-## Specific properties of these excel files we have to deal with....:-(
-#- First sheet contains log2 values (sheetnr =  0)
-#- First row is empty or contains comments
-#- Second row contains time headers
-## Inconsistensies of these excel files we have to deal with....:-(
-#- Only for WAT second row contains animal ids (?) and third contains times
-#- First column are probeset ids (use as row names)
-#- Last column contains t0 average and should be ignored
-#- Before last column for Muscle contains expr > 5 count
+names(excelFiles) = types
 
 rawData = list()
-for(tis in tissues) {
-	skip = 2
-	if(tis == "WAT") skip = 3
+for(t in types) {
+	skip = 1
 	data = read.delim(
-		paste(inPath, excelFiles[[tis]], ".xls_0.txt", sep=""), 
-		as.is = TRUE, skip = skip, row.names = 1
+		paste(inPath, excelFiles[[t]], sep=""), 
+		as.is = TRUE, skip = skip, row.names = 11
 	)
-	truncateCol = 1
-	if(tis == "Muscle") truncateCol = 2
-	rawData[[tis]] = data[,1:(ncol(data) - truncateCol)]
 }
 
 ## Copy to a unified matrix (all probesets in either one of the three)

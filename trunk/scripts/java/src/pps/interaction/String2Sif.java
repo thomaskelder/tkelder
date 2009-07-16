@@ -8,14 +8,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.bridgedb.DataDerby;
-import org.bridgedb.DataException;
 import org.bridgedb.DataSource;
 import org.bridgedb.EnsemblGeneToProtein;
-import org.bridgedb.Gdb;
-import org.bridgedb.SimpleGdb;
-import org.bridgedb.SimpleGdbFactory;
+import org.bridgedb.IDMapperException;
 import org.bridgedb.Xref;
+import org.bridgedb.bio.BioDataSource;
+import org.bridgedb.rdb.DataDerby;
+import org.bridgedb.rdb.IDMapperRdb;
+import org.bridgedb.rdb.SimpleGdb;
+import org.bridgedb.rdb.SimpleGdbFactory;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -90,9 +91,10 @@ public class String2Sif {
 	/**
 	 * Import from a STRING database txt file
 	 * @throws IOException 
+	 * @throws IDMapperException 
 	 * @throws DataException 
 	 */
-	public static Network fromStringDb(BufferedReader in, SimpleGdb gdb) throws IOException, DataException {
+	public static Network fromStringDb(BufferedReader in, SimpleGdb gdb) throws IOException, IDMapperException {
 		Network network = new Network();
 
 		Multimap<Xref, Xref> xrefCache = new HashMultimap<Xref, Xref>();
@@ -112,8 +114,8 @@ public class String2Sif {
 			if(gdb != null) {
 				Xref idx1 = new Xref(id1, enspDs);
 				Xref idx2 = new Xref(id2, enspDs);
-				for(Xref x1 : getCachedXrefs(idx1, xrefCache, gdb, DataSource.ENSEMBL)) {
-					for(Xref x2 : getCachedXrefs(idx2, xrefCache, gdb, DataSource.ENSEMBL)) {
+				for(Xref x1 : getCachedXrefs(idx1, xrefCache, gdb, BioDataSource.ENTREZ_GENE)) {
+					for(Xref x2 : getCachedXrefs(idx2, xrefCache, gdb, BioDataSource.ENTREZ_GENE)) {
 						Node n1 = Node.getInstance(x1.getId());
 						Node n2 = Node.getInstance(x2.getId());
 						network.addEdge(
@@ -137,12 +139,12 @@ public class String2Sif {
 		Logger.log.trace("Network created: " + size + " nodes.");
 		for(Node n : network.getNodes()) {
 			Logger.log.trace("Setting gene symbol for " + i++ + " / " + size);
-			network.setSymbol(n, gdb.getGeneSymbol(new Xref(n.getId(), DataSource.ENSEMBL)));
+			network.setSymbol(n, gdb.getGeneSymbol(new Xref(n.getId(), BioDataSource.ENTREZ_GENE)));
 		}
 		return network;
 	}
 	
-	private static Collection<Xref> getCachedXrefs(Xref x, Multimap<Xref, Xref> cache, Gdb gdb, DataSource ds) throws DataException {
+	private static Collection<Xref> getCachedXrefs(Xref x, Multimap<Xref, Xref> cache, IDMapperRdb gdb, DataSource ds) throws IDMapperException {
 		Collection<Xref> xcache = cache.get(x);
 		if(xcache.size() == 0) {
 			cache.putAll(x, xcache = gdb.getCrossRefs(x, ds));

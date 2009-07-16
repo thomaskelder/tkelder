@@ -9,11 +9,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.bridgedb.DataException;
 import org.bridgedb.DataSource;
-import org.bridgedb.Gdb;
+import org.bridgedb.IDMapperException;
 import org.bridgedb.Xref;
 import org.bridgedb.XrefWithSymbol;
+import org.bridgedb.bio.BioDataSource;
+import org.bridgedb.rdb.IDMapperRdb;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.gex.ReporterData;
 import org.pathvisio.gex.SimpleGex;
@@ -26,7 +27,7 @@ import com.google.common.collect.SetMultimap;
 public class WalkieTalkie {
 	private static final String EDGE = "in_pathway";
 
-	private Gdb gdb;
+	private IDMapperRdb gdb;
 	private SimpleGex gex;
 	private Criterion criterion;
 	private Collection<PathwayInfo> pathways;
@@ -37,7 +38,7 @@ public class WalkieTalkie {
 	SetMultimap<PathwayInfo, Xref> pathway2xref;
 	SetMultimap<Xref, PathwayInfo> xref2pathway;
 
-	public WalkieTalkie(Parameters par, Criterion crit, Collection<PathwayInfo> pathways, Gdb gdb, SimpleGex gex) throws DataException, CriterionException {
+	public WalkieTalkie(Parameters par, Criterion crit, Collection<PathwayInfo> pathways, IDMapperRdb gdb, SimpleGex gex) throws CriterionException, IDMapperException {
 		this.gdb = gdb;
 		this.gex = gex;
 		this.criterion = crit;
@@ -47,7 +48,7 @@ public class WalkieTalkie {
 		findPathwayMappings();
 	}
 
-	private void findPathwayMappings() throws DataException {
+	private void findPathwayMappings() throws IDMapperException {
 		//Create mappings
 		pathway2xref = new HashMultimap<PathwayInfo, Xref>();
 		xref2pathway = new HashMultimap<Xref, PathwayInfo>();
@@ -74,7 +75,7 @@ public class WalkieTalkie {
 		}
 	}
 
-	private void findSigXrefs() throws DataException, CriterionException {
+	private void findSigXrefs() throws CriterionException, IDMapperException {
 		sigXrefs = new HashSet<Xref>();
 		if(gex != null) {
 			//Collect all significant genes in the dataset
@@ -100,7 +101,7 @@ public class WalkieTalkie {
 	 * @throws CriterionException 
 	 * @throws IOException 
 	 */
-	public void writeSif(Writer out, Collection<PathwayInfo> filterPathways) throws DataException, CriterionException, IOException {
+	public void writeSif(Writer out, Collection<PathwayInfo> filterPathways) throws CriterionException, IOException {
 		Logger.log.info(sigXrefs.size() + " significant reporters");
 
 		SetMultimap<Xref, PathwayInfo> filtered = new HashMultimap<Xref, PathwayInfo>();
@@ -111,9 +112,11 @@ public class WalkieTalkie {
 			Set<PathwayInfo> excludePathways = new HashSet<PathwayInfo>(pathways);
 			for(PathwayInfo pwi : filterPathways) {
 				excludePathways.remove(pwi);
-				for(Xref xref : pathway2xref.get(pwi)) {
-					for(PathwayInfo linkPwi : xref2pathway.get(xref)) {
-						excludePathways.remove(linkPwi);
+				if(par.firstNeighbours) {
+					for(Xref xref : pathway2xref.get(pwi)) {
+						for(PathwayInfo linkPwi : xref2pathway.get(xref)) {
+							excludePathways.remove(linkPwi);
+						}
 					}
 				}
 			}
@@ -144,7 +147,7 @@ public class WalkieTalkie {
 		}
 	}
 
-	public void writeLabelAttributes(Writer out) throws IOException, DataException {
+	public void writeLabelAttributes(Writer out) throws IOException {
 		out.append("label\n");
 		for(Xref x : sigXrefs) {
 			String symbol = symbols.get(x);
@@ -187,18 +190,23 @@ public class WalkieTalkie {
 		 * gene needs to be included.
 		 */
 		private int minGeneConnections = 2;
-		private DataSource dataSource = DataSource.ENTREZ_GENE;
-
+		private DataSource dataSource = BioDataSource.ENTREZ_GENE;
+		private boolean firstNeighbours = false;
+		
 		private Parameters() {}
 		static Parameters create() { return new Parameters(); }
 		Parameters minGeneConnections(int m) { minGeneConnections = m; return this; }
 		Parameters dataSource(DataSource ds) { dataSource = ds; return this; }
-
+		Parameters firstNeighbours(boolean n) { firstNeighbours = n; return this; }
+		
 		DataSource getDataSource() {
 			return dataSource;
 		}
 		int getMinGeneConnections() {
 			return minGeneConnections;
+		}
+		boolean getFirstNeighbours() {
+			return firstNeighbours;
 		}
 	}
 

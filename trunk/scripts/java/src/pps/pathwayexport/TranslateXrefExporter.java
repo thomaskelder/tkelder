@@ -7,11 +7,11 @@ import java.io.Writer;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.bridgedb.DataDerby;
 import org.bridgedb.DataSource;
-import org.bridgedb.Gdb;
-import org.bridgedb.SimpleGdbFactory;
 import org.bridgedb.Xref;
+import org.bridgedb.rdb.DataDerby;
+import org.bridgedb.rdb.IDMapperRdb;
+import org.bridgedb.rdb.SimpleGdbFactory;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -53,7 +53,7 @@ public class TranslateXrefExporter {
 		}
 
 		try {
-			Gdb gdb = SimpleGdbFactory.createInstance("" + main.gdbFile, new DataDerby(), 0);
+			IDMapperRdb gdb = SimpleGdbFactory.createInstance("" + main.gdbFile, new DataDerby(), 0);
 			DataSource ds = DataSource.getBySystemCode(main.sysCode);
 			if(ds == null) {
 				Logger.log.error("Couldn't find database system for code '" + main.sysCode + "'");

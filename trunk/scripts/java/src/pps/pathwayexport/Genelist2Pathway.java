@@ -8,12 +8,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.bridgedb.DataDerby;
-import org.bridgedb.DataException;
 import org.bridgedb.DataSource;
-import org.bridgedb.SimpleGdb;
-import org.bridgedb.SimpleGdbFactory;
+import org.bridgedb.IDMapperException;
 import org.bridgedb.Xref;
+import org.bridgedb.rdb.DataDerby;
+import org.bridgedb.rdb.SimpleGdb;
+import org.bridgedb.rdb.SimpleGdbFactory;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -122,13 +122,13 @@ public class Genelist2Pathway {
 		}
 	}
 
-	private static String getSymbol(Xref x, SimpleGdb gdb) throws DataException {
+	private static String getSymbol(Xref x, SimpleGdb gdb) throws IDMapperException {
 		String symbol = x.getId();
 		if(gdb != null) {
 			String gs = gdb.getGeneSymbol(x);
 			if(gs != null) symbol = gs;
 			else { //Try to get via ensembl
-				List<Xref> cross = gdb.getCrossRefs(x, DataSource.ENSEMBL);
+				List<Xref> cross = gdb.getCrossRefs(x);
 				if(cross != null && cross.size() > 0) {
 					gs = gdb.getGeneSymbol(cross.get(0));
 					if(gs != null) symbol = gs;

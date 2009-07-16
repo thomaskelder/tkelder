@@ -5,8 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.bridgedb.DataException;
-import org.bridgedb.Gdb;
+import org.bridgedb.IDMapperException;
+import org.bridgedb.rdb.IDMapperRdb;
 import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.model.ConverterException;
 import org.pathvisio.model.Pathway;
@@ -22,17 +22,17 @@ import org.pathvisio.visualization.VisualizationManager;
  * @author thomas
  */
 public class StatisticsHtmlExporter {
-	Gdb gdb;
+	IDMapperRdb gdb;
 	VisualizationManager visMgr;
 	SimpleGex gex;
 
-	public StatisticsHtmlExporter(Gdb gdb, VisualizationManager visMgr, SimpleGex gex) {
+	public StatisticsHtmlExporter(IDMapperRdb gdb, VisualizationManager visMgr, SimpleGex gex) {
 		this.gdb = gdb;
 		this.visMgr = visMgr;
 		this.gex = gex;
 	}
 
-	public void export(File htmlPath, StatisticsResult result, Visualization visualization) throws ConverterException, IOException, DataException {
+	public void export(File htmlPath, StatisticsResult result, Visualization visualization) throws ConverterException, IOException, IDMapperException {
 		visMgr.setActiveVisualization(visualization);
 		HtmlExporter exporter = new HtmlExporter(gdb, visMgr, gex);
 

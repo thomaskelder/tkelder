@@ -9,9 +9,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.bridgedb.DataDerby;
-import org.bridgedb.Gdb;
-import org.bridgedb.SimpleGdbFactory;
+import org.bridgedb.DataSource;
+import org.bridgedb.bio.BioDataSource;
+import org.bridgedb.rdb.DataDerby;
+import org.bridgedb.rdb.IDMapperRdb;
+import org.bridgedb.rdb.SimpleGdbFactory;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -20,6 +22,7 @@ import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.plugins.statistics.StatisticsPathwayResult;
 import org.pathvisio.plugins.statistics.StatisticsResult;
 import org.pathvisio.plugins.statistics.ZScoreCalculator;
+import org.pathvisio.preferences.PreferenceManager;
 import org.pathvisio.util.FileUtils;
 import org.pathvisio.util.PathwayParser;
 import org.pathvisio.visualization.colorset.Criterion;
@@ -34,7 +37,7 @@ public class WalkieTalkieMain {
 
 	@Option(name = "-mc", required = false, usage = "The minimum number of pathways a gene should connect" +
 	" to in order to be included in the network.")
-	private int minConnections = 2;
+	private int minConnections = 1;
 
 	@Option(name = "-gex", required = false, usage = "The dataset to get the genes from.")
 	private File gexFile;	
@@ -57,17 +60,25 @@ public class WalkieTalkieMain {
 	@Option(name = "-attrLabel", required = false, usage = "The file to write label attributes to.")
 	private File attrLabelFile;
 	
-	@Option(name = "-filterPathways", required = false, usage = "Only show these pathways (specify file names, without path) and their neighbours.")
+	@Option(name = "-filterPathways", required = false, usage = "Only show these pathways (specify file names, without path).")
 	private List<String> filterPathways = new ArrayList<String>();
+	
+	@Option(name = "-firstNeighbours", required = false, usage = "Use in combination with -filterPathways, to also include the first neighbours of these pathways.")
+	boolean firstNeighbours;
 	
 	@Option(name = "-filterZscore", required = false, usage = "Only include pathways with a z-score >= the given value.")
 	private double filterZscore = Double.MIN_VALUE;
+	
+	@Option(name = "-dataSource", required = false, usage = "Translate everything to the specified datasource.")
+	private String dataSource;
 	
 	private WalkieTalkieMain() {
 
 	}
 
 	public static void main(String[] args) throws CriterionException {
+		BioDataSource.init();
+		PreferenceManager.init();
 		Logger.log.setLogLevel(true, true, true, true, true, true);
 
 		WalkieTalkieMain main = new WalkieTalkieMain();
@@ -85,7 +96,7 @@ public class WalkieTalkieMain {
 			if(main.gexFile != null) {
 				gex = new SimpleGex("" + main.gexFile, false, new DataDerby());
 			}
-			Gdb gdb = SimpleGdbFactory.createInstance("" + main.gdbFile, new DataDerby(), 0);
+			IDMapperRdb gdb = SimpleGdbFactory.createInstance("" + main.gdbFile, new DataDerby(), 0);
 			
 			//Read the pathway information
 			XMLReader xmlReader = XMLReaderFactory.createXMLReader();
@@ -123,9 +134,18 @@ public class WalkieTalkieMain {
 				}
 			}
 			
+			Parameters par = Parameters.create()
+			.minGeneConnections(main.minConnections)
+			.firstNeighbours(main.firstNeighbours);
+			
+			if(main.dataSource != null) {
+				DataSource ds = DataSource.getBySystemCode(main.dataSource);
+				if(ds == null) ds = DataSource.getByFullName(main.dataSource);
+				par = par.dataSource(ds);
+			}
+			
 			WalkieTalkie wt = new WalkieTalkie(
-					Parameters.create()
-					.minGeneConnections(main.minConnections), 
+					par, 
 					crit, 
 					pathways, 
 					gdb, 

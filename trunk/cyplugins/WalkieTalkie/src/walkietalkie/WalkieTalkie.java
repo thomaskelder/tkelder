@@ -250,11 +250,14 @@ public class WalkieTalkie {
 		}
 
 		public int hashCode() {
-			return (xrefs.toString() + name.toString()).hashCode();
+			return file.hashCode();
 		}
 
 		public boolean equals(Object obj) {
-			return file.equals(obj);
+			if(obj instanceof PathwayInfo) {
+				return file.equals(((PathwayInfo)obj).file);
+			}
+			return false;
 		}
 	}
 }

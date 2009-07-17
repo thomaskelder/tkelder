@@ -4,6 +4,7 @@ import org.pathvisio.visualization.colorset.*;
 import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.plugins.statistics.*;
 import cytoscape.*;
+import cytoscape.visual.*;
 
 //!! Before running this example, please run walkietalkie.groovy first !!
 /*
@@ -45,4 +46,5 @@ String attrName = "zscore-p0.05";
 PVToolsPlugin.loadZscores(stats, attrName);
 
 //Create a visual style that scales the pathway nodes by z-score
-PVToolsPlugin.setZscoreVisualStyle(Cytoscape.getCurrentNetworkView().getVisualStyle(), attrName, 4, 10, 80);
+VisualStyle vis = PVToolsPlugin.createZscoreVisualStyle(Cytoscape.getCurrentNetworkView().getVisualStyle(), attrName, 4, 10, 80);
+Cytoscape.getVisualMappingManager().setVisualStyle(vis);

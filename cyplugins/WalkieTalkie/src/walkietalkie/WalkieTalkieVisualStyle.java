@@ -92,6 +92,7 @@ public class WalkieTalkieVisualStyle extends VisualStyle {
 	
 	void setColorMapping() {
 		eac.getDefaultAppearance().set(VisualPropertyType.EDGE_COLOR, new Color(153, 153, 153));
+		nac.getDefaultAppearance().set(VisualPropertyType.NODE_FILL_COLOR, new Color(153, 153, 255));
 		
 		DiscreteMapping colorMapping = new DiscreteMapping(
 				nac.getDefaultAppearance().get(VisualPropertyType.NODE_FILL_COLOR),

@@ -14,7 +14,7 @@ import org.pathvisio.Engine;
 import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.gui.swing.PvDesktop;
 import org.pathvisio.gui.swing.SwingEngine;
-import org.pathvisio.plugins.statistics.StatisticsHtmlExporter;
+import org.pathvisio.plugins.statistics.StatisticsExporter;
 import org.pathvisio.plugins.statistics.StatisticsResult;
 import org.pathvisio.plugins.statistics.ZScoreCalculator;
 import org.pathvisio.preferences.PreferenceManager;
@@ -77,7 +77,7 @@ public class Analysis {
 				visByName.put(vis.getName(), vis);
 			}
 
-			StatisticsHtmlExporter exporter = new StatisticsHtmlExporter(
+			StatisticsExporter exporter = new StatisticsExporter(
 					gdb, pvDesktop.getVisualizationManager(), gex
 			);
 			

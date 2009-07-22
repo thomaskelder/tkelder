@@ -19,6 +19,7 @@ VisualStyle vsSource = Cytoscape.getVisualMappingManager().getVisualStyle();
 VisualStyle vs = new VisualStyle(vsSource);
 vs.setName(vsSource.getName() + "_" + attr);
 
+Color centerColor = Color.WHITE;
 double minValue = -2;
 Color minColor = Color.GREEN;
 double maxValue = 2;
@@ -27,9 +28,11 @@ NodeAppearanceCalculator nac = vs.getNodeAppearanceCalculator();
 ContinuousMapping cm = new ContinuousMapping(nac.getDefaultAppearance().get(
 		VisualPropertyType.NODE_FILL_COLOR), ObjectMapping.NODE_MAPPING);
 BoundaryRangeValues min = new BoundaryRangeValues(minColor, minColor, minColor);
+BoundaryRangeValues center = new BoundaryRangeValues(centerColor, centerColor, centerColor);
 BoundaryRangeValues max = new BoundaryRangeValues(maxColor, maxColor, maxColor);
 
 cm.addPoint(minValue, min);
+cm.addPoint(0, center);
 cm.addPoint(maxValue, max);
 cm.setControllingAttributeName(attr, Cytoscape.getCurrentNetwork(), true);
 nac.setCalculator(new BasicCalculator(attr, cm, VisualPropertyType.NODE_FILL_COLOR));

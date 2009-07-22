@@ -18,7 +18,7 @@ import PPSGlobals;
 File idmFile = new File("/home/thomas/PathVisio-Data/gene databases/Mm_Derby_20090509.pgdb");
 File pathwayDir = new File("/home/thomas/data/pathways/20090715");
 
-String expression = "[q-value] < 0.05";
+String expression = PPSGlobals.expression;
 
 //Load the ID mapper database
 IDMapperRdb idmapper = PVToolsPlugin.openIDMapper(idmFile);

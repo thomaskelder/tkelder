@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.pathvisio.data.Sample;
-import org.pathvisio.data.SimpleGex;
 import org.pathvisio.debug.Logger;
+import org.pathvisio.gex.Sample;
+import org.pathvisio.gex.SimpleGex;
 
 import edu.mit.broad.genome.math.Matrix;
 import edu.mit.broad.genome.objects.Dataset;

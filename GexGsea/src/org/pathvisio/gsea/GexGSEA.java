@@ -16,17 +16,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.bridgedb.DataSource;
+import org.bridgedb.IDMapperException;
+import org.bridgedb.Xref;
+import org.bridgedb.bio.BioDataSource;
+import org.bridgedb.rdb.DBConnector;
+import org.bridgedb.rdb.DataDerby;
+import org.bridgedb.rdb.IDMapperRdb;
+import org.bridgedb.rdb.SimpleGdbFactory;
 import org.pathvisio.data.DBConnDerby;
-import org.pathvisio.data.DBConnector;
-import org.pathvisio.data.Gdb;
-import org.pathvisio.data.Sample;
-import org.pathvisio.data.SimpleGdb;
-import org.pathvisio.data.SimpleGex;
 import org.pathvisio.debug.Logger;
+import org.pathvisio.gex.Sample;
+import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.model.ConverterException;
-import org.pathvisio.model.DataSource;
 import org.pathvisio.model.Pathway;
-import org.pathvisio.model.Xref;
 
 import edu.mit.broad.genome.alg.gsea.GeneSetScoringTable;
 import edu.mit.broad.genome.alg.gsea.GeneSetScoringTables;
@@ -47,19 +50,19 @@ import edu.mit.broad.xbench.heatmap.GramImagerImpl;
 
 public class GexGSEA {
 	SimpleGex gex;
-	Gdb gdb;
+	IDMapperRdb idMapper;
 	
-	public GexGSEA(Gdb gdb, SimpleGex gex) {
+	public GexGSEA(IDMapperRdb idm, SimpleGex gex) {
 		this.gex = gex;
-		this.gdb = gdb;
+		this.idMapper = idm;
 	}
 	
-	public void setGdb(Gdb gdb) {
-		this.gdb = gdb;
+	public void setGdb(IDMapperRdb idm) {
+		this.idMapper = idm;
 	}
 	
-	public Gdb getGdb() {
-		return gdb;
+	public IDMapperRdb getIDMapper() {
+		return idMapper;
 	}
 	
 	/**
@@ -69,7 +72,7 @@ public class GexGSEA {
 	 * @return True if there is a connection to the gdb and gex, false if not
 	 */
 	public boolean canCreateDataset() {
-		return gdb != null && gdb.isConnected() &&
+		return idMapper != null && idMapper.isConnected() &&
 				gex != null && gex.isConnected();
 	}
 	
@@ -79,7 +82,7 @@ public class GexGSEA {
 	 * @return True if there is a connection to the gdb
 	 */
 	public boolean canCreateGeneSets() {
-		return gdb != null && gdb.isConnected();
+		return idMapper != null && idMapper.isConnected();
 	}
 	
 	public void setGex(SimpleGex gex) {
@@ -166,29 +169,30 @@ public class GexGSEA {
 		);
 	}
 	
-	List<GeneSet> createGeneSets(List<Pathway> pathways) {
+	List<GeneSet> createGeneSets(List<Pathway> pathways, DataSource targetDs) throws IDMapperException {
 		List<GeneSet> sets = new ArrayList<GeneSet>();
 		for(Pathway p : pathways) {
-			sets.add(createGeneSet(p));
+			sets.add(createGeneSet(p, targetDs));
 		}
 		return sets;
 	}
 	
 	/**
-	 * Create a gene set based on ensembl ids
+	 * Create a gene set translated to the given datasource
+	 * @throws IDMapperException 
 	 */
-	private GeneSet createGeneSet(Pathway p) {
+	private GeneSet createGeneSet(Pathway p, DataSource targetDs) throws IDMapperException {
 		Set<String> ensIds = new HashSet<String>();
 		for(Xref xref : p.getDataNodeXrefs()) {
 			Logger.log.info("Adding " + xref);
 			DataSource ds = xref.getDataSource();
 			if(ds != null && xref.getId() != null && !"".equals(xref.getId())) {
-				if(ds == DataSource.ENSEMBL) {
-					Logger.log.info("\tIs ensembl, adding directly");
+				if(ds == targetDs) {
+					Logger.log.info("\tIs target datasource already, no mapping needed");
 					ensIds.add(xref.getId());
 				} else {
 					Logger.log.info("\tGetting ensembl ids");
-					for(Xref cross : gdb.getCrossRefs(xref, DataSource.ENSEMBL)) {
+					for(Xref cross : idMapper.getCrossRefs(xref, targetDs)) {
 						Logger.log.info("\t\tAdding: " + cross);
 						ensIds.add(cross.getId());
 					}
@@ -218,7 +222,7 @@ public class GexGSEA {
 			loadPathways(new File(pwString), pathways);
 
 			DBConnector dbconn = new DBConnDerby();
-			Gdb gdb = new SimpleGdb(gdbName, dbconn, DBConnector.PROP_NONE);
+			IDMapperRdb gdb = SimpleGdbFactory.createInstance("" + gdbName, new DataDerby(), 0);
 			SimpleGex gex = new SimpleGex(gexName, false, dbconn);
 			
 			List<Sample> samples = new ArrayList<Sample>();
@@ -230,7 +234,7 @@ public class GexGSEA {
 			GexGSEA gg = new GexGSEA(gdb, gex);
 			Template template = gg.createTemplate(samples, classes);
 			Dataset dataSet = gg.createDataSet();
-			List<GeneSet> geneSets = gg.createGeneSets(pathways);
+			List<GeneSet> geneSets = gg.createGeneSets(pathways, BioDataSource.UNIPROT);
 			EnrichmentDb edb = gg.doCalculation(dataSet, template, geneSets);
 
 			Calendar cal = Calendar.getInstance();

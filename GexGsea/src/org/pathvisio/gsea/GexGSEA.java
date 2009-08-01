@@ -54,12 +54,13 @@ import edu.mit.broad.xbench.heatmap.GramImagerImpl;
 public class GexGSEA {
 	private IDMapperRdb idMapper;
 	private DataSource targetDs;
-
-	private SimpleGex gex;
-
+	Set<DataSource> targetDsSet;
+	
 	public GexGSEA(IDMapperRdb idMapper, DataSource targetDs) {
 		this.idMapper = idMapper;
-		this.targetDs = targetDs;
+		this.targetDs = targetDs;		
+		targetDsSet = new HashSet<DataSource>();
+		targetDsSet.add(targetDs);
 	}
 
 	/**
@@ -82,7 +83,7 @@ public class GexGSEA {
 			ReporterData row = data.getRow(i);
 			Xref reporter = row.getXref();
 			if(!targetDs.equals(reporter.getDataSource())) { //Map the ids
-				for(Xref x : idMapper.getCrossRefs(reporter, targetDs)) {
+				for(Xref x : idMapper.mapID(reporter, targetDsSet)) {
 					addData(x, transData, nrDataPoints, samples, row);
 				}
 			} else {
@@ -214,7 +215,7 @@ public class GexGSEA {
 			DataSource ds = xref.getDataSource();
 			if(ds != null && xref.getId() != null && !"".equals(xref.getId())) {
 				Logger.log.info("\tGetting cross-references");
-				for(Xref cross : idMapper.getCrossRefs(xref, targetDs)) {
+				for(Xref cross : idMapper.mapID(xref, targetDsSet)) {
 					Logger.log.info("\t\tAdding: " + cross);
 					translatedIds.add(cross.getId());
 				}

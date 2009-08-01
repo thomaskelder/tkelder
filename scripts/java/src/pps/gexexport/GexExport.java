@@ -35,7 +35,7 @@ public class GexExport {
 		}
 		out.append("\n");
 		
-		int maxRow = gex.getMaxRow();
+		int maxRow = gex.getNrRow();
 		
 		for(int i = 0; i < maxRow; i++) {
 			Logger.log.trace("Row " + i + " out of " + maxRow);

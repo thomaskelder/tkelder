@@ -98,7 +98,7 @@ public class AttributeExporter {
 			out.append(s.getName());
 			out.append("\n");
 			//Write values
-			for(int i = 0; i < data.getMaxRow(); i++) {
+			for(int i = 0; i < data.getNrRow(); i++) {
 				ReporterData rdata = data.getRow(i);
 				Object value = rdata.getSampleData(s);
 				out.append(rdata.getXref().getId());

@@ -12,9 +12,9 @@ import java.util.Set;
 import org.bridgedb.DataSource;
 import org.bridgedb.IDMapperException;
 import org.bridgedb.Xref;
-import org.bridgedb.XrefWithSymbol;
 import org.bridgedb.bio.BioDataSource;
 import org.bridgedb.rdb.IDMapperRdb;
+import org.pathvisio.data.XrefWithSymbol;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.gex.ReporterData;
 import org.pathvisio.gex.SimpleGex;
@@ -65,7 +65,7 @@ public class WalkieTalkie {
 			Set<Xref> srcRefs = pwi.getXrefs();
 			for(Xref src : srcRefs) {
 				String symbol = pwi.getSymbol(src);
-				for(Xref ref : gdb.getCrossRefs(src, par.getDataSource())) {
+				for(Xref ref : gdb.mapID(src, par.getDataSourceSet())) {
 					symbols.put(ref, symbol);
 					if(gex == null) {
 						sigXrefs.add(ref);
@@ -84,13 +84,13 @@ public class WalkieTalkie {
 		sigXrefs = new HashSet<Xref>();
 		if(gex != null) {
 			//Collect all significant genes in the dataset
-			for(int i = 0; i < gex.getMaxRow(); i++) {
+			for(int i = 0; i < gex.getNrRow(); i++) {
 				ReporterData row = gex.getRow(i);
 				Xref reporter = row.getXref();
 				if(criterion == null || criterion.evaluate(row.getByName())) {
 					//Significant rpeporter, add gene to set
 					if(reporter.getDataSource() != par.getDataSource()) {
-						sigXrefs.addAll(gdb.getCrossRefs(reporter, par.getDataSource()));
+						sigXrefs.addAll(gdb.mapID(reporter, par.getDataSourceSet()));
 					} else {
 						sigXrefs.add(reporter);
 					}
@@ -197,15 +197,24 @@ public class WalkieTalkie {
 		private int minGeneConnections = 2;
 		private DataSource dataSource = BioDataSource.ENTREZ_GENE;
 		private boolean firstNeighbours = false;
+		Set<DataSource> dsSet;
 		
 		private Parameters() {}
 		static Parameters create() { return new Parameters(); }
 		Parameters minGeneConnections(int m) { minGeneConnections = m; return this; }
-		Parameters dataSource(DataSource ds) { dataSource = ds; return this; }
+		Parameters dataSource(DataSource ds) { 
+			dataSource = ds;
+			dsSet = new HashSet<DataSource>();
+			dsSet.add(ds);
+			return this; 
+		}
 		Parameters firstNeighbours(boolean n) { firstNeighbours = n; return this; }
 		
 		DataSource getDataSource() {
 			return dataSource;
+		}
+		Set<DataSource> getDataSourceSet() {
+			return dsSet;
 		}
 		int getMinGeneConnections() {
 			return minGeneConnections;

@@ -11,8 +11,8 @@ import org.bridgedb.rdb.SimpleGdbFactory;
 import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.plugins.statistics.StatisticsResult;
 import org.pathvisio.preferences.PreferenceManager;
-
-import pps2.StatResultsUtil.WriteZScoreOptions;
+import org.pathvisio.utils.StatResultsUtil;
+import org.pathvisio.utils.StatResultsUtil.FilterZScoreOptions;
 
 public class ZScoreCorrelation {
 	public static void main(String[] args) {

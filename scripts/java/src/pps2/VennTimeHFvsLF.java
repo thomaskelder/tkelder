@@ -2,11 +2,10 @@ package pps2;
 
 import gcharts.GChartsGexVenn;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -17,12 +16,19 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import org.bridgedb.IDMapperException;
+import org.bridgedb.Xref;
 import org.bridgedb.bio.BioDataSource;
 import org.bridgedb.rdb.DataDerby;
 import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.plugins.statistics.Column;
 import org.pathvisio.preferences.PreferenceManager;
+import org.pathvisio.utils.StatResultsUtil;
 import org.pathvisio.visualization.colorset.Criterion.CriterionException;
+
+import pathvisio.venn.GexVennData;
+import pathvisio.venn.ZScoreVennData;
+import venn.BallVennDiagram;
+import venn.VennData;
 
 public class VennTimeHFvsLF {
 
@@ -32,7 +38,7 @@ public class VennTimeHFvsLF {
 		
 		try {
 			VennTimeHFvsLF vd = new VennTimeHFvsLF();
-			//vd.HFvsLF();
+			vd.HFvsLF();
 			vd.HFvsLF_pathway();
 		} catch(Throwable e) {
 			e.printStackTrace();
@@ -42,16 +48,17 @@ public class VennTimeHFvsLF {
 	File outPath = new File("/home/thomas/projects/pps2/stat_results/bigcat/HFvsLF");
 	File gexFile = new File("/home/thomas/projects/pps2/stat_results/pps2_HFvsLF_alltimes.pgex");
 
-	String[] colors = new String[] {
-			"FF9955",
-			"75A4FB",
-			"FFCC33",
-			"7FC659",
-	};
 	String[] labels = new String[] {
 			"t0", "t0.6", "t2", "t48"
 	};
 	
+	Color[] colors = new Color[] {
+			new Color(54, 211, 255, 200),
+			new Color(174, 93, 178, 200),
+			new Color(102, 204, 0, 200),
+			new Color(182, 1, 0, 200),
+	};
+
 	SimpleGex gex;
 
 	public VennTimeHFvsLF() throws IDMapperException {
@@ -59,79 +66,76 @@ public class VennTimeHFvsLF {
 	}
 
 	void HFvsLF() throws IDMapperException, CriterionException, MalformedURLException, IOException {
-		String title = "HF vs LF, q <= 0.05";
+		String title = "Genes with q <= 0.05 for HF vs LF";
 		
 		double q = 0.05;
-		String c1 = "[q_t0] <= " + q;
-		String c2 = "[q_t0.6] <= " + q;
-		String c3 = "[q_t2] <= " + q;
-		String c4 = "[q_t48] <= " + q;
-		String[] criteria = new String[] { c1, c2, c3, c4 };
+		String c0 = "[q_t0] <= " + q;
+		String c1 = "[q_t0.6] <= " + q;
+		String c2 = "[q_t2] <= " + q;
+		String c3 = "[q_t48] <= " + q;
 		
-		GChartsGexVenn gv = new GChartsGexVenn(gex);
-		gv.calculateMatches(criteria);
-		gv.setColors(criteria, colors);
-		gv.setLabels(criteria, labels);
+		VennData<Xref> vdata = GexVennData.create(gex, c0, c1, c2);
+		BallVennDiagram venn = new BallVennDiagram(vdata);
+		venn.setBallColor(vdata.getUnionIndex(0), colors[0]);
+		venn.setBallColor(vdata.getUnionIndex(1), colors[1]);
+		venn.setBallColor(vdata.getUnionIndex(2), colors[2]);
+		venn.setLabels(labels[0], labels[1], labels[2]);
+		venn.setTitle(title);
+		venn.saveImage(new File(outPath, "venn_HFvsLF_t0_0.6_2.png"), "png");
 		
-		BufferedImage venn = gv.createDiagram(title, c1, c2, c3);
-		ImageIO.write(venn, "png", new File(outPath, "venn_HFvsLF_t0_0.6_2.png"));
+		vdata = GexVennData.create(gex, c1, c2, c3);
+		venn = new BallVennDiagram(vdata);
+		venn.setBallColor(vdata.getUnionIndex(0), colors[1]);
+		venn.setBallColor(vdata.getUnionIndex(1), colors[2]);
+		venn.setBallColor(vdata.getUnionIndex(2), colors[3]);
+		venn.setLabels(labels[1], labels[2], labels[3]);
+		venn.setTitle(title);
+		venn.saveImage(new File(outPath, "venn_HFvsLF_t0.6_2_48.png"), "png");
 		
-		venn = gv.createDiagram(title, c2, c3, c4);
-		ImageIO.write(venn, "png", new File(outPath, "venn_HFvsLF_t0.6_2_48.png"));
-		
-		venn = gv.createDiagram(title, c1, c2, c4);
-		ImageIO.write(venn, "png", new File(outPath, "venn_HFvsLF_t0_0.6_48.png"));
-		
-		Writer out = new BufferedWriter(new FileWriter(new File(outPath, "vennMappings.txt")));
-		gv.writeMatchTxt(out);
-		out.close();
+		vdata = GexVennData.create(gex, c0, c2, c3);
+		venn = new BallVennDiagram(vdata);
+		venn.setBallColor(vdata.getUnionIndex(0), colors[0]);
+		venn.setBallColor(vdata.getUnionIndex(1), colors[2]);
+		venn.setBallColor(vdata.getUnionIndex(2), colors[3]);
+		venn.setLabels(labels[0], labels[2], labels[3]);
+		venn.setTitle(title);
+		venn.saveImage(new File(outPath, "venn_HFvsLF_t0_2_48.png"), "png");
 	}
 	
 	void HFvsLF_pathway() throws IOException, IDMapperException, CriterionException {
 		File zscorePath = new File("/home/thomas/projects/pps2/path_results/bigcat/zscore-LFvsHF-time");
-		Map<String, Map<String, Double>> zscores = new HashMap<String, Map<String, Double>>();
-		zscores.put(labels[0], StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t0_all.txt"), Column.ZSCORE));
-		zscores.put(labels[1], StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t0.6_all.txt"), Column.ZSCORE));
-		zscores.put(labels[2], StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t2_all.txt"), Column.ZSCORE));
-		zscores.put(labels[3], StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t48_all.txt"), Column.ZSCORE));
-		
-		GChartsGexVenn gv = new GChartsGexVenn(gex);
-		gv.calculateZScoreMatches(zscores, 2, Double.MAX_VALUE);
-		gv.setColors(labels, colors);
-		gv.setLabels(labels, labels);
+		Map<String, Double> z0 = StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t0_all.txt"), Column.ZSCORE);
+		Map<String, Double> z1 = StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t0.6_all.txt"), Column.ZSCORE);
+		Map<String, Double> z2 = StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t2_all.txt"), Column.ZSCORE);
+		Map<String, Double> z3 = StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t48_all.txt"), Column.ZSCORE);
 		
 		String title = "Pathways with z >= 2 (q <= 0.05)";
+
+		VennData<String> vdata = ZScoreVennData.create(2, z0, z1, z2);
+		BallVennDiagram venn = new BallVennDiagram(vdata);
+		venn.setBallColor(vdata.getUnionIndex(0), colors[0]);
+		venn.setBallColor(vdata.getUnionIndex(1), colors[1]);
+		venn.setBallColor(vdata.getUnionIndex(2), colors[2]);
+		venn.setLabels(labels[0], labels[1], labels[2]);
+		venn.setTitle(title);
+		venn.saveImage(new File(outPath, "venn_HFvsLF_t0_0.6_2_pathway.png"), "png");
 		
-		BufferedImage venn = gv.createDiagram(title, labels[0], labels[1], labels[2]);
-		ImageIO.write(venn, "png", new File(outPath, "venn_HFvsLF_t0_0.6_2_pathways.png"));
+		vdata = ZScoreVennData.create(2, z1, z2, z3);
+		venn = new BallVennDiagram(vdata);
+		venn.setBallColor(vdata.getUnionIndex(0), colors[1]);
+		venn.setBallColor(vdata.getUnionIndex(1), colors[2]);
+		venn.setBallColor(vdata.getUnionIndex(2), colors[3]);
+		venn.setLabels(labels[1], labels[2], labels[3]);
+		venn.setTitle(title);
+		venn.saveImage(new File(outPath, "venn_HFvsLF_t0.6_2_48_pathway.png"), "png");
 		
-		venn = gv.createDiagram(title, labels[1], labels[2], labels[3]);
-		ImageIO.write(venn, "png", new File(outPath, "venn_HFvsLF_t0.6_2_48_pathways.png"));
-		
-		venn = gv.createDiagram(title, labels[0], labels[1], labels[3]);
-		ImageIO.write(venn, "png", new File(outPath, "venn_HFvsLF_t0_0.6_48_pathways.png"));
-		
-//		//P values
-//		Map<String, Map<String, Double>> pvals = new HashMap<String, Map<String, Double>>();
-//		pvals.put(labels[0], StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t0_all.txt"), Column.PERMPVAL));
-//		pvals.put(labels[1], StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t0.6_all.txt"), Column.PERMPVAL));
-//		pvals.put(labels[2], StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t2_all.txt"), Column.PERMPVAL));
-//		pvals.put(labels[3], StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t48_all.txt"), Column.PERMPVAL));
-//		
-//		double p = 0.01;
-//		gv.calculateZScoreMatches(pvals, 0, p);
-//		gv.setColors(labels, colors);
-//		gv.setLabels(labels, labels);
-//		
-//		title = "Pathways with p <= " + p + " (q <= 0.05)";
-//		
-//		venn = gv.createDiagram(title, labels[0], labels[1], labels[2]);
-//		ImageIO.write(venn, "png", new File(outPath, "venn_HFvsLF_t0_0.6_2_pathways.p.png"));
-//		
-//		venn = gv.createDiagram(title, labels[1], labels[2], labels[3]);
-//		ImageIO.write(venn, "png", new File(outPath, "venn_HFvsLF_t0.6_2_48_pathways.p.png"));
-//		
-//		venn = gv.createDiagram(title, labels[0], labels[1], labels[3]);
-//		ImageIO.write(venn, "png", new File(outPath, "venn_HFvsLF_t0_0.6_48_pathways.p.png"));
+		vdata = ZScoreVennData.create(2, z0, z2, z3);
+		venn = new BallVennDiagram(vdata);
+		venn.setBallColor(vdata.getUnionIndex(0), colors[0]);
+		venn.setBallColor(vdata.getUnionIndex(1), colors[2]);
+		venn.setBallColor(vdata.getUnionIndex(2), colors[3]);
+		venn.setLabels(labels[0], labels[2], labels[3]);
+		venn.setTitle(title);
+		venn.saveImage(new File(outPath, "venn_HFvsLF_t0_2_48_pathway.png"), "png");
 	}
 }

@@ -5,10 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.bridgedb.IDMapperException;
-import org.bridgedb.rdb.DataDerby;
-import org.bridgedb.rdb.IDMapperRdb;
-import org.bridgedb.rdb.SimpleGdbFactory;
-import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.plugins.statistics.StatisticsPathwayResult;
 import org.pathvisio.plugins.statistics.StatisticsResult;
 import org.pathvisio.util.FileUtils;

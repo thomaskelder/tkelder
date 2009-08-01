@@ -59,7 +59,7 @@ public class PVToolsPlugin extends CytoscapePlugin {
 		//List the data columns
 		Collection<Sample> samples = data.getSamples().values();
 		for(Sample s : samples) {
-			for(int i = 0; i < data.getMaxRow(); i++) {
+			for(int i = 0; i < data.getNrRow(); i++) {
 				ReporterData rdata = data.getRow(i);
 				Object value = rdata.getSampleData(s);
 

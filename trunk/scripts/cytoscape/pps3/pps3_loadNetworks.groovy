@@ -27,7 +27,7 @@ def setLog2ratio = { network, attr1, attr2, attrNew ->
 }
 
 File idmFile = new File("/home/thomas/PathVisio-Data/gene databases/Mm_Derby_20090509.pgdb");
-File pathwayDir = new File("/home/thomas/data/pathways/20090715");
+File pathwayDir = new File("/home/thomas/data/pathways/20090730/mmu");
 
 //Load the ID mapper database
 IDMapperRdb idmapper = PVToolsPlugin.openIDMapper(idmFile);

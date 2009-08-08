@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<project name="PathVisio utilities" default="jar" basedir=".">
+	<property name="src.dir" value="src"/>
+	<property name="build.dir" value="build"/>
+	<property name="pv.lib.dir" value="/home/thomas/code/git/pathvisio/"/>
+	<property name="jar.name" value="pvutils.jar"/>
+
+	<path id="class.path">
+		<pathelement location="${build.dir}"/>
+		<fileset dir="${pv.lib.dir}">
+			<include name="*.jar"/>
+			<include name="lib/*.jar"/>
+		</fileset>
+	</path>
+
+	<target name="prepare">
+		<mkdir dir="${build.dir}"/>
+	</target>
+
+	<target name="clean" description="Remove all generated files.">
+		<delete dir="${build.dir}"/>
+	</target>
+
+	<target name="compile" depends="prepare" description="Compile sources">
+		<javac srcdir="${src.dir}"
+			   includes="**"
+			   destdir="${build.dir}"
+			   debug="true"
+			   source="1.5">
+			<classpath refid="class.path"/>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile" description="Generate jar file">
+		<jar jarfile="${jar.name}">
+			<fileset dir="${build.dir}" includes="**/*.class"/>
+		</jar>
+	</target>
+</project>

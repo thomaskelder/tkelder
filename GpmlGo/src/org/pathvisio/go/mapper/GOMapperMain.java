@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -19,7 +21,6 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.pathvisio.data.DBConnDerby;
 import org.pathvisio.debug.Logger;
-import org.pathvisio.go.GOAnnotation;
 import org.pathvisio.go.GOAnnotationFactory;
 import org.pathvisio.go.GOAnnotations;
 import org.pathvisio.go.GOReader;
@@ -101,12 +102,12 @@ public class GOMapperMain {
 				org = Organism.fromShortName(main.org);
 			}
 			
-			GOAnnotations geneAnnot = null;
+			GOAnnotations<XrefAnnotation> geneAnnot = null;
 			if(main.annotFile != null) {
 				final DataSource ds = org == null ? BioDataSource.ENSEMBL : DataSource.getBySystemCode("En" + org.code());
-				geneAnnot = GOAnnotations.read(main.annotFile, goTree, new GOAnnotationFactory() {
-					public GOAnnotation createAnnotation(String id, String evidence) {
-						return new XrefAnnotation(id, ds, evidence);
+				geneAnnot = GOAnnotations.read(main.annotFile, goTree, new GOAnnotationFactory<XrefAnnotation>() {
+					public Collection<XrefAnnotation> createAnnotations(String id, String evidence) {
+						return Arrays.asList(new XrefAnnotation[] { new XrefAnnotation(id, ds, evidence) });
 					}
 				});
 			}
@@ -135,10 +136,10 @@ public class GOMapperMain {
 				goMapper.calculate(gpmlFiles, gdb, geneAnnot, org);
 			} else if(main.mapFile != null) {
 				//Read existing mappings
-				goMapper.setPathwayAnnotations(GOAnnotations.read(main.mapFile, goTree, new GOAnnotationFactory() {
-					public GOAnnotation createAnnotation(String id,
+				goMapper.setPathwayAnnotations(GOAnnotations.read(main.mapFile, goTree, new GOAnnotationFactory<PathwayAnnotation>() {
+					public Collection<PathwayAnnotation> createAnnotations(String id,
 							String evidence) {
-						return new PathwayAnnotation(id, Double.parseDouble(evidence));
+						return Arrays.asList(new PathwayAnnotation[] { new PathwayAnnotation(id, Double.parseDouble(evidence)) });
 					}
 				}));
 			}
@@ -151,7 +152,7 @@ public class GOMapperMain {
 			
 			if(ACTION_PRUNE.equals(main.action)) {
 				Logger.log.info("Pruning mappings with threshold " + main.pruneThreshold);
-				GOAnnotations pruned = goMapper.prune(main.pruneThreshold);
+				GOAnnotations<PathwayAnnotation> pruned = goMapper.prune(main.pruneThreshold);
 				Logger.log.info("Writing pruned mappings to " + main.outFile);
 				pruned.write(main.outFile);
 			}

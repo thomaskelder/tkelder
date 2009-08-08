@@ -20,7 +20,7 @@ import org.pathvisio.gui.swing.GuiMain;
 
 public class GOInfoPanel extends JPanel implements HyperlinkListener {
 	JEditorPane text;
-	GOAnnotations annotations;
+	GOAnnotations<?> annotations;
 	GOTree tree;
 	
 	public GOInfoPanel() {
@@ -40,7 +40,7 @@ public class GOInfoPanel extends JPanel implements HyperlinkListener {
 		}
 	}
 	
-	public void setAnnotations(GOTree tree, GOAnnotations annotations) {
+	public void setAnnotations(GOTree tree, GOAnnotations<?> annotations) {
 		this.tree = tree;
 		this.annotations = annotations;
 	}

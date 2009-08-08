@@ -55,8 +55,8 @@ public class GOTree implements Cloneable {
 	 * Get the annotations from the given go term and
 	 * all it's children.
 	 */
-	public Set<GOAnnotation> getRecursiveAnnotations(GOTerm term, GOAnnotations annotations) {
-		Set<GOAnnotation> recursive = new HashSet<GOAnnotation>();
+	public <K extends GOAnnotation> Set<K> getRecursiveAnnotations(GOTerm term, GOAnnotations<K> annotations) {
+		Set<K> recursive = new HashSet<K>();
 		recursive.addAll(annotations.getAnnotations(term));
 		for(GOTerm child : getChildren(term.getId())) {
 			recursive.addAll(getRecursiveAnnotations(child, annotations));

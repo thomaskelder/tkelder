@@ -7,7 +7,6 @@ import org.bridgedb.IDMapperException;
 import org.bridgedb.bio.BioDataSource;
 import org.bridgedb.rdb.DataDerby;
 import org.bridgedb.rdb.IDMapperRdb;
-import org.bridgedb.rdb.SimpleGdbFactory;
 import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.plugins.statistics.StatisticsResult;
 import org.pathvisio.preferences.PreferenceManager;
@@ -19,7 +18,6 @@ import org.pathvisio.utils.StatResultsUtil.FilterZScoreOptions;
  * - up enriched ([q-value] < 0.05 && [fc] > 0)
  * - down enriched ([q-value] < 0.05 && [fc] < 0)
  * 
- * Merge into a single file so we can make a heatmap
  * @author thomas
  */
 public class ZScoreTimeVsZero {
@@ -30,21 +28,13 @@ public class ZScoreTimeVsZero {
 			e.printStackTrace();
 		}
 	}
-	
-	private File gdbFile = new File(
-			"/home/thomas/PathVisio-Data/gene_databases/Mm_Derby_20090509.pgdb"
-	);
 
 	private File gexFile = new File(
 			"/home/thomas/projects/pps2/stat_results/PPS2_timecourse_pathvisio.pgex"
 	);
 
-	private File pwDir = new File(
-			"/home/thomas/data/pathways/20090715"
-	);
-
 	private File outDir = new File(
-			"/home/thomas/projects/pps2/path_results/bigcat/zscore-time-vs-t0"
+			"/home/thomas/projects/pps2/path_results/bigcat/TimeVsZero/zscores"
 	);
 	
 	String[] timePoints = new String[] {
@@ -59,7 +49,7 @@ public class ZScoreTimeVsZero {
 		BioDataSource.init();
 		
 		SimpleGex data = new SimpleGex("" + gexFile, false, new DataDerby());
-		IDMapperRdb idMapper = SimpleGdbFactory.createInstance("" + gdbFile, new DataDerby(), 0);
+		IDMapperRdb idMapper = ConstantsPPS2.getIdMapper();
 		
 		StatisticsResult[][] resultAll = new StatisticsResult[diets.length][timePoints.length];
 		StatisticsResult[][] resultDown = new StatisticsResult[diets.length][timePoints.length];
@@ -74,9 +64,9 @@ public class ZScoreTimeVsZero {
 				String exprAll = var_q + " < 0.05";
 				String exprDown = var_q + " < 0.05 AND " + var_r + " < 0";
 				String exprUp = var_q + " < 0.05 AND " + var_r + " > 0"; 
-				resultAll[d][t] = StatResultsUtil.calculateZscores(exprAll, pwDir, data, idMapper);
-				resultDown[d][t] = StatResultsUtil.calculateZscores(exprDown, pwDir, data, idMapper);
-				resultUp[d][t] = StatResultsUtil.calculateZscores(exprUp, pwDir, data, idMapper);
+				resultAll[d][t] = StatResultsUtil.calculateZscores(exprAll, ConstantsPPS2.pathwayDir, data, idMapper);
+				resultDown[d][t] = StatResultsUtil.calculateZscores(exprDown, ConstantsPPS2.pathwayDir, data, idMapper);
+				resultUp[d][t] = StatResultsUtil.calculateZscores(exprUp, ConstantsPPS2.pathwayDir, data, idMapper);
 				
 				resultAll[d][t].save(new File(outDir, "zscores_detail_" + diet + "_" + time + "_all.txt"));
 				resultDown[d][t].save(new File(outDir, "zscores_detail_" + diet + "_" + time + "_down.txt"));

@@ -8,7 +8,6 @@ import java.util.Set;
 import org.bridgedb.DataSource;
 import org.bridgedb.IDMapperException;
 import org.bridgedb.Xref;
-import org.bridgedb.bio.BioDataSource;
 import org.bridgedb.bio.Organism;
 import org.bridgedb.rdb.IDMapperRdb;
 import org.pathvisio.debug.Logger;
@@ -23,7 +22,7 @@ import org.pathvisio.model.Pathway;
 
 public class GOMapper {
 	GOTree goTree;
-	GOAnnotations pathwayAnnotations;
+	GOAnnotations<PathwayAnnotation> pathwayAnnotations;
 	ScoreFunction scoreFunction = new SetPercentageFunction();
 	boolean useFileNames = true;
 	
@@ -34,11 +33,11 @@ public class GOMapper {
 	/**
 	 * Set the pathway mappings directly (e.g. from previous calculations)
 	 */
-	public void setPathwayAnnotations(GOAnnotations a) {
+	public void setPathwayAnnotations(GOAnnotations<PathwayAnnotation> a) {
 		pathwayAnnotations = a;
 	}
 	
-	public GOAnnotations getPathwayAnnotations() {
+	public GOAnnotations<PathwayAnnotation> getPathwayAnnotations() {
 		return pathwayAnnotations;
 	}
 	
@@ -50,8 +49,8 @@ public class GOMapper {
 	 * @throws DataException
 	 * @throws ConverterException
 	 */
-	public void calculate(List<File> gpmlFiles, IDMapperRdb gdb, GOAnnotations geneAnnotations, Organism org) throws IDMapperException, ConverterException {
-		pathwayAnnotations = new GOAnnotations();
+	public void calculate(List<File> gpmlFiles, IDMapperRdb gdb, GOAnnotations<XrefAnnotation> geneAnnotations, Organism org) throws IDMapperException, ConverterException {
+		pathwayAnnotations = new GOAnnotations<PathwayAnnotation>();
 		
 		int i = 0;
 		for(File f : gpmlFiles) {
@@ -69,10 +68,12 @@ public class GOMapper {
 		}
 	}
 	
-	private void mapPathway(String id, Pathway p, IDMapperRdb gdb, GOAnnotations geneAnnotations, Organism org) throws IDMapperException {
+	private void mapPathway(String id, Pathway p, IDMapperRdb gdb, GOAnnotations<XrefAnnotation> geneAnnotations, Organism org) throws IDMapperException {
 		Set<Xref> pathwayXrefs = new HashSet<Xref>();
 		for(Xref x : p.getDataNodeXrefs()) {
-			pathwayXrefs.addAll(gdb.getCrossRefs(x, DataSource.getBySystemCode("En" + org.code())));
+			Set<DataSource> ds = new HashSet<DataSource>();
+			ds.add(DataSource.getBySystemCode("En" + org.code()));
+			pathwayXrefs.addAll(gdb.mapID(x, ds));
 		}
 		
 		Logger.log.info(pathwayXrefs.size() + "");
@@ -85,7 +86,7 @@ public class GOMapper {
 			Set<XrefAnnotation> termXrefs = new HashSet<XrefAnnotation>();
 			//Assumes ensembl ids
 			for(GOAnnotation goa : goTree.getRecursiveAnnotations(term, geneAnnotations)) {
-				if(goa instanceof XrefAnnotation) termXrefs.add((XrefAnnotation)goa);
+				termXrefs.add((XrefAnnotation)goa);
 			}
 			
 			int matches = 0;
@@ -107,8 +108,8 @@ public class GOMapper {
 	 * the threshold.
 	 * @return The pruned annotations
 	 */
-	public GOAnnotations prune(double threshold) {
-		GOAnnotations pruned = new GOAnnotations();
+	public GOAnnotations<PathwayAnnotation> prune(double threshold) {
+		GOAnnotations<PathwayAnnotation> pruned = new GOAnnotations<PathwayAnnotation>();
 		
 		for(GOTerm term : goTree.getTerms()) {
 			for(GOAnnotation goa : pathwayAnnotations.getAnnotations(term)) {

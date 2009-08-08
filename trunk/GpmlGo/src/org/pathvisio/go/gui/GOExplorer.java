@@ -33,7 +33,7 @@ public class GOExplorer extends JFrame {
 				new JScrollPane(treePanel), new JScrollPane(infoPanel)), BorderLayout.CENTER);
 	}
 	
-	public void setGO(GOTree tree, GOAnnotations annotations) {
+	public void setGO(GOTree tree, GOAnnotations<?> annotations) {
 		treePanel.setGoTree(tree);
 		infoPanel.setAnnotations(tree, annotations);
 	}

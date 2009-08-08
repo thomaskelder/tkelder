@@ -16,8 +16,8 @@ import java.util.Set;
 import org.bridgedb.DataSource;
 import org.bridgedb.IDMapperException;
 import org.bridgedb.Xref;
-import org.bridgedb.XrefWithSymbol;
 import org.bridgedb.rdb.IDMapperRdb;
+import org.pathvisio.data.XrefWithSymbol;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.go.mapper.ScoreMatrix;
 import org.pathvisio.util.PathwayParser;
@@ -26,30 +26,30 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-public class GOAnnotations {
-	HashMap<GOTerm, Map<String, GOAnnotation>> annotations = new HashMap<GOTerm, Map<String, GOAnnotation>>();
+public class GOAnnotations<K extends GOAnnotation> {
+	HashMap<GOTerm, Map<String, K>> annotations = new HashMap<GOTerm, Map<String, K>>();
 	
-	public GOAnnotation getAnnotation(GOTerm term, String id) {
-		Map<String, GOAnnotation> a = annotations.get(term);
+	public K getAnnotation(GOTerm term, String id) {
+		Map<String, K> a = annotations.get(term);
 		if(a != null) return a.get(id);
 		return null;
 	}
 	
-	public Collection<GOAnnotation> getAnnotations(GOTerm term) {
-		Map<String, GOAnnotation> a = annotations.get(term);
-		return a == null ? new HashSet<GOAnnotation>() : a.values();
+	public Collection<K> getAnnotations(GOTerm term) {
+		Map<String, K> a = annotations.get(term);
+		return a == null ? new HashSet<K>() : a.values();
 	}
 	
-	public void addAnnotation(GOTerm term, GOAnnotation annotation) {
-		Map<String, GOAnnotation> values = annotations.get(term);
+	public void addAnnotation(GOTerm term, K annotation) {
+		Map<String, K> values = annotations.get(term);
 		if(values == null) {
-			annotations.put(term, values = new HashMap<String, GOAnnotation>());
+			annotations.put(term, values = new HashMap<String, K>());
 		}
 		values.put(annotation.getId(), annotation);
 	}
 	
-	public static GOAnnotations read(File annotFile, GOTree tree, GOAnnotationFactory f) throws IOException {
-		GOAnnotations annotations = new GOAnnotations();
+	public static <K extends GOAnnotation> GOAnnotations<K> read(File annotFile, GOTree tree, GOAnnotationFactory<K> f) throws IOException {
+		GOAnnotations<K> annotations = new GOAnnotations<K>();
 		
 		BufferedReader in = new BufferedReader(new FileReader(annotFile));
 		String line;
@@ -58,11 +58,11 @@ public class GOAnnotations {
 			String id = cols[0];
 			String go = cols[1];
 			String ev = cols[2];
-			GOAnnotation annot = f.createAnnotation(id, ev);
+			Collection<K> annot = f.createAnnotations(id, ev);
 			GOTerm term = tree.getTerm(go);
 			if(term != null) {
 				Logger.log.trace("Annotating " + term.getId() + " with " + annot);
-				annotations.addAnnotation(term, annot);
+				for(K a : annot) annotations.addAnnotation(term, a);
 			} else {
 				Logger.log.warn("GO Term '" + go + "' not found!");
 			}
@@ -83,6 +83,8 @@ public class GOAnnotations {
 	public void writeXrefs(File outFile, IDMapperRdb gdb, DataSource ds) throws ParseException, IOException, IDMapperException, SAXException {
 		XMLReader xmlReader = XMLReaderFactory.createXMLReader();
 		Map<GOTerm, Set<String>> xrefMap = new HashMap<GOTerm, Set<String>>();
+		Set<DataSource> dsSet = new HashSet<DataSource>();
+		dsSet.add(ds);
 		BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
 		for(GOTerm term : annotations.keySet()) {
 			for(GOAnnotation a : getAnnotations(term)) {
@@ -97,7 +99,7 @@ public class GOAnnotations {
 				List<XrefWithSymbol> genes =  parser.getGenes();
 				
 				for(XrefWithSymbol g : genes) {
-					for(Xref x : gdb.getCrossRefs(g.asXref(), ds)) {
+					for(Xref x : gdb.mapID(g.asXref(), dsSet)) {
 						Set<String> xrefs = xrefMap.get(term);
 						if(xrefs == null) xrefMap.put(term, xrefs = new HashSet<String>());
 						xrefs.add(x.getId());

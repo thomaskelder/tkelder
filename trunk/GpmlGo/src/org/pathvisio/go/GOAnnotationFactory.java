@@ -1,5 +1,7 @@
 package org.pathvisio.go;
 
-public interface GOAnnotationFactory {
-	public GOAnnotation createAnnotation(String id, String evidence);
+import java.util.Collection;
+
+public interface GOAnnotationFactory<K extends GOAnnotation> {
+	public Collection<K> createAnnotations(String id, String evidence);
 }

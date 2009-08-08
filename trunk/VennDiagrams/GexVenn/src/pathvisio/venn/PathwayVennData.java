@@ -13,7 +13,7 @@ import venn.VennData;
  * dataset and several criteria
  * @author thomas
  */
-public class ZScoreVennData {
+public class PathwayVennData {
 	public static VennData<String> create(double threshold, Map<String, Double>...zscores) {
 		List<Set<String>> sets = new ArrayList<Set<String>>();
 		

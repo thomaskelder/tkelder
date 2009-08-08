@@ -26,7 +26,7 @@ public class NumberVennDiagram extends VennDiagramTemplate {
 	Color background = Color.WHITE;
 	Color color = Color.BLACK;
 	
-	public NumberVennDiagram(VennData<?> data) {
+	public NumberVennDiagram(VennCounts data) {
 		super(data);
 	}
 	
@@ -44,13 +44,13 @@ public class NumberVennDiagram extends VennDiagramTemplate {
 		g2d.setFont(font);
 		
 		for(int i : getPartialShapeIndices()) {
-			int number = getData().getUnion(i).size();
+			String label = getData().getUnionCountLabel(i);
 			Rectangle sb = getPartialShape(i).getBounds();
-			Rectangle2D tb = font.getStringBounds(number + "", g2d.getFontRenderContext());
+			Rectangle2D tb = font.getStringBounds(label + "", g2d.getFontRenderContext());
 			
 			int x = (int)(sb.getCenterX() - tb.getWidth() / 2);
 			int y = (int)(sb.getCenterY());
-			g2d.drawString(number + "", x, y);
+			g2d.drawString(label, x, y);
 		}
 	}
 	

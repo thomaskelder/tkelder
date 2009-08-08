@@ -29,14 +29,14 @@ import javax.imageio.ImageIO;
  * @author thomas
  */
 class VennDiagramTemplate {
-	VennData<?> data;
+	VennCounts data;
 	
-	Rectangle bounds = new Rectangle(0, 0, 800, 800);
+	Rectangle bounds = new Rectangle(0, 0, 1200, 1200);
 	double overlap = 0.8; //Overlap between the big circles
 	int strokeSize = 3;
 	Color strokeColor = Color.DARK_GRAY;
 	int margin = 5;
-	int labelMargin = 30;
+	int labelMargin = 40;
 	int titleMargin = 40;
 	Font labelFont = new Font(Font.SANS_SERIF, Font.BOLD, 30);
 	
@@ -49,7 +49,7 @@ class VennDiagramTemplate {
 	String[] labels;
 	Color[] labelColors;
 	
-	public VennDiagramTemplate(VennData<?> data) {
+	public VennDiagramTemplate(VennCounts data) {
 		this.data = data;
 		init();
 		refresh();
@@ -94,7 +94,7 @@ class VennDiagramTemplate {
 		return title == null ? 0 : titleMargin;
 	}
 	
-	public VennData<?> getData() {
+	public VennCounts getData() {
 		return data;
 	}
 	
@@ -144,8 +144,8 @@ class VennDiagramTemplate {
 		double ry = mbounds.height / (4 - overlap);
 		Point2D[] positions = new Point2D[3];
 		double shiftx = rx * 2 - rx * overlap;
-		double shifty = ry * 2 - ry * overlap;
-		
+		double a = shiftx / 2;
+		double shifty = Math.sqrt(3*a*a) * (ry / rx);
 		//Center if only 2 sets
 		double x = mbounds.x;
 		double y = mbounds.y;
@@ -173,7 +173,7 @@ class VennDiagramTemplate {
 					totalOverlap.intersect(fullAreas.get(i));
 				}
 			}
-			setPartialShape(totalOverlap, data.getSetIndices());
+			setPartialShape(totalOverlap, 0, 1, 2);
 		}
 		
 		//Find overlapping areas

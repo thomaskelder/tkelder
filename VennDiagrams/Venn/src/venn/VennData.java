@@ -1,13 +1,12 @@
 package venn;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class VennData<K>{
+public class VennData<K> implements VennCounts {
 	List<Set<K>> sets;
 	int[] setIndices;
 	int[] sizes;
@@ -38,16 +37,20 @@ public class VennData<K>{
 		return get;
 	}
 	
-	public int[] getSetIndices() {
-		return setIndices;
+	public Set<K> getUnion(int unionIndex) {
+		return partialSets.get(unionIndex);
 	}
 	
-	public Set<K> getUnion(int index) {
-		return partialSets.get(index);
+	public int getUnionCount(int unionIndex) {
+		return getUnion(unionIndex).size();
 	}
 	
-	private void setUnion(Set<K> union, int index) {
-		partialSets.set(index, union);
+	public String getUnionCountLabel(int unionIndex) {
+		return "" + getUnionCount(unionIndex);
+	}
+	
+	private void setUnion(Set<K> union, int unionIndex) {
+		partialSets.set(unionIndex, union);
 	}
 	
 	public int getNrSets() {
@@ -56,6 +59,14 @@ public class VennData<K>{
 	
 	public Collection<Set<K>> getSets() {
 		return sets;
+	}
+	
+	public Set<K> getSet(int setIndex) {
+		return sets.get(setIndex);
+	}
+	
+	public int getSetCount(int setIndex) {
+		return getSet(setIndex).size();
 	}
 	
 	private void calculateOverlap() {

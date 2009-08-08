@@ -47,7 +47,7 @@ public class BallVennDiagram extends VennDiagramTemplate {
 	Map<Integer, Color> colors;
 	Map<Shape, Set<Ellipse2D>> balls;
 	
-	public BallVennDiagram(VennData<?> data) {
+	public BallVennDiagram(VennCounts data) {
 		super(data);
 		refresh();
 		setDefaultColors();
@@ -151,20 +151,18 @@ public class BallVennDiagram extends VennDiagramTemplate {
 
 		for(int i : getPartialShapeIndices()) {
 			Shape shape = getPartialShape(i);
-			Set<?> set = getData().getUnion(i);
+			int size = getData().getUnionCount(i);
 
-			double ratio = set.size() / getMaxBallCount(shape);
+			double ratio = size / getMaxBallCount(shape);
 			maxRatio = Math.max(maxRatio, ratio);
 		}
 
 		//Now set the real ball count
 		for(Integer i : getPartialShapeIndices()) {
 			Shape shape = getPartialShape(i);
-			Set<?> set = getData().getUnion(i);
-
-			double count = set.size();
+			double count = getData().getUnionCount(i);
 			if(maxRatio > 1) {
-				count = set.size() / maxRatio;
+				count = count / maxRatio;
 			}
 			ballCounts.put(shape, count);
 		}
@@ -256,13 +254,21 @@ public class BallVennDiagram extends VennDiagramTemplate {
 		g2d.setClip(null);
 		g2d.setColor(legendColor);
 		Rectangle2D headerBounds = new Rectangle2D.Double();
+		//Find maximum width for legend bounds
+		int hwidth = 0;
+		for(int i : partialAreas.keySet()) {
+			double nw = legendFont.getStringBounds(data.getUnionCountLabel(i), g2d.getFontRenderContext()).getWidth();
+			hwidth = (int)Math.max(hwidth, nw);
+		}
 		if(legendTitle != null) {
-			legendHeaderFont.getStringBounds(legendTitle, g2d.getFontRenderContext());
+			headerBounds = legendHeaderFont.getStringBounds(legendTitle, g2d.getFontRenderContext());
+			if(hwidth > headerBounds.getWidth()) {
+				headerBounds = new Rectangle2D.Double(0, 0, hwidth, headerBounds.getHeight());
+			}
 		} else {
 			headerBounds = new Rectangle2D.Double(
 				0, 0,
-				legendFont.getStringBounds("00000", g2d.getFontRenderContext()).getWidth(),
-				0
+				hwidth, 0
 			);
 		}
 		int vspacing = 3;
@@ -310,7 +316,7 @@ public class BallVennDiagram extends VennDiagramTemplate {
 	
 	private void paintLegendEntry(Graphics2D g, int x, int y, int hspacing, int...index) {
 		int i = data.getUnionIndex(index);
-		String nr = data.getUnion(i).size() + "";
+		String nr = data.getUnionCountLabel(i);
 		g.setColor(getColor(getPartialShape(i)));
 		
 		g.fillOval(x, y, ballDiameter, ballDiameter);
@@ -346,7 +352,6 @@ public class BallVennDiagram extends VennDiagramTemplate {
 				venn.paint((Graphics2D)g);
 			}
 		}, BorderLayout.CENTER);
-
 		f.setVisible(true);
 	}
 }

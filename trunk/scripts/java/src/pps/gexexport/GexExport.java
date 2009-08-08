@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bridgedb.DataSource;
 import org.bridgedb.IDMapperException;
@@ -12,6 +13,7 @@ import org.bridgedb.rdb.IDMapperRdb;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.gex.ReporterData;
 import org.pathvisio.gex.SimpleGex;
+import org.pathvisio.util.Utils;
 
 /**
  * Export a gex file as a data matrix where the reporter ids
@@ -25,6 +27,8 @@ public class GexExport {
 	public static void exportDelimited(
 			SimpleGex gex, Writer out, String delimiter, 
 			IDMapperRdb gdb, DataSource dataSource, List<String> sampleNames) throws IDMapperException, IOException {
+		
+		Set<DataSource> dsSet = Utils.setOf(dataSource);
 		
 		if(sampleNames == null) sampleNames = gex.getSampleNames();
 		//Write headers
@@ -48,13 +52,20 @@ public class GexExport {
 				dataLineBld.append(delimiter);
 			}
 			String dataLine = dataLineBld.toString();
-			
+
 			Xref reporter = row.getXref();
-			for(Xref xref : gdb.getCrossRefs(reporter, dataSource)) {
-				out.append(xref.getId());
+			if(dataSource == null) {
+				out.append(reporter.getId());
 				out.append(delimiter);
 				out.append(dataLine);
 				out.append("\n");
+			} else {
+				for(Xref xref : gdb.mapID(reporter, dsSet)) {
+					out.append(xref.getId());
+					out.append(delimiter);
+					out.append(dataLine);
+					out.append("\n");
+				}
 			}
 		}
 	}

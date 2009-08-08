@@ -32,7 +32,7 @@ public class ZScoreCorrelation {
 	);
 
 	private File pwDir = new File(
-			"/home/thomas/data/pathways/20090730/mmu"
+			"/home/thomas/data/pathways/20090715"
 	);
 
 	private File outDir = new File(
@@ -73,11 +73,21 @@ public class ZScoreCorrelation {
 		//File for HF and LF comparing each measurement
 		StatResultsUtil.write(new StatisticsResult[] {
 				resultAll[iHF][0], 	resultAll[iHF][1], resultAll[iHF][2]
-		}, paste("t0_vs_", measurements, ""), new File(outDir, "zscores_HF_z2.txt"),
+		}, measurements, new File(outDir, "zscores_HF_z2.txt"),
 		new FilterZScoreOptions().threshold(2));
 		StatResultsUtil.write(new StatisticsResult[] {
 				resultAll[iLF][0], 	resultAll[iLF][1], resultAll[iLF][2]
-		}, paste("t0_vs_", measurements, ""), new File(outDir, "zscores_LF_z2.txt"), 
+		}, measurements, new File(outDir, "zscores_LF_z2.txt"), 
+		new FilterZScoreOptions().threshold(2));
+		String[] header = new String[measurements.length * 2];
+		for(int i = 0; i < measurements.length; i++) {
+			header[2*i] = "LF_" + measurements[i];
+			header[2*i+1] = "HF_" + measurements[i];
+		}
+		StatResultsUtil.write(new StatisticsResult[] {
+				resultAll[iLF][0], 	resultAll[iHF][0], resultAll[iLF][1],
+				resultAll[iHF][1], 	resultAll[iLF][2], resultAll[iHF][2],
+		}, header, new File(outDir, "zscores_LFandHF_z2.txt"), 
 		new FilterZScoreOptions().threshold(2));
 	}
 	

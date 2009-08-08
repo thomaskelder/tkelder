@@ -31,7 +31,7 @@ public class GexExportMain {
 	@Option(name = "-out", required = true, usage = "The output file.")
 	private File outFile;
 	
-	@Option(name = "-sys", required = true, usage = "The system code of the database system to export to.")
+	@Option(name = "-sys", required = false, usage = "The system code of the database system to export to.")
 	private String sysCode;
 	
 	@Option(name = "-cols", required = false, usage = "The data columns to export.")
@@ -55,8 +55,8 @@ public class GexExportMain {
 		try {
 			SimpleGex gex = new SimpleGex("" + main.gexFile, false, new DataDerby());
 			SimpleGdb gdb = SimpleGdbFactory.createInstance("" + main.gdbFile, new DataDerby(), 0);
-			DataSource ds = DataSource.getBySystemCode(main.sysCode);
-			if(ds == null) {
+			DataSource ds = main.sysCode == null ? null : DataSource.getBySystemCode(main.sysCode);
+			if(main.sysCode != null && ds == null) {
 				Logger.log.error("Couldn't find database system for code '" + main.sysCode + "'");
 				System.exit(-1);
 			}

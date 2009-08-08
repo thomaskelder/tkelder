@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<project name="PVTools" default="jar" basedir=".">
+	<property name="plugin.name" value="PVTools" />
+	<property name="src.dir" value="src" />
+	<property name="build.dir" value="build" />
+	<property name="class.dir" value="class" />
+	<property name="shared.lib.dir" value="../lib" />
+	<property name="lib.dir" value="lib" />
+	<property name="cytoscape.dir" value="/home/thomas/programs/cytoscape" />
+	<property name="cytoscape.plugin.dir" value="${cytoscape.dir}/plugins" />
+	
+	<path id="class.path">
+		<path location="${build.dir}"/>
+		<fileset dir="${lib.dir}" includes="*.jar" />
+		<fileset dir="${shared.lib.dir}" includes="*.jar" />
+		<pathelement location="${cytoscape.dir}/cytoscape.jar" />
+	</path>
+
+	<target name="prepare" description="Prepare">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${class.dir}" />
+		
+		<!-- check if cytoscape.dir is properly specified !-->
+		<fail message="Can't find ${cytoscape.dir}/cytoscape.jar, please specify the path to cytoscape with -Dcytoscape.dir=....">
+			<condition>
+				<not><available file="${cytoscape.dir}/cytoscape.jar"/></not>
+			</condition>
+		</fail>
+	</target>
+
+	<target name="clean" description="Remove all generated files.">
+		<delete dir="${build.dir}" />
+		<delete dir="${class.dir}" />
+		<delete file="${plugin.name}.jar" />
+	</target>
+
+	<target name="compile" depends="prepare" description="Compile all sources">
+		<javac srcdir="src" debug="true" destdir="${build.dir}">
+			<classpath refid="class.path" />
+		</javac>
+	</target>
+
+
+	<target name="jar" depends="compile" description="Generate jar file">
+		<unjar dest="${class.dir}">
+			<fileset dir="${lib.dir}" includes="*.jar"/>
+			<fileset dir="${shared.lib.dir}" includes="*.jar"/>
+		</unjar>
+
+		<copy file="plugin.props" todir="${build.dir}/org/pathvisio/cytoscape" />
+
+		<jar jarfile="${plugin.name}.jar">
+			<fileset dir="${build.dir}" includes="**/*.class" />
+			<fileset dir="${build.dir}" includes="**/*.props" />
+			<fileset dir="${class.dir}">
+				<include name="**/*"/>
+				<exclude name="META-INF/"/>
+			</fileset>
+			<manifest>
+				<attribute name="Cytoscape-Plugin" value="pvtools.PVToolsPlugin" />
+			</manifest>
+		</jar>
+
+	</target>
+
+	<target name="dest" depends="jar" description="Copy the jars to the Cytoscape plugin directory">
+		<copy file="${plugin.name}.jar" todir="${cytoscape.plugin.dir}" />
+	</target>
+</project>

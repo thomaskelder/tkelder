@@ -42,15 +42,19 @@ public class ZScoreTimeVsZero {
 	};
 	
 	String[] diets = new String[] { "HF", "LF" };
+	SimpleGex data;
+	IDMapperRdb idMapper;
 	
-	void start() throws IDMapperException, IOException {
+	public ZScoreTimeVsZero() throws IDMapperException {
 		outDir.mkdirs();
 		PreferenceManager.init();
 		BioDataSource.init();
 		
-		SimpleGex data = new SimpleGex("" + gexFile, false, new DataDerby());
-		IDMapperRdb idMapper = ConstantsPPS2.getIdMapper();
-		
+		data = new SimpleGex("" + gexFile, false, new DataDerby());
+		idMapper = ConstantsPPS2.getIdMapper();
+	}
+	
+	void start() throws IDMapperException, IOException {
 		StatisticsResult[][] resultAll = new StatisticsResult[diets.length][timePoints.length];
 		StatisticsResult[][] resultDown = new StatisticsResult[diets.length][timePoints.length];
 		StatisticsResult[][] resultUp = new StatisticsResult[diets.length][timePoints.length];
@@ -97,6 +101,37 @@ public class ZScoreTimeVsZero {
 				resultAll[iLF][0], 	resultAll[iLF][1], resultAll[iLF][2]
 		}, paste("t0_vs_", timePoints, ""), new File(outDir, "zscores_LF_time_vs_t0_z2.txt"), 
 		new FilterZScoreOptions().threshold(2));
+		
+		//File containing categorized version of each early timepoint
+		StatResultsUtil.writeSummary(
+				new StatisticsResult[] {
+					resultAll[iLF][0], resultAll[iLF][1], resultAll[iHF][0], resultAll[iHF][1]	
+				},
+				new StatisticsResult[] {
+						resultUp[iLF][0], resultUp[iLF][1], resultUp[iHF][0], resultUp[iHF][1]	
+				},
+				new StatisticsResult[] {
+						resultDown[iLF][0], resultDown[iLF][1], resultDown[iHF][0], resultDown[iHF][1]	
+				},
+				new String[] { "t0.6_vs_t0_LF", "t2_vs_t0_LF", "t0.6_vs_t0_HF", "t2_vs_t0_HF" },
+				new File(outDir, "zscores_diff_time_vs_t0_early.txt"),
+				new FilterZScoreOptions().threshold(2)
+		);
+		//File containing categorized version of the late timepoint
+		StatResultsUtil.writeSummary(
+				new StatisticsResult[] {
+					resultAll[iLF][2], resultAll[iHF][2]	
+				},
+				new StatisticsResult[] {
+						resultUp[iLF][2], resultUp[iHF][2]	
+				},
+				new StatisticsResult[] {
+						resultDown[iLF][2], resultDown[iHF][2]	
+				},
+				new String[] { "t48_vs_t0_LF", "t48_vs_t0_HF" },
+				new File(outDir, "zscores_diff_time_vs_t0_late.txt"),
+				new FilterZScoreOptions().threshold(2)
+		);
 	}
 	
 	String[] paste(String before, String[] data, String after) {

@@ -22,7 +22,7 @@ import javax.swing.JPanel;
  * @author thomas
  */
 public class NumberVennDiagram extends VennDiagramTemplate {
-	Font font = new Font("Arial", Font.PLAIN, 24);
+	Font font = new Font("Arial", Font.PLAIN, 36);
 	Color background = Color.WHITE;
 	Color color = Color.BLACK;
 	

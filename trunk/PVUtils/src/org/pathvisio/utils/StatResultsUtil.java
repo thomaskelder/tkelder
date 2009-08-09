@@ -77,9 +77,108 @@ public class StatResultsUtil {
 		}
 	}
 	
+	public static void writeSummary(StatisticsResult[] total, StatisticsResult[] up, StatisticsResult[] down, String[] headers, File file, FilterZScoreOptions options) throws IOException {
+		Writer out = new BufferedWriter(new FileWriter(file));
+		out.append("Pathway\tFile");
+		for(String h : headers) {
+			out.append("\t");
+			out.append(h);
+			out.append("\t");
+			out.append(h + "_updowndiff");
+		}
+
+		Map<File, StatisticsPathwayResult[]> totalResults = extractResults(total, options);
+		Map<File, StatisticsPathwayResult[]> upResults = extractResults(up, options);
+		Map<File, StatisticsPathwayResult[]> downResults = extractResults(down, options);
+
+		for(File f : totalResults.keySet()) {
+			StatisticsPathwayResult[] frTotal = totalResults.get(f);
+			StatisticsPathwayResult[] frUp = upResults.get(f);
+			StatisticsPathwayResult[] frDown = downResults.get(f);
+			if(!Double.isNaN(options.threshold)) {
+				boolean include = false;
+				for(int i = 0; i < frUp.length; i++) {
+					double z = Double.parseDouble(frTotal[i].getProperty(Column.ZSCORE));
+					if(Double.isInfinite(options.threshold) || z >= options.threshold) {
+						include = true;
+						break;
+					}
+				}
+				if(!include) continue;
+			}
+			out.append("\n");
+			out.append(frTotal[0].getProperty(Column.PATHWAY_NAME));
+			out.append("\t");
+			out.append(f.getName());
+			for(int i = 0; i < frTotal.length; i++) {
+				double ztotal = Double.parseDouble(frTotal[i].getProperty(Column.ZSCORE));
+				double zup = Double.parseDouble(frUp[i].getProperty(Column.ZSCORE));
+				double zdown = Double.parseDouble(frDown[i].getProperty(Column.ZSCORE));
+				if(Double.isNaN(zup)) zup = 0;
+				if(Double.isNaN(zdown)) zdown = 0;
+				double zdiff = zup - zdown;
+				out.append("\t" + ztotal);
+				out.append("\t" + zdiff);
+			}
+		}
+		out.close();
+	}
+	
+	public static void writeCategorized(StatisticsResult[] total, StatisticsResult[] up, StatisticsResult[] down, String[] headers, File file, FilterZScoreOptions options) throws IOException {
+		if(Double.isNaN(options.threshold)) {
+			throw new IllegalArgumentException("You should set a valid options.threshold for categorization.");
+		}
+		Writer out = new BufferedWriter(new FileWriter(file));
+		out.append("Pathway\tFile");
+		for(String h : headers) {
+			out.append("\t");
+			out.append(h);
+		}
+
+		Map<File, StatisticsPathwayResult[]> totalResults = extractResults(total, options);
+		Map<File, StatisticsPathwayResult[]> upResults = extractResults(up, options);
+		Map<File, StatisticsPathwayResult[]> downResults = extractResults(down, options);
+
+		for(File f : totalResults.keySet()) {
+			StatisticsPathwayResult[] frTotal = totalResults.get(f);
+			StatisticsPathwayResult[] frUp = upResults.get(f);
+			StatisticsPathwayResult[] frDown = downResults.get(f);
+			boolean include = false;
+			for(int i = 0; i < frTotal.length; i++) {
+				double z = Double.parseDouble(frTotal[i].getProperty(Column.ZSCORE));
+				if(z >= options.threshold) {
+					include = true;
+					break;
+				}
+			}
+			if(!include) continue;
+			out.append("\n");
+			out.append(frTotal[0].getProperty(Column.PATHWAY_NAME));
+			out.append("\t");
+			out.append(f.getName());
+			for(int i = 0; i < frTotal.length; i++) {
+				out.append("\t");
+				double ztotal = Double.parseDouble(frTotal[i].getProperty(Column.ZSCORE));
+				double zup = Double.parseDouble(frUp[i].getProperty(Column.ZSCORE));
+				double zdown = Double.parseDouble(frDown[i].getProperty(Column.ZSCORE));
+				double cat = Double.NaN;
+				if(ztotal >= options.threshold) {
+					double zdiff = zup - zdown;
+					if(zdiff > 3) cat = 1;
+					else if(zdiff < 3) cat = -1;
+					else cat = 0;
+				}
+				out.append(cat + "");
+			}
+		}
+		out.close();
+	}
+	
 	/**
 	 * Combine results for up and down in single file and give
 	 * all z-scores for down a negative sign.
+	 * @deprecated: this method doesn't take into account pathways of which the direction is 
+	 * undetermined (where the difference between z-up and z-down is not large).
 	 */
 	public static void writeSigned(StatisticsResult[] up, StatisticsResult[] down, String[] headers, File file, FilterZScoreOptions options) throws IOException {
 		Writer out = new BufferedWriter(new FileWriter(file));

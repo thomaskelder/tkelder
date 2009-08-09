@@ -36,7 +36,7 @@ public class ZScoreCorrelation {
 	);
 
 	private File outDir = new File(
-			"/home/thomas/projects/pps2/path_results/bigcat/correlation"
+			"/home/thomas/projects/pps2/path_results/bigcat/correlation/zscores"
 	);
 	
 	String[] measurements = new String[] {

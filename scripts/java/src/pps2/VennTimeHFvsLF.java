@@ -31,6 +31,7 @@ import org.pathvisio.visualization.colorset.Criterion.CriterionException;
 import pathvisio.venn.GexVennData;
 import pathvisio.venn.PathwayVennData;
 import venn.BallVennDiagram;
+import venn.NumberVennDiagram;
 import venn.RelativeVennData;
 import venn.VennData;
 import venn.ZScoreVennData;
@@ -44,8 +45,8 @@ public class VennTimeHFvsLF {
 		try {
 			VennTimeHFvsLF vd = new VennTimeHFvsLF();
 			vd.genes();
-			vd.go();
-			vd.pathway();
+			//vd.go();
+			//vd.pathway();
 		} catch(Throwable e) {
 			e.printStackTrace();
 		}
@@ -88,28 +89,28 @@ public class VennTimeHFvsLF {
 		String c3 = "[qvalue_HFvsLF_t48] < " + q;
 		
 		VennData<Xref> vdata = GexVennData.create(gex, c0, c1, c2);
-		BallVennDiagram venn = new BallVennDiagram(vdata);
-		venn.setBallColor(vdata.getUnionIndex(0), colors[0]);
-		venn.setBallColor(vdata.getUnionIndex(1), colors[1]);
-		venn.setBallColor(vdata.getUnionIndex(2), colors[2]);
+		NumberVennDiagram venn = new NumberVennDiagram(vdata);
+//		venn.setBallColor(vdata.getUnionIndex(0), colors[0]);
+//		venn.setBallColor(vdata.getUnionIndex(1), colors[1]);
+//		venn.setBallColor(vdata.getUnionIndex(2), colors[2]);
 		venn.setLabels(labels[0], labels[1], labels[2]);
 		venn.setTitle(title);
 		venn.saveImage(new File(outPath, "venn_HFvsLF_t0_0.6_2.png"), "png");
 		
 		vdata = GexVennData.create(gex, c1, c2, c3);
-		venn = new BallVennDiagram(vdata);
-		venn.setBallColor(vdata.getUnionIndex(0), colors[1]);
-		venn.setBallColor(vdata.getUnionIndex(1), colors[2]);
-		venn.setBallColor(vdata.getUnionIndex(2), colors[3]);
+		venn = new NumberVennDiagram(vdata);
+//		venn.setBallColor(vdata.getUnionIndex(0), colors[1]);
+//		venn.setBallColor(vdata.getUnionIndex(1), colors[2]);
+//		venn.setBallColor(vdata.getUnionIndex(2), colors[3]);
 		venn.setLabels(labels[1], labels[2], labels[3]);
 		venn.setTitle(title);
 		venn.saveImage(new File(outPath, "venn_HFvsLF_t0.6_2_48.png"), "png");
 		
 		vdata = GexVennData.create(gex, c0, c2, c3);
-		venn = new BallVennDiagram(vdata);
-		venn.setBallColor(vdata.getUnionIndex(0), colors[0]);
-		venn.setBallColor(vdata.getUnionIndex(1), colors[2]);
-		venn.setBallColor(vdata.getUnionIndex(2), colors[3]);
+		venn = new NumberVennDiagram(vdata);
+//		venn.setBallColor(vdata.getUnionIndex(0), colors[0]);
+//		venn.setBallColor(vdata.getUnionIndex(1), colors[2]);
+//		venn.setBallColor(vdata.getUnionIndex(2), colors[3]);
 		venn.setLabels(labels[0], labels[2], labels[3]);
 		venn.setTitle(title);
 		venn.saveImage(new File(outPath, "venn_HFvsLF_t0_2_48.png"), "png");

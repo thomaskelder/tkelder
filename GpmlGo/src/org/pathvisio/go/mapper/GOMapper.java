@@ -71,6 +71,9 @@ public class GOMapper {
 	private void mapPathway(String id, Pathway p, IDMapperRdb gdb, GOAnnotations<XrefAnnotation> geneAnnotations, Organism org) throws IDMapperException {
 		Set<Xref> pathwayXrefs = new HashSet<Xref>();
 		for(Xref x : p.getDataNodeXrefs()) {
+			if(x.getId() == null || x.getDataSource() == null) {
+				continue; //Skip invalid xrefs
+			}
 			Set<DataSource> ds = new HashSet<DataSource>();
 			ds.add(DataSource.getBySystemCode("En" + org.code()));
 			pathwayXrefs.addAll(gdb.mapID(x, ds));

@@ -11,8 +11,8 @@ import org.bridgedb.rdb.SimpleGdbFactory;
 import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.plugins.statistics.StatisticsResult;
 import org.pathvisio.preferences.PreferenceManager;
-import org.pathvisio.utils.StatResultsUtil;
-import org.pathvisio.utils.StatResultsUtil.FilterZScoreOptions;
+import org.pathvisio.utils.StatsUtil;
+import org.pathvisio.utils.StatsUtil.FilterZScoreOptions;
 
 public class ZScoreCorrelation {
 	public static void main(String[] args) {
@@ -62,7 +62,7 @@ public class ZScoreCorrelation {
 			for(int j = 0; j < measurements.length; j++) {
 				String m = measurements[j];
 				String expr = "[" + diet + "_" + m + "] < 0.05";
-				resultAll[d][j] = StatResultsUtil.calculateZscores(expr, pwDir, data, idMapper);
+				resultAll[d][j] = StatsUtil.calculateZscores(expr, pwDir, data, idMapper);
 				resultAll[d][j].save(new File(outDir, "zscores_detail_" + diet + "_" + m + ".txt"));
 			}
 		}
@@ -71,11 +71,11 @@ public class ZScoreCorrelation {
 		int iHF = 0;
 		int iLF = 1;
 		//File for HF and LF comparing each measurement
-		StatResultsUtil.write(new StatisticsResult[] {
+		StatsUtil.write(new StatisticsResult[] {
 				resultAll[iHF][0], 	resultAll[iHF][1], resultAll[iHF][2]
 		}, measurements, new File(outDir, "zscores_HF_z2.txt"),
 		new FilterZScoreOptions().threshold(2));
-		StatResultsUtil.write(new StatisticsResult[] {
+		StatsUtil.write(new StatisticsResult[] {
 				resultAll[iLF][0], 	resultAll[iLF][1], resultAll[iLF][2]
 		}, measurements, new File(outDir, "zscores_LF_z2.txt"), 
 		new FilterZScoreOptions().threshold(2));
@@ -84,7 +84,7 @@ public class ZScoreCorrelation {
 			header[2*i] = "LF_" + measurements[i];
 			header[2*i+1] = "HF_" + measurements[i];
 		}
-		StatResultsUtil.write(new StatisticsResult[] {
+		StatsUtil.write(new StatisticsResult[] {
 				resultAll[iLF][0], 	resultAll[iHF][0], resultAll[iLF][1],
 				resultAll[iHF][1], 	resultAll[iLF][2], resultAll[iHF][2],
 		}, header, new File(outDir, "zscores_LFandHF_z2.txt"), 

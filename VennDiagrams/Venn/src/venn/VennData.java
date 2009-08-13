@@ -1,9 +1,15 @@
 package venn;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class VennData<K> implements VennCounts {
@@ -14,7 +20,7 @@ public class VennData<K> implements VennCounts {
 	//Sets for each part of the venn diagram
 	//Index is bitwise addition of set combinations
 	//So for union 1,2,3 use index 2^0 & 2^1 & 2^2
-	List<Set<K>> partialSets;
+	Map<Integer, Set<K>> partialSets;
 
 	public VennData(List<Set<K>> sets) {
 		if(sets.size() < 2 || sets.size() > 3) {
@@ -24,10 +30,7 @@ public class VennData<K> implements VennCounts {
 		setIndices = new int[sets.size()];
 		for(int i = 0; i < sets.size(); i++) setIndices[i] = i;
 		
-		partialSets = new ArrayList<Set<K>>();
-		int max = 0;
-		for(int i = 0; i < sets.size(); i++) max |= (int)Math.pow(2, i);
-		for(int i = 0; i <= max; i++) partialSets.add(null);
+		partialSets = new HashMap<Integer, Set<K>>();
 		calculateOverlap();
 	}
 	
@@ -50,7 +53,7 @@ public class VennData<K> implements VennCounts {
 	}
 	
 	private void setUnion(Set<K> union, int unionIndex) {
-		partialSets.set(unionIndex, union);
+		partialSets.put(unionIndex, union);
 	}
 	
 	public int getNrSets() {
@@ -109,5 +112,57 @@ public class VennData<K> implements VennCounts {
 			}
 			setUnion(unique, getUnionIndex(i));
 		}
+	}
+	
+	public void saveUnions(File file, String[] labels, DoSomething<K, String> toString) throws IOException {
+		BufferedWriter out = new BufferedWriter(new FileWriter(file));
+		
+		//Create headers
+		Map<Integer, String> headers = new HashMap<Integer, String>();
+		headers.put(getUnionIndex(0), labels[0]);
+		headers.put(getUnionIndex(1), labels[1]);
+		headers.put(getUnionIndex(0, 1), labels[0] + "-" + labels[1]);
+		if(getNrSets() == 3) {
+			headers.put(getUnionIndex(2), labels[2]);
+			headers.put(getUnionIndex(0, 2), labels[0] + "-" + labels[2]);
+			headers.put(getUnionIndex(1, 2), labels[1] + "-" + labels[2]);
+			headers.put(getUnionIndex(0, 1, 2), labels[0] + "-" + labels[1] + "-" + labels[2]);
+		}
+		//Convert sets to lists
+		int maxSize = 0;
+		Map<Integer, ArrayList<K>> setLists = new HashMap<Integer, ArrayList<K>>();
+		for(int i : partialSets.keySet()) {
+			Set<K> set = getUnion(i);
+			setLists.put(i, new ArrayList<K>(set));
+			maxSize = Math.max(maxSize, set.size());
+		}
+		
+		//Print headers
+		boolean first = true;
+		for(int i : partialSets.keySet()) {
+			if(!first) out.append("\t");
+			first = false;
+			out.append(headers.get(i));
+		}
+		out.append("\n");
+		
+		//Print items
+		for(int i = 0; i < maxSize; i++) {
+			first = true;
+			for(int j : partialSets.keySet()) {
+				if(!first) out.append("\t");
+				first = false;
+				ArrayList<K> l = setLists.get(j);
+				if(l.size() > i) {
+					out.append(toString.doit(l.get(i)));
+				}
+			}
+			out.append("\n");
+		}
+		out.close();
+	}
+	
+	public static interface DoSomething<K, V> {
+		public V doit(K obj);
 	}
 }

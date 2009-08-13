@@ -1,5 +1,5 @@
 /*
-/home/thomas/code/googlerepo/scripts/cytoscape/pps3/pps3_runAll.groovy
+/home/thomas/code/googlerepo/scripts/cytoscape/pps2/pps2_runAll.groovy
 */
 import cytoscape.*;
 import cytoscape.actions.*;
@@ -40,8 +40,14 @@ def loadSession = { sessionFile ->
 //Globals
 class PPSGlobals {
     static String dataPath = "/home/thomas/projects/pps2/stat_results/";
-    static String outPath = "/home/thomas/projects/pps2/path_results/bigcat/network";
-    static String expression = "[q-value] < 0.05";
+    static String outPath = "/home/thomas/projects/pps2/path_results/bigcat/network/20090810/";
+    static String expression = "[qvalue_HFvsLF_t0] < 0.05";
+    static String vizAttr = "logratio_t0_HFvsLF";
+    static String idmPath = "/home/thomas/PathVisio-Data/gene databases/Mm_Derby_20090509.pgdb";
+    static File dataFile = new File(PPSGlobals.dataPath + "PPS2_average 2logratio_HFvsLF per tp.pgex");
+    
+    static String pathwayPath = "/home/thomas/data/pathways/20090810/mmu";
+    //static String pathwayPath = "/home/thomas/data/pathways/20090715";
 }
 
 GroovyShell gsh = new GroovyShell(this.class.classLoader, getBinding());
@@ -65,7 +71,7 @@ if(forceCalculate || !networkSession.exists()) {
 
 if(forceCalculate || !graphSession.exists()) {
     gsh.evaluate(new File(scriptPath, "pps2_applyGraphics.groovy"));
-	gsh.evaluate(new File(scriptPath, "pps2_exportPng.groovy"));
+    gsh.evaluate(new File(scriptPath, "pps2_exportPng.groovy"));
     saveSession(graphSession);
 } else {
     loadSession(graphSession);

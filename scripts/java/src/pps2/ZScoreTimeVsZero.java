@@ -10,8 +10,8 @@ import org.bridgedb.rdb.IDMapperRdb;
 import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.plugins.statistics.StatisticsResult;
 import org.pathvisio.preferences.PreferenceManager;
-import org.pathvisio.utils.StatResultsUtil;
-import org.pathvisio.utils.StatResultsUtil.FilterZScoreOptions;
+import org.pathvisio.utils.StatsUtil;
+import org.pathvisio.utils.StatsUtil.FilterZScoreOptions;
 
 /**
  * Calculate z-scores for each t0 versus tn comparison with criteria:
@@ -68,9 +68,9 @@ public class ZScoreTimeVsZero {
 				String exprAll = var_q + " < 0.05";
 				String exprDown = var_q + " < 0.05 AND " + var_r + " < 0";
 				String exprUp = var_q + " < 0.05 AND " + var_r + " > 0"; 
-				resultAll[d][t] = StatResultsUtil.calculateZscores(exprAll, ConstantsPPS2.pathwayDir, data, idMapper);
-				resultDown[d][t] = StatResultsUtil.calculateZscores(exprDown, ConstantsPPS2.pathwayDir, data, idMapper);
-				resultUp[d][t] = StatResultsUtil.calculateZscores(exprUp, ConstantsPPS2.pathwayDir, data, idMapper);
+				resultAll[d][t] = StatsUtil.calculateZscores(exprAll, ConstantsPPS2.pathwayDir, data, idMapper);
+				resultDown[d][t] = StatsUtil.calculateZscores(exprDown, ConstantsPPS2.pathwayDir, data, idMapper);
+				resultUp[d][t] = StatsUtil.calculateZscores(exprUp, ConstantsPPS2.pathwayDir, data, idMapper);
 				
 				resultAll[d][t].save(new File(outDir, "zscores_detail_" + diet + "_" + time + "_all.txt"));
 				resultDown[d][t].save(new File(outDir, "zscores_detail_" + diet + "_" + time + "_down.txt"));
@@ -85,7 +85,7 @@ public class ZScoreTimeVsZero {
 		for(int t = 0; t < timePoints.length; t++) {
 			String time = timePoints[t];
 			
-			StatResultsUtil.write(new StatisticsResult[] {
+			StatsUtil.write(new StatisticsResult[] {
 					resultAll[iHF][t], 	resultAll[iLF][t]
 			}, paste("t0_vs_" + time + "_", diets, ""), new File(outDir, "zscores_HF_LF_t0_vs_" + time + "_z2.txt"),
 				new FilterZScoreOptions().threshold(2)
@@ -93,17 +93,17 @@ public class ZScoreTimeVsZero {
 			
 		}
 		//File for HF and LF comparing each timepoint
-		StatResultsUtil.write(new StatisticsResult[] {
+		StatsUtil.write(new StatisticsResult[] {
 				resultAll[iHF][0], 	resultAll[iHF][1], resultAll[iHF][2]
 		}, paste("t0_vs_", timePoints, ""), new File(outDir, "zscores_HF_time_vs_t0_z2.txt"), 
 		new FilterZScoreOptions().threshold(2));
-		StatResultsUtil.write(new StatisticsResult[] {
+		StatsUtil.write(new StatisticsResult[] {
 				resultAll[iLF][0], 	resultAll[iLF][1], resultAll[iLF][2]
 		}, paste("t0_vs_", timePoints, ""), new File(outDir, "zscores_LF_time_vs_t0_z2.txt"), 
 		new FilterZScoreOptions().threshold(2));
 		
 		//File containing categorized version of each early timepoint
-		StatResultsUtil.writeSummary(
+		StatsUtil.writeSummary(
 				new StatisticsResult[] {
 					resultAll[iLF][0], resultAll[iLF][1], resultAll[iHF][0], resultAll[iHF][1]	
 				},
@@ -118,7 +118,7 @@ public class ZScoreTimeVsZero {
 				new FilterZScoreOptions().threshold(2)
 		);
 		//File containing categorized version of the late timepoint
-		StatResultsUtil.writeSummary(
+		StatsUtil.writeSummary(
 				new StatisticsResult[] {
 					resultAll[iLF][2], resultAll[iHF][2]	
 				},

@@ -19,7 +19,7 @@ import org.pathvisio.plugins.statistics.StatisticsExporter;
 import org.pathvisio.plugins.statistics.StatisticsResult;
 import org.pathvisio.preferences.PreferenceManager;
 import org.pathvisio.util.FileUtils;
-import org.pathvisio.utils.StatResultsUtil;
+import org.pathvisio.utils.StatsUtil;
 import org.pathvisio.visualization.Visualization;
 
 /**
@@ -96,7 +96,7 @@ public class PwExportTimeVsZero {
 				String var_q = "[" + diet + "_limma_t0_vs_" + time + "_qvalue]";
 				String expr = var_q + " < 0.05";
 				
-				StatisticsResult result = StatResultsUtil.calculateZscores(
+				StatisticsResult result = StatsUtil.calculateZscores(
 						expr, ConstantsPPS2.pathwayDir, data, idMapper);
 				setVisualization(diet);
 				exporter.export(new File(outDir, "html_" + diet + "_" + time), result, pvDesktop.getVisualizationManager().getActiveVisualization());

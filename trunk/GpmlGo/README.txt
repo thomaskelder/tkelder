@@ -6,7 +6,7 @@ You will need several data files in order to run the script:
 This file will provide the mappings from Ensembl genes to GO terms. You can query this information from Biomart and save as TSV file. As attributes, select "Ensembl gene ID", GO ID and GO Evidence code.
 
 Here is an example of the settings for the human mappings for Biological Process:
-http://www.ensembl.org/biomart/martview/2c093b3275dabc94c1a3987d8f40f284/2c093b3275dabc94c1a3987d8f40f284/2c093b3275dabc94c1a3987d8f40f284?VIRTUALSCHEMANAME=default&ATTRIBUTES=hsapiens_gene_ensembl.default.feature_page.ensembl_gene_id|hsapiens_gene_ensembl.default.feature_page.go_biological_process_id|hsapiens_gene_ensembl.default.feature_page.go_biological_process_linkage_type&FILTERS=&VISIBLEPANEL=resultspanel
+http://www.ensembl.org/biomart/martview/04ea6e1437256744a382c96a5b21195f/04ea6e1437256744a382c96a5b21195f?VIRTUALSCHEMANAME=default&ATTRIBUTES=hsapiens_gene_ensembl.default.feature_page.ensembl_gene_id|hsapiens_gene_ensembl.default.feature_page.go_biological_process_id|hsapiens_gene_ensembl.default.feature_page.go_biological_process_linkage_type&FILTERS=&VISIBLEPANEL=resultspan
 
 2. Ontology
 This file defines the GO ontology and can be downloaded here:

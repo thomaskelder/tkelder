@@ -11,8 +11,8 @@ import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.plugins.statistics.StatisticsResult;
 import org.pathvisio.preferences.PreferenceManager;
 import org.pathvisio.utils.GexUtil;
-import org.pathvisio.utils.StatResultsUtil;
-import org.pathvisio.utils.StatResultsUtil.FilterZScoreOptions;
+import org.pathvisio.utils.StatsUtil;
+import org.pathvisio.utils.StatsUtil.FilterZScoreOptions;
 import org.pathvisio.visualization.colorset.Criterion.CriterionException;
 
 /**
@@ -69,22 +69,22 @@ public class ZScoreTimeHFvsLF {
 			String exprDown = "[qvalue_HFvsLF_" + time + "] < 0.05 AND [logratio_" + time + "_HFvsLF] < 0";
 			String exprUp = "[qvalue_HFvsLF_" + time + "] < 0.05 AND [logratio_" + time + "_HFvsLF] > 0";
 			
-			resultAll[i] = StatResultsUtil.calculateZscores(exprAll, ConstantsPPS2.pathwayDir, data, idMapper);
-			resultDown[i] = StatResultsUtil.calculateZscores(exprDown, ConstantsPPS2.pathwayDir, data, idMapper);
-			resultUp[i] = StatResultsUtil.calculateZscores(exprUp, ConstantsPPS2.pathwayDir, data, idMapper);
+			resultAll[i] = StatsUtil.calculateZscores(exprAll, ConstantsPPS2.pathwayDir, data, idMapper);
+			resultDown[i] = StatsUtil.calculateZscores(exprDown, ConstantsPPS2.pathwayDir, data, idMapper);
+			resultUp[i] = StatsUtil.calculateZscores(exprUp, ConstantsPPS2.pathwayDir, data, idMapper);
 			
 			resultAll[i].save(new File(outDir, "zscores_detail_" + time + "_all.txt"));
 			resultDown[i].save(new File(outDir, "zscores_detail_" + time + "_down.txt"));
 			resultUp[i].save(new File(outDir, "zscores_detail_" + time + "_up.txt"));
-			StatResultsUtil.writeDetailed(resultAll[i], resultUp[i], resultDown[i], new File(outDir, "zscores_detail_" + time + "_allupdown.txt"));
+			StatsUtil.writeDetailed(resultAll[i], resultUp[i], resultDown[i], new File(outDir, "zscores_detail_" + time + "_allupdown.txt"));
 		}
 		
 		//Write to txt files
-		StatResultsUtil.write(resultAll, paste("", timePoints, "_all"), new File(outDir, "zscores_all_HFvsLF_time.txt"), 
+		StatsUtil.write(resultAll, paste("", timePoints, "_all"), new File(outDir, "zscores_all_HFvsLF_time.txt"), 
 				new FilterZScoreOptions());
-		StatResultsUtil.writeSigned(resultUp, resultDown, timePoints, new File(outDir, "zscores_signed_HFvsLF_time.txt"), 
+		StatsUtil.writeSigned(resultUp, resultDown, timePoints, new File(outDir, "zscores_signed_HFvsLF_time.txt"), 
 				new FilterZScoreOptions());
-		StatResultsUtil.writeSigned(resultUp, resultDown, timePoints, new File(outDir, "zscores_signed_HFvsLF_time_z2.txt"),
+		StatsUtil.writeSigned(resultUp, resultDown, timePoints, new File(outDir, "zscores_signed_HFvsLF_time_z2.txt"),
 				new FilterZScoreOptions().threshold(2));
 	}
 	
@@ -95,7 +95,7 @@ public class ZScoreTimeHFvsLF {
 		String crit = "( [qvalue_HFvsLF_t0] < 0.05 AND ( [logratio_t0_HFvsLF] >= 0.26 OR [logratio_t0_HFvsLF] <= -0.26)) AND " +
 				"([qvalue_HFvsLF_t2] >= 0.05 AND ([logratio_t2_HFvsLF] <= 0.07 AND [logratio_t2_HFvsLF] >= -0.07))";
 		
-		StatisticsResult result = StatResultsUtil.calculateZscores(crit, ConstantsPPS2.pathwayDir, data, idMapper);
+		StatisticsResult result = StatsUtil.calculateZscores(crit, ConstantsPPS2.pathwayDir, data, idMapper);
 		result.save(new File(outDir, "zscores_togetherAtT2.txt"));
 		
 		//Also print a file containing the genes that satisfy this criterion

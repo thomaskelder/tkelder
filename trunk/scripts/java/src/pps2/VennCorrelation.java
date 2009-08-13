@@ -23,7 +23,7 @@ import org.pathvisio.go.XrefAnnotation;
 import org.pathvisio.go.venn.GoVenn;
 import org.pathvisio.plugins.statistics.Column;
 import org.pathvisio.preferences.PreferenceManager;
-import org.pathvisio.utils.StatResultsUtil;
+import org.pathvisio.utils.StatsUtil;
 import org.pathvisio.visualization.colorset.Criterion;
 import org.pathvisio.visualization.colorset.Criterion.CriterionException;
 
@@ -108,17 +108,17 @@ public class VennCorrelation {
 		File zscorePath = new File("/home/thomas/projects/pps2/path_results/bigcat/correlation");
 		for(String diet : new String[] { "HF", "LF" }) {
 			Map<String, Double> zInsulin = 
-				StatResultsUtil.parseZScoreResults(
+				StatsUtil.parseZScoreResults(
 						new File(zscorePath, "zscores_detail_" + diet + "_Insulin_t12.txt"), 
 						Column.ZSCORE
 			);
 			Map<String, Double> zGlucose = 
-				StatResultsUtil.parseZScoreResults(
+				StatsUtil.parseZScoreResults(
 						new File(zscorePath, "zscores_detail_" + diet + "_Glucose_t12.txt"), 
 						Column.ZSCORE
 			);
 			Map<String, Double> zHOMA = 
-				StatResultsUtil.parseZScoreResults(
+				StatsUtil.parseZScoreResults(
 						new File(zscorePath, "zscores_detail_" + diet + "_HOMA_t12.txt"), 
 						Column.ZSCORE
 			);

@@ -13,7 +13,7 @@ import cytoscape.visual.mappings.ObjectMapping;
 import PPSGlobals;
 
 //Create a visual style to color the gene nodes
-String attr = "log2_HFvsLF_t0";
+String attr = PPSGlobals.vizAttr;
 
 VisualStyle vsSource = Cytoscape.getVisualMappingManager().getVisualStyle();
 VisualStyle vs = new VisualStyle(vsSource);

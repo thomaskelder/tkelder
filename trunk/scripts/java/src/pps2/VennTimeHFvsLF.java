@@ -24,7 +24,7 @@ import org.pathvisio.go.XrefAnnotation;
 import org.pathvisio.go.venn.GoVenn;
 import org.pathvisio.plugins.statistics.Column;
 import org.pathvisio.preferences.PreferenceManager;
-import org.pathvisio.utils.StatResultsUtil;
+import org.pathvisio.utils.StatsUtil;
 import org.pathvisio.visualization.colorset.Criterion;
 import org.pathvisio.visualization.colorset.Criterion.CriterionException;
 
@@ -168,10 +168,10 @@ public class VennTimeHFvsLF {
 	
 	void pathway() throws IOException, IDMapperException, CriterionException {
 		File zscorePath = new File("/home/thomas/projects/pps2/path_results/bigcat/HFvsLF/zscores");
-		Map<String, Double> z0 = StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t0_all.txt"), Column.ZSCORE);
-		Map<String, Double> z1 = StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t0.6_all.txt"), Column.ZSCORE);
-		Map<String, Double> z2 = StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t2_all.txt"), Column.ZSCORE);
-		Map<String, Double> z3 = StatResultsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t48_all.txt"), Column.ZSCORE);
+		Map<String, Double> z0 = StatsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t0_all.txt"), Column.ZSCORE);
+		Map<String, Double> z1 = StatsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t0.6_all.txt"), Column.ZSCORE);
+		Map<String, Double> z2 = StatsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t2_all.txt"), Column.ZSCORE);
+		Map<String, Double> z3 = StatsUtil.parseZScoreResults(new File(zscorePath, "zscores_detail_t48_all.txt"), Column.ZSCORE);
 		
 		String title = "Pathways with z >= 2 (q < 0.05)";
 

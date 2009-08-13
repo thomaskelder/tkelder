@@ -49,8 +49,8 @@ def createFiltered = { wt, pathways, filterFiles, title ->
     exporter.export(view, new FileOutputStream(f));
 }
 
-File idmFile = new File("/home/thomas/PathVisio-Data/gene databases/Mm_Derby_20090509.pgdb");
-File pathwayDir = new File("/home/thomas/data/pathways/20090715");
+File idmFile = new File(PPSGlobals.idmPath);
+File pathwayDir = new File(PPSGlobals.pathwayPath);
 
 //Load the ID mapper database
 IDMapperRdb idmapper = PVToolsPlugin.openIDMapper(idmFile);
@@ -64,8 +64,7 @@ Parameters par = Parameters.create()
 	.firstNeighbours(true);
 
 //Open the PathVisio dataset
-File dataFile = new File(PPSGlobals.dataPath + "PPS2_HFvsLF t0_average 2logratio stats.pgex");
-SimpleGex data = PVToolsPlugin.openDataSet(dataFile);
+SimpleGex data = PVToolsPlugin.openDataSet(PPSGlobals.dataFile);
 
 //Define the criterion to select siginifcant genes
 crit = new Criterion();
@@ -77,7 +76,12 @@ WalkieTalkie wt = new WalkieTalkie(
 );
 
 List<File> filterFiles = null;
-filterFiles = [ new File(pathwayDir, "Mm_Complement_and_Coagulation_Cascades_KEGG_WP449_22601.gpml") ];
-createFiltered(wt, pathways, filterFiles, "Complement and coagulation cascades");
+
+//filterFiles = [ new File(pathwayDir, "Mm_Complement_and_Coagulation_Cascades_KEGG_WP449_22601.gpml") ];
+//createFiltered(wt, pathways, filterFiles, "Complement and coagulation cascades");
+
 //filterFiles = [ new File(pathwayDir, "Mm_Adipogenesis_WP447_28134.gpml") ];
 //createFiltered(wt, pathways, filterFiles, "Adipogenesis");
+
+filterFiles = [ new File(pathwayDir, "Mm_Glutathione_and_one_carbon_metabolism_WP730_31163.gpml") ];
+createFiltered(wt, pathways, filterFiles, "Glutathione and one carbon metabolism");

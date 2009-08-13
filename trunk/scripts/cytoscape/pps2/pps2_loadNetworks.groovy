@@ -15,8 +15,8 @@ import cytoscape.data.CyAttributes;
 import cytoscape.visual.*;
 import PPSGlobals;
 
-File idmFile = new File("/home/thomas/PathVisio-Data/gene databases/Mm_Derby_20090509.pgdb");
-File pathwayDir = new File("/home/thomas/data/pathways/20090715");
+File idmFile = new File(PPSGlobals.idmPath);
+File pathwayDir = new File(PPSGlobals.pathwayPath);
 
 String expression = PPSGlobals.expression;
 
@@ -31,8 +31,7 @@ Parameters par = Parameters.create()
     .minGeneConnections(1);
 
 //Open the PathVisio dataset
-File dataFile = new File(PPSGlobals.dataPath + "PPS2_HFvsLF t0_average 2logratio stats.pgex");
-SimpleGex data = PVToolsPlugin.openDataSet(dataFile);
+SimpleGex data = PVToolsPlugin.openDataSet(PPSGlobals.dataFile);
 
 //Define the criterion to select siginifcant genes
 crit = new Criterion();

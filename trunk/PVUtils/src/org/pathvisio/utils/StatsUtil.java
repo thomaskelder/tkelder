@@ -9,20 +9,23 @@ import java.io.Writer;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.bridgedb.IDMapper;
 import org.bridgedb.IDMapperException;
+import org.bridgedb.Xref;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.plugins.statistics.Column;
+import org.pathvisio.plugins.statistics.SetZScoreCalculator;
 import org.pathvisio.plugins.statistics.StatisticsPathwayResult;
 import org.pathvisio.plugins.statistics.StatisticsResult;
 import org.pathvisio.plugins.statistics.ZScoreCalculator;
 import org.pathvisio.visualization.colorset.Criterion;
 
-public class StatResultsUtil {
+public class StatsUtil {
 	/**
-	 * Write detailled results for total (including n, r) and append with up/down and difference columns.
+	 * Write detailed results for total (including n, r) and append with up/down and difference columns.
 	 * @throws IOException 
 	 */
 	public static void writeDetailed(StatisticsResult total, StatisticsResult up, StatisticsResult down, File file) throws IOException {
@@ -77,6 +80,9 @@ public class StatResultsUtil {
 		}
 	}
 	
+	/**
+	 * Write summarized results (z-scores only) and append each column with difference between up/down.
+	 */
 	public static void writeSummary(StatisticsResult[] total, StatisticsResult[] up, StatisticsResult[] down, String[] headers, File file, FilterZScoreOptions options) throws IOException {
 		Writer out = new BufferedWriter(new FileWriter(file));
 		out.append("Pathway\tFile");
@@ -124,6 +130,13 @@ public class StatResultsUtil {
 		out.close();
 	}
 	
+	/**
+	 * Write summarized results and categorize z-scores:
+	 * -1: z >= threshold && zup-zdown < 3
+	 * 0: z >= threshold && |zup-zdown| < 3
+	 * 1: z >= threshold && zup-zdown > 3
+	 * NaN: z <= threshold
+	 */
 	public static void writeCategorized(StatisticsResult[] total, StatisticsResult[] up, StatisticsResult[] down, String[] headers, File file, FilterZScoreOptions options) throws IOException {
 		if(Double.isNaN(options.threshold)) {
 			throw new IllegalArgumentException("You should set a valid options.threshold for categorization.");
@@ -271,6 +284,11 @@ public class StatResultsUtil {
 		Criterion crit = new Criterion();
 		crit.setExpression(expr, gex.getSampleNames());
 		ZScoreCalculator calc = new ZScoreCalculator(crit, pwDir, gex, gdb, null);
+		return calc.calculateAlternative();
+	}
+	
+	public static StatisticsResult calculateZscoresFromSet(Set<Xref> positive, File pwDir, SimpleGex gex, IDMapper gdb) throws IDMapperException {
+		SetZScoreCalculator calc = new SetZScoreCalculator(positive, pwDir, gex, gdb, null);
 		return calc.calculateAlternative();
 	}
 	

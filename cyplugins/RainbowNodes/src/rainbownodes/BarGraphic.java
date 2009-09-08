@@ -63,7 +63,7 @@ public class BarGraphic extends Graphic {
 			if(value > 0) {
 				graphics.fillRect(bounds.x + i * scaledWidth, baseline - height, scaledWidth, height);
 			} else {
-				graphics.fillRect(bounds.x + i * scaledWidth, baseline, scaledWidth, -height);
+				graphics.fillRect(bounds.x + i * scaledWidth, baseline + 1, scaledWidth, -height);
 			}
 			
 			//Draw base line

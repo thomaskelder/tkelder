@@ -53,6 +53,20 @@ public class WalkieTalkie {
 		findPathwayMappings();
 	}
 
+	/**
+	 * Get all pathways containing minimal one datanode that 
+	 * passes the criterion.
+	 */
+	public Set<PathwayInfo> getIncludedPathways() {
+		Set<PathwayInfo> pathways = new HashSet<PathwayInfo>();
+		for(Xref x : xref2pathway.keySet()) {
+			if(sigXrefs.contains(x)) {
+				pathways.addAll(xref2pathway.get(x));
+			}
+		}
+		return pathways;
+	}
+	
 	private void findPathwayMappings() throws IDMapperException {
 		//Create mappings
 		pathway2xref = new HashMultimap<PathwayInfo, Xref>();
@@ -109,6 +123,10 @@ public class WalkieTalkie {
 	public void writeSif(Writer out, Collection<PathwayInfo> filterPathways) throws CriterionException, IOException {
 		Logger.log.info(sigXrefs.size() + " significant reporters");
 
+		//Use a copy of xref2pathway, because we are going to filter
+		//out pathways (and we don't want them to be removed from the master map).
+		SetMultimap<Xref, PathwayInfo> myXref2pathway = new HashMultimap<Xref, PathwayInfo>(xref2pathway);
+		
 		SetMultimap<Xref, PathwayInfo> filtered = new HashMultimap<Xref, PathwayInfo>();
 
 		//If pathway filter is specified, only include this pathway
@@ -126,13 +144,13 @@ public class WalkieTalkie {
 				}
 			}
 			for(Xref x : sigXrefs) {
-				xref2pathway.get(x).removeAll(excludePathways);
+				myXref2pathway.get(x).removeAll(excludePathways);
 			}
 		}
 
 		//Only include genes with enough connections
-		for(Xref xref : xref2pathway.keySet()) {
-			Set<PathwayInfo> pwMapping = xref2pathway.get(xref);
+		for(Xref xref : myXref2pathway.keySet()) {
+			Set<PathwayInfo> pwMapping = myXref2pathway.get(xref);
 			if(pwMapping.size() >= par.getMinGeneConnections()) {
 				//Add the mapping to the filtered list
 				filtered.putAll(xref, pwMapping);
@@ -141,7 +159,7 @@ public class WalkieTalkie {
 
 		//Write the mappings to sif
 		for(Xref xref : filtered.keySet()) {
-			for(PathwayInfo pwi : xref2pathway.get(xref)) {
+			for(PathwayInfo pwi : myXref2pathway.get(xref)) {
 				out.append(xref.getId());
 				out.append("\t");
 				out.append(EDGE);

@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
@@ -15,47 +16,45 @@ import java.util.TreeMap;
  * A Color gradient.
  * @author thomas
  */
-public class Gradient {
+public class Gradient implements Serializable {
+	private static final long serialVersionUID = -1533851816647153152L;
 	SortedMap<Double, Color> pointColors;
-	
-	double min = Double.MIN_VALUE;
-	double max = Double.MAX_VALUE;
-	
+
 	public Gradient() {
 		pointColors = new TreeMap<Double, Color>();
 	}
-	
+
 	public void addPoint(double value, Color c) {
 		pointColors.put(value, c);
 	}
-	
+
 	public Gradient point(double value, Color c) {
 		addPoint(value, c);
 		return this;
 	}
-	
+
 	public void removePoint(double value) {
 		pointColors.remove(value);
 	}
-	
+
 	public double getMin() {
 		return pointColors.firstKey();
 	}
-	
+
 	public double getMax() {
 		return pointColors.lastKey();
 	}
-	
+
 	public Color calculate(double value) {
 		double valueStart = getMin();
 		double valueEnd = getMax();
 		Color colorStart = null;
 		Color colorEnd = null;
-		
+
 		//Easy cases
 		if(value <= getMin()) return pointColors.get(getMin());
 		if(value >= getMax()) return pointColors.get(getMax());
-		
+
 		//Find what colors the value is in between
 		//Keys are sorted!
 		List<Double> values = new ArrayList<Double>(pointColors.keySet());
@@ -71,9 +70,9 @@ public class Gradient {
 				break;
 			}
 		}
-		
+
 		if(colorStart == null || colorEnd == null) return null; //Check if the values/colors are found
-		
+
 		// Interpolate to find the color belonging to the given value
 		double alpha = (value - valueStart) / (valueEnd - valueStart);
 		double red = colorStart.getRed() + alpha*(colorEnd.getRed() - colorStart.getRed());
@@ -82,7 +81,7 @@ public class Gradient {
 
 		return new Color((int)red, (int)green, (int)blue);
 	}
-	
+
 	public void paintLegend(Graphics graphics, Rectangle bounds) {
 		Graphics2D g = (Graphics2D)graphics.create();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

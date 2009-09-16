@@ -14,6 +14,7 @@ import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -24,7 +25,8 @@ import cytoscape.render.stateful.CustomGraphic;
  * Graphics to draw over a Cytoscape node.
  * @author thomas
  */
-public abstract class Graphic {
+public abstract class Graphic implements Serializable {
+	private static final long serialVersionUID = -6528977249856158196L;
 	private Gradient gradient;
 	private List<String> attributes;
 	

@@ -76,12 +76,14 @@ WalkieTalkie wt = new WalkieTalkie(
 );
 
 List<File> filterFiles = null;
+/*
+filterFiles = [ new File(pathwayDir, "Mm_Complement_and_Coagulation_Cascades_KEGG_WP449_22601.gpml") ];
+createFiltered(wt, pathways, filterFiles, "Complement and coagulation cascades");
 
-//filterFiles = [ new File(pathwayDir, "Mm_Complement_and_Coagulation_Cascades_KEGG_WP449_22601.gpml") ];
-//createFiltered(wt, pathways, filterFiles, "Complement and coagulation cascades");
-
-//filterFiles = [ new File(pathwayDir, "Mm_Adipogenesis_WP447_28134.gpml") ];
-//createFiltered(wt, pathways, filterFiles, "Adipogenesis");
+filterFiles = [ new File(pathwayDir, "Mm_Adipogenesis_WP447_28134.gpml") ];
+createFiltered(wt, pathways, filterFiles, "Adipogenesis");
 
 filterFiles = [ new File(pathwayDir, "Mm_Glutathione_and_one_carbon_metabolism_WP730_31163.gpml") ];
 createFiltered(wt, pathways, filterFiles, "Glutathione and one carbon metabolism");
+*/
+

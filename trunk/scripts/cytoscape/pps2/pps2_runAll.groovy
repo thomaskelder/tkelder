@@ -40,14 +40,14 @@ def loadSession = { sessionFile ->
 //Globals
 class PPSGlobals {
     static String dataPath = "/home/thomas/projects/pps2/stat_results/";
-    static String outPath = "/home/thomas/projects/pps2/path_results/bigcat/network/20090810/";
+    static String outPath = "/home/thomas/projects/pps2/path_results/bigcat/network/working/";
     static String expression = "[qvalue_HFvsLF_t0] < 0.05";
     static String vizAttr = "logratio_t0_HFvsLF";
     static String idmPath = "/home/thomas/PathVisio-Data/gene databases/Mm_Derby_20090509.pgdb";
     static File dataFile = new File(PPSGlobals.dataPath + "PPS2_average 2logratio_HFvsLF per tp.pgex");
     
-    static String pathwayPath = "/home/thomas/data/pathways/20090810/mmu";
-    //static String pathwayPath = "/home/thomas/data/pathways/20090715";
+    //static String pathwayPath = "/home/thomas/data/pathways/20090810/mmu";
+    static String pathwayPath = "/home/thomas/data/pathways/20090907/mmu";
 }
 
 GroovyShell gsh = new GroovyShell(this.class.classLoader, getBinding());
@@ -60,8 +60,7 @@ String scriptPath = "/home/thomas/code/googlerepo/scripts/cytoscape/pps2/";
 
 File networkSession = new File(PPSGlobals.outPath, "pps2_HFvsLF_t0_network.cys");
 File graphSession = new File(PPSGlobals.outPath, "pps2_HFvsLF_t0_vis.cys");
-
-
+/*
 if(forceCalculate || !networkSession.exists()) {
     gsh.evaluate(new File(scriptPath, "pps2_loadNetworks.groovy"));
     saveSession(networkSession);
@@ -76,5 +75,5 @@ if(forceCalculate || !graphSession.exists()) {
 } else {
     loadSession(graphSession);
 }
-
+*/
 gsh.evaluate(new File(scriptPath, "pps2_filtered.groovy"));

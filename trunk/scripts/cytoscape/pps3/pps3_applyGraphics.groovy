@@ -17,8 +17,8 @@ for(CyNetworkView view in Cytoscape.getNetworkViewMap().values()) {
 	            .point(1E6, Color.RED);
 	} else {
 	    gradient = new Gradient()
-	            .point(-4, Color.GREEN)
-	            .point(4, Color.RED);
+	            .point(-3, Color.GREEN)
+	            .point(3, Color.RED);
 	}
 	
 	List<String> visAttr = PPSGlobals.getVisAttr(s);

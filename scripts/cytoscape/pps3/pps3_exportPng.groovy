@@ -18,6 +18,6 @@ for(CyNetworkView v in Cytoscape.getNetworkViewMap().values()) {
     v.fitContent();
 
     //Export
-    File f = new File(PPSGlobals.outPath, v.getTitle() + "." + ext);
+    File f = new File(PPSGlobals.outPath, v.getNetwork().getTitle() + "." + ext);
     exporter.export(v, new FileOutputStream(f)); 
 }

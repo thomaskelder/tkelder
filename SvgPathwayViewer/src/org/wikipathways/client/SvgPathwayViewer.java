@@ -1,6 +1,9 @@
 package org.wikipathways.client;
 
+import org.wikipathways.client.images.Images;
+
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -9,9 +12,12 @@ import com.google.gwt.user.client.ui.RootPanel;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class SvgPathwayViewer implements EntryPoint {
+	public static Images images;
+	
 	String svgRef;
 	
 	public void onModuleLoad() {
+		images = GWT.create(Images.class);
 		initParameters();
 		DockPanel mainPanel = new DockPanel();
 		

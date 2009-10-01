@@ -131,11 +131,7 @@ public class StatsUtil {
 	}
 	
 	/**
-	 * Write summarized results and categorize z-scores:
-	 * -1: z >= threshold && zup-zdown < 3
-	 * 0: z >= threshold && |zup-zdown| < 3
-	 * 1: z >= threshold && zup-zdown > 3
-	 * NaN: z <= threshold
+	 * Write summarized results, sign and optionally digitalize z-scores (depending on options).
 	 */
 	public static void writeCategorized(StatisticsResult[] total, StatisticsResult[] up, StatisticsResult[] down, String[] headers, File file, FilterZScoreOptions options) throws IOException {
 		if(Double.isNaN(options.threshold)) {
@@ -172,14 +168,25 @@ public class StatsUtil {
 			for(int i = 0; i < frTotal.length; i++) {
 				out.append("\t");
 				double ztotal = Double.parseDouble(frTotal[i].getProperty(Column.ZSCORE));
+				if(ztotal < 0 || Double.isNaN(ztotal)) ztotal = 0; //Cutoff negative z-scores
 				double zup = Double.parseDouble(frUp[i].getProperty(Column.ZSCORE));
+				if(Double.isNaN(zup)) zup = Double.MIN_VALUE;
 				double zdown = Double.parseDouble(frDown[i].getProperty(Column.ZSCORE));
-				double cat = Double.NaN;
-				if(ztotal >= options.threshold) {
-					double zdiff = zup - zdown;
-					if(zdiff > 3) cat = 1;
-					else if(zdiff < 3) cat = -1;
-					else cat = 0;
+				if(Double.isNaN(zdown)) zdown = Double.MIN_VALUE;
+				double cat = ztotal;
+				double zdiff = zup - zdown;
+				
+				if(zdiff < 0) cat = -ztotal;
+				if (Math.abs(zdiff) < options.minDifferenceForSign*ztotal){
+					Logger.log.info("Unable to determine sign for " + frTotal[i].getFile());
+					cat = Double.NaN; //Unable to determine sign
+				}
+				if(options.digitalize) {
+					if(ztotal >= options.threshold) {
+						cat = cat > 0 ? 1 : 0;
+					} else {
+						cat = 0;
+					}
 				}
 				out.append(cat + "");
 			}
@@ -351,7 +358,22 @@ public class StatsUtil {
 		public int minSize = Integer.MIN_VALUE;
 		public int maxSize = Integer.MAX_VALUE;
 		public boolean negativeToZero = false;
+		public double minDifferenceForSign = 0;
+		public boolean digitalize = false;
 		
+		/**
+		 * Used by writeCategorized. The minimum difference between the up and down z-scores
+		 * in order to be able to assign a sign.
+		 * If 0, the maximum z-score will be used to determine the sign.
+		 */
+		public FilterZScoreOptions minDifferenceRatioForSign(double v) { minDifferenceForSign = v; return this; }
+		
+		/**
+		 * Used by writeCategorized. Whether to digitalize the results. If true,
+		 * the z-score will be digitalized to -1, 0 or 1. Otherwise, the signed total
+		 * z-score will be used.
+		 */
+		public FilterZScoreOptions digitalize(boolean v) { digitalize = v; return this; }
 		public FilterZScoreOptions threshold(double v) { threshold = v; return this; }
 		public FilterZScoreOptions minSize(int v) { minSize = v; return this; }
 		public FilterZScoreOptions maxSize(int v) { maxSize = v; return this; }

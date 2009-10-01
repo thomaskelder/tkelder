@@ -1,5 +1,8 @@
 package org.wikipathways.client;
 
+import org.wikipathways.client.images.Images;
+
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseDownEvent;
@@ -98,8 +101,8 @@ public class SvgBrowser extends Composite implements SvgLoadListener {
 			p.setSize("100%", "100%");
 			p.setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
 			p.setVerticalAlignment(VerticalPanel.ALIGN_MIDDLE);
-			Label l = new Label("Loading...");
-			p.add(l);
+			p.add(SvgPathwayViewer.images.progressIcon().createImage());
+			
 			loadingPanel.setWidget(p);
 		}
 		Log.firebug(dockPanel.getAbsoluteLeft() + ", " + dockPanel.getAbsoluteTop());

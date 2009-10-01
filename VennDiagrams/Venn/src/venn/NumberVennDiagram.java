@@ -25,22 +25,33 @@ public class NumberVennDiagram extends VennDiagramTemplate {
 	Font font = new Font("Arial", Font.PLAIN, 36);
 	Color background = Color.WHITE;
 	Color color = Color.BLACK;
+	Color labelColor = Color.BLACK;
 	
 	public NumberVennDiagram(VennCounts data) {
 		super(data);
+	}
+	
+	public void setBackground(Color background) {
+		this.background = background;
+	}
+	
+	protected void paintBackground(Graphics g) {
+		if(background != null) {
+			Rectangle bounds = getBounds();
+			g.setColor(background);
+			g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+		}
 	}
 	
 	public void paint(Graphics g) {
 		Graphics2D g2d = (Graphics2D)g.create();
 		
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		Rectangle bounds = getBounds();
-		g2d.setColor(background);
-		g2d.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+		
+		paintBackground(g2d);
 		
 		super.paint(g);
 
-		g2d.setColor(color);
 		g2d.setFont(font);
 		
 		for(int i : getPartialShapeIndices()) {
@@ -48,8 +59,10 @@ public class NumberVennDiagram extends VennDiagramTemplate {
 			Rectangle sb = getPartialShape(i).getBounds();
 			Rectangle2D tb = font.getStringBounds(label + "", g2d.getFontRenderContext());
 			
+			g2d.setColor(color);
 			int x = (int)(sb.getCenterX() - tb.getWidth() / 2);
 			int y = (int)(sb.getCenterY());
+			g2d.setColor(labelColor);
 			g2d.drawString(label, x, y);
 		}
 	}

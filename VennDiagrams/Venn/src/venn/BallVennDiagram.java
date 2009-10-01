@@ -151,7 +151,7 @@ public class BallVennDiagram extends VennDiagramTemplate {
 
 		for(int i : getPartialShapeIndices()) {
 			Shape shape = getPartialShape(i);
-			int size = getData().getUnionCount(i);
+			double size = getData().getUnionCount(i);
 
 			double ratio = size / getMaxBallCount(shape);
 			maxRatio = Math.max(maxRatio, ratio);

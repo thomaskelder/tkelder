@@ -26,8 +26,12 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 public class GOAnnotations<K extends GOAnnotation> {
-	HashMap<GOTerm, Map<String, K>> annotations = new HashMap<GOTerm, Map<String, K>>();
+	Map<GOTerm, Map<String, K>> annotations = new HashMap<GOTerm, Map<String, K>>();
+	Multimap<String, GOTerm> annotation2terms = new HashMultimap<String, GOTerm>();
 	
 	public K getAnnotation(GOTerm term, String id) {
 		Map<String, K> a = annotations.get(term);
@@ -40,12 +44,22 @@ public class GOAnnotations<K extends GOAnnotation> {
 		return a == null ? new HashSet<K>() : a.values();
 	}
 	
+	public Collection<GOTerm> getTerms(K annotation) {
+		return getTerms(annotation.getId());
+	}
+	
+	public Collection<GOTerm> getTerms(String annotationId) {
+		return annotation2terms.get(annotationId);
+	}
+	
 	public void addAnnotation(GOTerm term, K annotation) {
 		Map<String, K> values = annotations.get(term);
 		if(values == null) {
 			annotations.put(term, values = new HashMap<String, K>());
 		}
 		values.put(annotation.getId(), annotation);
+		
+		annotation2terms.put(annotation.getId(), term);
 	}
 	
 	public static <K extends GOAnnotation> GOAnnotations<K> read(File annotFile, GOTree tree, GOAnnotationFactory<K> f) throws IOException {

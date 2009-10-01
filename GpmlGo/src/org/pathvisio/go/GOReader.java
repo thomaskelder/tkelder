@@ -47,13 +47,21 @@ public class GOReader {
 			term.addParent(parent);
 		} else if(line.startsWith(IS_OBSOLETE_PREFIX)) {
 			term.setObsolete(true);
+		} else if(line.startsWith(SYNONYM_PREFIX)) {
+			Matcher match = SYNONYM_EXTRACT_PATTERN.matcher(line);
+			if(match.find()) {
+				String syn = match.group(1);
+				term.addSynonym(syn);
+			}
 		}
 	}
 	
+	private static final Pattern SYNONYM_EXTRACT_PATTERN = Pattern.compile("synonym: \"(.+)\"");
 	private static final Pattern GO_ID_PATTERN = Pattern.compile("GO:[0-9]{7}");
 	private static final String TERM = "[Term]";
 	private static final String IS_A_PREFIX = "is_a: ";
 	private static final String IS_OBSOLETE_PREFIX= "is_obsolete: ";
 	private static final String ID_PREFIX = "id: ";
 	private static final String NAME_PREFIX = "name: ";
+	private static final String SYNONYM_PREFIX = "synonym: ";
 }

@@ -7,11 +7,22 @@ public class GOTerm implements Comparable<GOTerm> {
 	String id;
 	String name;
 	Set<String> parents = new HashSet<String>();
+	Set<String> synonyms = new HashSet<String>();
+	
 	boolean isObsolete;
 	
 	public GOTerm(String id, String name) {
 		this.id = id;
 		this.name = name;
+		addSynonym(name);
+	}
+	
+	public void addSynonym(String syn) {
+		synonyms.add(syn);
+	}
+	
+	public Set<String> getSynonyms() {
+		return synonyms;
 	}
 	
 	public boolean isObsolete() {

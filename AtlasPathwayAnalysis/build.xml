@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<project name="Atlas analysis" default="jar" basedir=".">
+	<property name="src.dir" value="src"/>
+	<property name="build.dir" value="build"/>
+	<property name="lib.dir" value="lib"/>
+	<property name="dist.dir" value="dist"/>
+	<property name="jar.name" value="atlas-analysis.jar"/>
+	<property name="stats.dir" value="../SimplePathwayStats"/>
+	
+	<path id="class.path">
+		<pathelement location="${build.dir}"/>
+		<fileset dir="lib">
+			<include name="**/*.jar"/>
+		</fileset>
+		<fileset dir="${stats.dir}/core/lib">
+			<include name="**/*.jar"/>
+		</fileset>
+		<pathelement location="${stats.dir}/core/build"/>
+	</path>
+
+	<target name="prepare">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${dist.dir}"/>
+	</target>
+
+	<target name="clean" description="Remove all generated files.">
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
+		<delete file="${jar.file}"/>
+	</target>
+
+	<target name="compile" depends="prepare" description="Compile sources">
+		<!-- compile pathway statistics module -->
+		<fail message="Can't find ${stats.dir}/build.xml, please specify the path to the pathway statistics source code.">
+			<condition>
+				<not><available file="${stats.dir}/build.xml"/></not>
+			</condition>
+		</fail>
+		
+		<antcall target="_stats">
+			<param name="stats.target" value="compile"/>
+		</antcall>
+		
+		<javac srcdir="${src.dir}"
+			   includes="**"
+			   destdir="${build.dir}"
+			   debug="true"
+			   source="1.5">
+			<classpath refid="class.path"/>
+		</javac>
+	</target>
+
+	<target name="_stats">
+		<ant dir="${stats.dir}" target="jar"/>
+	</target>
+	
+	<target name="jar" depends="compile" description="Generates jar file">
+		<pathconvert refid="class.path" property="class.path.manifest" pathsep=" ">
+			<mapper>
+				<chainedmapper>
+					<!-- remove absolute path -->
+					<flattenmapper />
+					<!-- add lib/ prefix -->
+					<globmapper from="*" to="lib/*" />
+				</chainedmapper>
+			</mapper>
+		</pathconvert>
+
+		<jar jarfile="${jar.name}">
+			<manifest>
+				<attribute name="Class-Path" value="${class.path.manifest}"/>
+			</manifest>
+			<fileset dir="${build.dir}" includes="**/*.class"/>
+		</jar>
+	</target>
+
+	<target name="dist" depends="jar" description="Copies jar and external libraries to dist path">
+		<copy file="${jar.name}" toDir="${dist.dir}"/>
+		<copy toDir="${dist.dir}/lib">
+			<fileset dir="${lib.dir}">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${lib.dir}/wikipathways_client-1.1/lib/axis-1_4/lib/">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${lib.dir}/wikipathways_client-1.1/">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${lib.dir}/wikipathways_client-1.1/lib">
+							<include name="*.jar"/>
+			</fileset>
+		</copy>
+	</target>
+</project>

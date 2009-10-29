@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+	<session-factory>
+		<!-- Database connection settings -->
+<!--
+		<property name="connection.driver_class">org.hsqldb.jdbcDriver</property>
+        <property name="connection.url">jdbc:hsqldb:file:/home/thomas/data/atlas_analysis/atlas_analysis_db;shutdown=true</property>
+		<property name="hibernate.connection.username">sa</property>  
+		<property name="hibernate.connection.password"></property>
+		<property name="hibernate.connection.shutdown">true</property>
+-->
+		<property name="connection.pool_size">1</property>
+		<property name="dialect">org.hibernate.dialect.HSQLDialect</property>
+		<property name="connection.driver_class">org.apache.derby.jdbc.ClientDriver</property>
+        <property name="connection.url">jdbc:derby://localhost/atlas_analysis;create=true</property>
+		<property name="connection.pool_size">1</property>
+		<property name="dialect">org.hibernate.dialect.DerbyDialect</property>
+	
+		<property name="hibernate.jdbc.batch_size">100</property>
+		
+		<!-- Enable Hibernate's automatic session context management -->
+		<property name="current_session_context_class">thread</property>
+
+		<!-- Disable the second-level cache  -->
+		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+
+		<!-- Echo all executed SQL to stdout -->
+		<property name="show_sql">false</property>
+
+		<property name="hbm2ddl.auto">update</property>
+		
+		 <mapping class="org.apa.data.Experiment"></mapping>
+		 <mapping class="org.apa.data.ExperimentAnalysis"></mapping>
+		 <mapping class="org.apa.data.ExperimentData"></mapping>
+		 <mapping class="org.apa.data.Factor"></mapping>
+		 <mapping class="org.apa.data.Pathway"></mapping>
+		 <mapping class="org.apa.data.Statistic"></mapping>
+	</session-factory>
+</hibernate-configuration>

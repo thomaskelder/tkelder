@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<project name="Pathway statistics" default="dist" basedir=".">
+  <target name="clean">
+	<antcall target="_allmodules">
+		<param name="allmodules.target" value="clean"/>
+	</antcall>
+  </target>
+
+  <target name="jar">
+	<antcall target="_allmodules">
+		<param name="allmodules.target" value="jar"/>
+	</antcall>
+  </target>
+  
+    <target name="dist">
+	<antcall target="_allmodules">
+		<param name="allmodules.target" value="dist"/>
+	</antcall>
+  </target>
+  
+  <!-- ant "subroutine" that calls all modules -->
+  <target name="_allmodules">
+	<ant dir="core" target="${allmodules.target}"/>
+  </target>
+</project>

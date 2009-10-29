@@ -92,31 +92,42 @@ colnames(ratioData) = ratioColNames
 rownames(ratioData) = rownames(rawData)
 
 # Calculate q-values for HFvsLF for each timepoint
-ttestPvalues<-function(x,v1,v2){
+applyTtest<-function(x,v1,v2) {
 	ttest <- function(x){
 		t.test(x[v1], x[v2], alternative = "two.sided", paired = FALSE, var.equal = FALSE)
 	};
-	ttest.res<-apply(x, 1, ttest);
+	apply(x, 1, ttest);	
+}
+ttestPvalues<-function(ttest.res){
 	as.numeric(lapply(ttest.res, function(x){x$p.value}));
 };
+ttestTvalues<-function(ttest.res){
+	as.numeric(lapply(ttest.res, function(x){x$statistic}));
+};
 
+tvalues = list()
 pvalues = list()
 qvalues = list()
 for(time in levels(timeFactor)) {
 	message(time)
 	hf = timeFactor == time & dietFactor == "HF"
 	lf = timeFactor == time & dietFactor == "LF"
-	p = ttestPvalues(rawData, lf, hf)
+	t.res = applyTtest(rawData, hf, lf)
+	t = ttestTvalues(t.res)
+	p = ttestPvalues(t.res)
 	q = qvalue(p)$qvalue
 	names(p) = row.names(rawData)
 	names(q) = row.names(rawData)
 	pvalues[[time]] = p
 	qvalues[[time]] = q
+	tvalues[[time]] = t
 }
 names(qvalues) = levels(timeFactor)
+names(tvalues) = levels(timeFactor)
 
-txtData = cbind(rownames(rawData), avgData, ratioData, qvalues[["t0"]], qvalues[["t0.6"]], qvalues[["t2"]], qvalues[["t18"]], qvalues[["t48"]]);
-colnames(txtData) = c("geneId", colnames(avgData), colnames(ratioData), paste("q", levels(timeFactor), sep="_"))
+txtData = cbind(rownames(rawData), avgData, ratioData, qvalues[["t0"]], qvalues[["t0.6"]], qvalues[["t2"]], qvalues[["t18"]], qvalues[["t48"]],
+tvalues[["t0"]], tvalues[["t0.6"]], tvalues[["t2"]], tvalues[["t18"]], tvalues[["t48"]]);
+colnames(txtData) = c("geneId", colnames(avgData), colnames(ratioData), paste("q", levels(timeFactor), sep="_"), paste("T", levels(timeFactor), sep="_"))
 write.table(txtData, file = paste(outPath, "pps2_HFvsLF_alltimes.txt", sep=""),
 	row.names = FALSE, sep = "\t", quote = FALSE, na = "NaN")
 	

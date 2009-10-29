@@ -36,11 +36,17 @@ public class WPDatabase {
 		String url = "jdbc:mysql://" + server + "/" + database;
         Class.forName ("com.mysql.jdbc.Driver").newInstance ();
         con = DriverManager.getConnection (url, user, pass);
+        con.setReadOnly(true);
+	}
+	
+	public void closePsts() throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+		con.close();
+		connect();
 	}
 	
 	public Date getWpStart() {
 		Calendar c = Calendar.getInstance();
-		c.set(2008, 3, 1);
+		c.set(2007, 3, 1);
 		return c.getTime();
 	}
 	

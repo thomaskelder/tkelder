@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bridgedb.DataSource;
+import org.bridgedb.Xref;
 import org.pathvisio.util.PathwayParser.ParseException;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -26,15 +28,11 @@ public class PathwayInfo {
 	
 	boolean dirty;
 
-	String gpml;
-	PathwayParser parsedGpml;
-	
 	public PathwayInfo(WPDatabase db, String pathwayId, int pageId, int revision) {
 		this.db = db;
 		this.pathwayId = pathwayId;
 		this.pageId = pageId;
 		this.revision = revision;
-		markDirty();
 	}
 	
 	public int getPageId() {
@@ -44,23 +42,16 @@ public class PathwayInfo {
 	public String getPathwayId() {
 		return pathwayId;
 	}
-	
-	private void markDirty() {
-		gpml = null;
-		parsedGpml = null;
-	}
 
 	public void setRevision(int revision) {
 		this.revision = revision;
 	}
 	
-	public boolean isDeleted() throws SQLException {
-		String gpml = getGpml();
+	public boolean isDeleted(String gpml) throws SQLException {
 		return gpml != null && gpml.startsWith(PREFIX_DELETED);
 	}
 	
-	public boolean isRedirect() throws SQLException {
-		String gpml = getGpml();
+	public boolean isRedirect(String gpml) throws SQLException {
 		return gpml != null && gpml.startsWith(PREFIX_REDIRECT);
 	}
 	
@@ -74,6 +65,7 @@ public class PathwayInfo {
 	}
 	
 	public String getGpml() throws SQLException {
+		String gpml = null; //Disable caching of GPML to decrease memory usage
 		if(gpml == null) {
 			PreparedStatement pst = db.getPst(pstGetGpml);
 			pst.setInt(1, revision);
@@ -90,13 +82,23 @@ public class PathwayInfo {
 	
 	public PathwayParser getParsedGpml() throws SQLException, ParseException, SAXException, IOException {
 		String gpml = getGpml();
-		if(parsedGpml == null && gpml != null && !gpml.equals("") && !isDeleted() && !isRedirect()) {
+		PathwayParser parsedGpml = null; //Disable caching of parsed GPML to decrease memory usage
+		if(parsedGpml == null && gpml != null && !gpml.equals("") && !isDeleted(gpml) && !isRedirect(gpml)) {
 			XMLReader xmlReader = XMLReaderFactory.createXMLReader();
 			parsedGpml = new PathwayParser(new StringReader(gpml), xmlReader);
 		}
 		return parsedGpml;
 	}
 	
+	public Set<Xref> getXrefs() throws SAXException, SQLException, IOException {
+		String gpml = getGpml();
+		if(gpml != null && !gpml.equals("") && !isDeleted(gpml) && !isRedirect(gpml)) {
+			XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+			return new XrefParser(new StringReader(gpml), xmlReader).getXrefs();
+		}
+		return new HashSet<Xref>();
+	}
+
 	private int findClosestRevision(String ts) throws SQLException {
 		PreparedStatement pst = db.getPst(pstClosestRevision);
 		pst.setString(1, ts);
@@ -119,7 +121,8 @@ public class PathwayInfo {
 		while(r.next()) {
 			PathwayInfo i = new PathwayInfo(db, r.getString(2), r.getInt(1), 0);
 			i.setRevision(i.findClosestRevision(ts));
-			if(!i.isDeleted() && !i.isRedirect()) pathways.add(i);
+			String gpml = i.getGpml();
+			if(!i.isDeleted(gpml) && !i.isRedirect(gpml)) pathways.add(i);
 		}
 		r.close();
 		return pathways;
@@ -194,6 +197,34 @@ public class PathwayInfo {
 		
 		public String getOrganism() {
 			return organism;
+		}
+	}
+	
+	static class XrefParser extends DefaultHandler {
+		Set<Xref> xrefs = new HashSet<Xref>();
+		
+		public XrefParser(Reader in, XMLReader xmlReader) throws IOException, SAXException {
+			xmlReader.setContentHandler(this);
+			xmlReader.setEntityResolver(this);
+			xmlReader.parse(new InputSource(in));
+		}
+		
+		public void startElement(String uri, String localName, String qName,
+				Attributes attributes) throws SAXException {
+			super.startElement(uri, localName, qName, attributes);
+
+			if(localName.equals("Xref")) {
+				String dsName = attributes.getValue("Database");
+				String id = attributes.getValue("ID");
+				DataSource ds = DataSource.getByFullName(dsName);
+				if(dsName != null && ds != null) {
+					xrefs.add(new Xref(id, ds));
+				}
+			}
+		}
+		
+		public Set<Xref> getXrefs() {
+			return xrefs;
 		}
 	}
 }

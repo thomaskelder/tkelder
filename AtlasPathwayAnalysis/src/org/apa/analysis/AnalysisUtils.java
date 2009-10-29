@@ -17,7 +17,7 @@ public class AnalysisUtils {
 		Experiment exp = analysis.getExperiment();
 		out.append("# Experiment: " + exp.getAccession() + "\n");
 		out.append("# Description: " + exp.getDesciption() + "\n");
-		out.append("# Factor: " + analysis.getFactor().getValue() + "(" + analysis.getFactor().getName() + ")\n");
+		out.append("# Factor: " + analysis.getFactor() + "\n");
 		out.append("# Organism: " + exp.getOrganism() + "\n");
 		
 		for(String name : analysis.getProperties().keySet()) {
@@ -74,8 +74,8 @@ public class AnalysisUtils {
 	
 	public static ResultFormat getFormat(ExperimentAnalysis ea) {
 		String type = ea.getType();
-		if(EnrichmentAnalysis.TYPE.equals(type)) {
-			return new EnrichmentAnalysis();
+		if(MeanTAnalysis.TYPE.equals(type)) {
+			return new MeanTAnalysis();
 		}
 		if(ZScoreAnalysis.TYPE.equals(type)) {
 			return new ZScoreAnalysis();

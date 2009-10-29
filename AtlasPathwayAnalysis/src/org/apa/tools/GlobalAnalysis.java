@@ -6,9 +6,10 @@ import java.util.List;
 import org.apa.AtlasException;
 import org.apa.AtlasSessionUtils;
 import org.apa.analysis.AnalysisMethod;
-import org.apa.analysis.EnrichmentAnalysis;
+import org.apa.analysis.MeanTAnalysis;
 import org.apa.analysis.ZScoreAnalysis;
 import org.apa.data.Statistic;
+import org.apa.report.AnalysisMatrix;
 import org.apa.report.CompareAnalysisMethods;
 import org.apa.report.EnrichedPathwayFrequencies;
 import org.apa.report.ExpressionPlots;
@@ -24,8 +25,10 @@ public class GlobalAnalysis {
 			
 			//analysis.doEnrichmentFrequencies();
 			//analysis.doZscoreFrequencies();
-			analysis.compareAnalysisMethods();
+			//analysis.compareAnalysisMethods();
 			//analysis.expression();
+			analysis.analysisMatrix();
+			
 		} catch(Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
@@ -39,6 +42,23 @@ public class GlobalAnalysis {
 	public GlobalAnalysis() {
 		outPath.mkdirs();
 		sessionFactory = AtlasSessionUtils.createSessionFactory(sessionConfig);
+	}
+	
+	void analysisMatrix() throws AtlasException {
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		try {
+			AnalysisMatrix mtrx = new AnalysisMatrix(session, "Homo sapiens");
+			mtrx.saveReport(new File(outPath, "analysis_matrix"), "Hs");
+			
+			mtrx = new AnalysisMatrix(session, "Mus musculus");
+			mtrx.saveReport(new File(outPath, "analysis_matrix"), "Mm");
+			
+			mtrx = new AnalysisMatrix(session, "Rattus norvegicus");
+			mtrx.saveReport(new File(outPath, "analysis_matrix"), "Rn");
+		} finally {
+			session.close();
+		}
 	}
 	
 	void expression() throws AtlasException {
@@ -58,7 +78,7 @@ public class GlobalAnalysis {
 		try {
 			//Z-score p-value vs enrichment p-value
 			CompareAnalysisMethods compare = new CompareAnalysisMethods(
-					session, EnrichmentAnalysis.TYPE, ZScoreAnalysis.TYPE, 
+					session, MeanTAnalysis.TYPE, ZScoreAnalysis.TYPE, 
 					AnalysisMethod.VALUE_PVALUE, AnalysisMethod.VALUE_PVALUE);
 			compare.setTrans1(new Transform() {
 				public String getLabel() {
@@ -84,7 +104,7 @@ public class GlobalAnalysis {
 			
 			//Z-score vs enrichment score
 			compare = new CompareAnalysisMethods(
-					session, EnrichmentAnalysis.TYPE, ZScoreAnalysis.TYPE, 
+					session, MeanTAnalysis.TYPE, ZScoreAnalysis.TYPE, 
 					AnalysisMethod.VALUE_SCORE, AnalysisMethod.VALUE_SCORE);
 			compare.saveReport(new File(outPath, "compare_methods"), "enrichment_vs_zscore");
 			

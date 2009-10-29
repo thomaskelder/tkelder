@@ -7,7 +7,7 @@ import java.util.List;
 import org.apa.data.Experiment;
 import org.apa.data.ExperimentAnalysis;
 import org.apa.data.ExperimentData;
-import org.apa.data.Factor;
+import org.apa.data.FactorValue;
 import org.apa.data.Pathway;
 import org.apa.data.Statistic;
 import org.hibernate.Session;
@@ -41,6 +41,13 @@ public class AtlasSessionUtils {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static Collection<String> getPathways(Session session, String organism) {
+		List<String> list = (List<String>)session.createQuery("select id from Pathway where organism = ?")
+			.setString(0, organism).list();
+		return list;
+	}
+	
+	@SuppressWarnings("unchecked")
 	public static Collection<String> getPathways(Session session) {
 		List<String> list = (List<String>)session.createQuery("select id from Pathway").list();
 		return list;
@@ -56,7 +63,7 @@ public class AtlasSessionUtils {
 		AnnotationConfiguration conf = new AnnotationConfiguration();
 		conf.configure(configFile);
 		conf.addAnnotatedClass(Experiment.class);
-		conf.addAnnotatedClass(Factor.class);
+		conf.addAnnotatedClass(FactorValue.class);
 		conf.addAnnotatedClass(ExperimentData.ExperimentDataEntry.class);
 		conf.addAnnotatedClass(ExperimentData.class);
 		conf.addAnnotatedClass(Pathway.class);

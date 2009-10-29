@@ -32,15 +32,19 @@ public class ArrayDefinition {
 	public ArrayDefinition(String id, BufferedReader in) throws IOException {
 		this.id = id;
 		
-		String line = in.readLine();
-		String[] headers = line.split("\t");
 		Map<Integer, DataSource> colNr2ds = new HashMap<Integer, DataSource>();
 		
-		for(int i = 0; i < headers.length; i++) {
-			for(String contains : colContains.keySet()) {
-				if(headers[i].contains(contains)) {
-					colNr2ds.put(i, colContains.get(contains));
-					break;
+		//Try to find header with datasource column
+		String line = null;
+		while(colNr2ds.size() == 0 && (line = in.readLine()) != null) {
+			String[] headers = line.split("\t");
+
+			for(int i = 0; i < headers.length; i++) {
+				for(String contains : colContains.keySet()) {
+					if(headers[i].contains(contains)) {
+						colNr2ds.put(i, colContains.get(contains));
+						break;
+					}
 				}
 			}
 		}

@@ -7,7 +7,14 @@ package org.apa.ae;
 public class ExperimentInfo {
 	String organism;
 	String accession;
+	String name;
 	
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getName() {
+		return name;
+	}
 	public void setAccession(String accession) {
 		this.accession = accession;
 	}

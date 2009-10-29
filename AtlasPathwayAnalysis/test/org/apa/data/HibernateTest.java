@@ -47,13 +47,15 @@ public class HibernateTest extends TestCase {
 			Experiment exp = new Experiment(EXPERIMENT_ID);
 			exp.setDesciption(EXPERIMENT_DESCR);
 
-			Set<Factor> factors = new HashSet<Factor>();
+			Set<FactorValue> factors = new HashSet<FactorValue>();
 
 			for(int i = 0; i < factorNames.length; i++) {
 				for(int j = 0; j < factorValues[i].length; j++) {
-					Factor f = new Factor(factorNames[i], factorValues[i][j]);
+					FactorValue f = new FactorValue(new Factor(factorNames[i]), factorValues[i][j]);
 					factors.add(f);
-					exp.addFactor(f);
+					exp.addFactorValue(f);
+					
+					session.merge(f.getFactor());
 					session.persist(f);
 				}
 			}
@@ -74,7 +76,7 @@ public class HibernateTest extends TestCase {
 			
 			for(int i = 0; i < factorNames.length; i++) {
 				for(int j = 0; j < factorValues[i].length; j++) {
-					Factor f = new Factor(factorNames[i], factorValues[i][j]);
+					FactorValue f = new FactorValue(new Factor(factorNames[i]), factorValues[i][j]);
 					ExperimentData d = new ExperimentData(exp, f);
 					d.addEntry("gene1", 0.1, 1, 10);
 					d.addEntry("gene2", 0.1, 1, 10);
@@ -83,7 +85,7 @@ public class HibernateTest extends TestCase {
 			}
 			session.persist(exp);
 
-			for(Factor f : factors) {
+			for(Factor f : exp.getFactors()) {
 				ExperimentAnalysis analysis = new ExperimentAnalysis(exp, f, "test");
 				for(Pathway p : pathways) {
 					Statistic stat = new Statistic(p, analysis);
@@ -109,15 +111,14 @@ public class HibernateTest extends TestCase {
 			assertEquals(exp.getDesciption(), EXPERIMENT_DESCR);
 			for(int i = 0; i < factorNames.length; i++) {
 				for(int j = 0; j < factorValues[i].length; j++) {
-					Factor f = new Factor(factorNames[i], factorValues[i][j]);
-					assertTrue("Factor " + f + " missing from " + exp.getFactors(), exp.getFactors().contains(f));
+					FactorValue f = new FactorValue(new Factor(factorNames[i]), factorValues[i][j]);
+					assertTrue("Factor " + f + " missing from " + exp.getFactorValues(), exp.getFactorValues().contains(f));
 					assertNotNull(exp.getData(f));
 				}
 			}
 			
 			Pathway p = (Pathway)session.load(Pathway.class, "pathway0");
 			assertNotNull(p);
-			assertEquals(4, p.getStatistics().size());
 		} catch(Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -144,7 +145,7 @@ public class HibernateTest extends TestCase {
 			session.beginTransaction();
 
 			Collection<ExperimentAnalysis> analyses = AtlasSessionUtils.getAnalyses(session, EXPERIMENT_ID);
-			assertEquals(4, analyses.size());
+			assertEquals(2, analyses.size());
 			
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -158,7 +159,7 @@ public class HibernateTest extends TestCase {
 	public void testFromRest() {
 		try {
 			AtlasExperimentData restExp = cache.getExperimentData(REST_EXPERIMENT_ID);
-			Experiment exp = AtlasRestUtils.asExperiment(restExp, cache.getOrganism(REST_EXPERIMENT_ID));
+			Experiment exp = AtlasRestUtils.asExperiment(restExp, cache.getOrganism(REST_EXPERIMENT_ID), cache.getName(REST_EXPERIMENT_ID));
 			
 			Session session = getSessionFactory().getCurrentSession();
 			session.beginTransaction();

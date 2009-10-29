@@ -71,16 +71,6 @@ public class SessionUpdater {
 				idMapper.addIDMapper(line);
 			}
 			in.close();
-
-			Set<String> ignoreExperiments = new HashSet<String>();
-			if(main.ignoreExperimentsFile != null) {
-				in = new BufferedReader(new FileReader(main.ignoreExperimentsFile));
-				while((line = in.readLine()) != null) {
-					log.fine("Ignore experiment " + line);
-					ignoreExperiments.add(line);
-				}
-			}
-			in.close();
 			
 			AtlasRestCache atlasCache = new AtlasRestCache(main.atlasCachePath, idMapper);
 			WikiPathwaysCache wpCache = new WikiPathwaysCache(main.wpCachePath);
@@ -88,6 +78,17 @@ public class SessionUpdater {
 			log.info("Starting hibernate session");
 			sessionFactory = AtlasSessionUtils.createSessionFactory(main.sessionConfig);
 			sessionFactory.getCurrentSession().beginTransaction();
+			
+			Set<String> ignoreExperiments = new HashSet<String>();
+			if(main.ignoreExperimentsFile != null) {
+				line = null;
+				in = new BufferedReader(new FileReader(main.ignoreExperimentsFile));
+				while((line = in.readLine()) != null) {
+					log.fine("Ignore experiment " + line);
+					ignoreExperiments.add(line);
+				}
+				in.close();
+			}
 			
 			AtlasSessionManager sessionMgr = new AtlasSessionManager(sessionFactory);
 

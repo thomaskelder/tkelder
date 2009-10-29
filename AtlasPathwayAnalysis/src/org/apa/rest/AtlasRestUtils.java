@@ -27,6 +27,7 @@ import org.apa.ae.ArrayDefinitionCache;
 import org.apa.data.Experiment;
 import org.apa.data.ExperimentData;
 import org.apa.data.Factor;
+import org.apa.data.FactorValue;
 import org.bridgedb.DataSource;
 import org.bridgedb.IDMapper;
 import org.bridgedb.IDMapperException;
@@ -167,17 +168,18 @@ public class AtlasRestUtils {
 		return genes;
 	}
 
-	public static Experiment asExperiment(AtlasExperimentData restExp, Organism organism) {
+	public static Experiment asExperiment(AtlasExperimentData restExp, Organism organism, String name) {
 		Experiment exp = new Experiment(restExp.getExperimentInfo().getAccession());
 		exp.setOrganism(organism.latinName());
 		exp.setDesciption(restExp.getExperimentInfo().getDescription());
+		exp.setName(name);
 		
 		String[] factors = restExp.getExperimentDesign().getExperimentalFactors();
 
 		for(String fn : factors) {
 			for(String fv : restExp.getExperimentDesign().getFactorValues(fn)) {
-				Factor f = new Factor(fn, fv);
-				exp.addFactor(f);
+				FactorValue f = new FactorValue(new Factor(fn), fv);
+				exp.addFactorValue(f);
 				exp.setData(f, new ExperimentData(exp, f));
 			}
 		}
@@ -189,8 +191,8 @@ public class AtlasRestUtils {
 				Map<String, Double[]> xexpr = expr.getGenes().get(gene);
 				Map<String, AtlasStatGene[]> xstat = stats.getGenes().get(gene);
 
-				Map<Factor, Double> exprByFactor = new HashMap<Factor, Double>();
-				Map<Factor, AtlasStatValue> statByFactor = new HashMap<Factor, AtlasStatValue>();
+				Map<FactorValue, Double> exprByFactor = new HashMap<FactorValue, Double>();
+				Map<FactorValue, AtlasStatValue> statByFactor = new HashMap<FactorValue, AtlasStatValue>();
 
 				for(String xgene : xexpr.keySet()) {
 					Double[] exprValues = xexpr.get(xgene);
@@ -202,7 +204,7 @@ public class AtlasRestUtils {
 						for(String fn : assay.getFactorValues().keySet()) {
 							String fv = assay.getFactorValues().get(fn);
 							if(fv != null) {
-								Factor f = new Factor(fn, fv);
+								FactorValue f = new FactorValue(new Factor(fn), fv);
 								exprByFactor.put(f, exprValues[e]);
 							}
 						}
@@ -210,12 +212,12 @@ public class AtlasRestUtils {
 
 					if(statValues != null) {
 						for(AtlasStatGene s : statValues) {
-							Factor f = new Factor(s.getEf(), s.getEfv());
+							FactorValue f = new FactorValue(new Factor(s.getEf()), s.getEfv());
 							statByFactor.put(f, s.getStat());
 						}
 					}
 
-					for(Factor f : exp.getFactors()) {
+					for(FactorValue f : exp.getFactorValues()) {
 						AtlasStatValue sv = statByFactor.get(f);
 						Double ev = exprByFactor.get(f);
 						

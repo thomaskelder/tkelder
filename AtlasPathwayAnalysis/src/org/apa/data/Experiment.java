@@ -13,7 +13,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.MapKey;
+import org.hibernate.annotations.Type;
 
 @Entity
 @Table
@@ -21,18 +21,21 @@ public class Experiment {
 	@Id
 	private String accession;
 	
-	@Column
+	@Column()
+	private String name;
+	
+	@Column(length = 2147483647)
+	@Type(type = "text")
 	private String desciption;
 
 	@Column
 	private String organism;
+
+	@OneToMany(cascade=CascadeType.ALL)
+	Map<FactorValue, ExperimentData> data = new HashMap<FactorValue, ExperimentData>();
 	
 	@ManyToMany
-	private Set<Factor> factors = new HashSet<Factor>();
-	
-	@OneToMany(cascade=CascadeType.ALL)
-	@MapKey(columns = { @Column(name="name"), @Column(name="value") })
-	private Map<Factor, ExperimentData> data = new HashMap<Factor, ExperimentData>();
+	Set<FactorValue> factorValues = new HashSet<FactorValue>();
 	
 	public Experiment() { }
 	
@@ -40,16 +43,32 @@ public class Experiment {
 		this.accession = accession;
 	}
 	
+	public Set<FactorValue> getFactorValues() {
+		return factorValues;
+	}
+	
+	public void setFactorValues(Set<FactorValue> factors) {
+		this.factorValues = factors;
+	}
+	
+	public void addFactorValue(FactorValue factorValue) {
+		factorValues.add(factorValue);
+	}
+	
+	public Set<ExperimentData> getData(Factor factor) {
+		Set<ExperimentData> result = new HashSet<ExperimentData>();
+		for(ExperimentData d : data.values()) {
+			if(d.getFactorValue().getFactor().equals(factor)) {
+				result.add(d);
+			}
+		}
+		return result;
+	}
+	
 	public Set<Factor> getFactors() {
+		Set<Factor> factors = new HashSet<Factor>();
+		for(FactorValue fv : factorValues) factors.add(fv.getFactor());
 		return factors;
-	}
-	
-	public void setFactors(Set<Factor> factors) {
-		this.factors = factors;
-	}
-	
-	public void addFactor(Factor factor) {
-		factors.add(factor);
 	}
 	
 	public String getOrganism() {
@@ -68,6 +87,14 @@ public class Experiment {
 		this.accession = accession;
 	}
 
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
 	public String getDesciption() {
 		return desciption;
 	}
@@ -76,11 +103,11 @@ public class Experiment {
 		this.desciption = desciption;
 	}
 	
-	public void setData(Factor factor, ExperimentData data) {
+	public void setData(FactorValue factor, ExperimentData data) {
 		this.data.put(factor, data);
 	}
 	
-	public ExperimentData getData(Factor f) {
+	public ExperimentData getData(FactorValue f) {
 		return data.get(f);
 	}
 
@@ -114,6 +141,4 @@ public class Experiment {
 			return false;
 		return true;
 	}
-	
-	
 }

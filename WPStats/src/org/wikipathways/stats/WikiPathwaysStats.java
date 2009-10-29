@@ -57,13 +57,16 @@ public class WikiPathwaysStats {
 		
 		if(taskNames.size() == 0) {
 			for(Task t : tasks.getAllTasks()) {
+				System.out.println("Running task " + t);
 				t.start(db, par);
+				System.err.println("---");
 			}
 		} else {
 			for(String tn : taskNames) {
 				System.out.println("Starting task " + tn);
 				Task t = tasks.getTask(tn);
 				t.start(db, par);
+				Runtime.getRuntime().gc();
 			}
 		}
 	}

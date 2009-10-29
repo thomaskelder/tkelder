@@ -5,8 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.wikipathways.stats.taskimpl.CurationTagCounts;
+import org.wikipathways.stats.taskimpl.EditFrequencies;
 import org.wikipathways.stats.taskimpl.PathwayCounts;
 import org.wikipathways.stats.taskimpl.PathwayCountsBySpecies;
+import org.wikipathways.stats.taskimpl.UserCounts;
+import org.wikipathways.stats.taskimpl.XrefCoverage;
 
 /**
  * Registry for all available tasks
@@ -24,6 +27,9 @@ public class TaskRegistry {
 		registerTask(PathwayCounts.class.getName(), new PathwayCounts());
 		registerTask(PathwayCountsBySpecies.class.getName(), new PathwayCountsBySpecies());
 		registerTask(CurationTagCounts.class.getName(), new CurationTagCounts());
+		registerTask(XrefCoverage.class.getName(), new XrefCoverage());
+		registerTask(UserCounts.class.getName(), new UserCounts());
+		registerTask(EditFrequencies.class.getName(), new EditFrequencies());
 	}
 	
 	public Task getTask(String id) {

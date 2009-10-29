@@ -35,6 +35,11 @@ public class PathwayCounts implements Task {
 				System.out.println("Processing " + period);
 				Date time = new Date(period.getMiddleMillisecond());
 				tsPw.add(period, PathwayInfo.getSnapshot(db, time).size());
+				
+				System.err.println(Runtime.getRuntime().totalMemory() / 1000);
+				Runtime.getRuntime().gc();
+				System.err.println(Runtime.getRuntime().totalMemory() / 1000);
+				System.err.println("---");
 			}
 			
 			data.addSeries(tsPw);

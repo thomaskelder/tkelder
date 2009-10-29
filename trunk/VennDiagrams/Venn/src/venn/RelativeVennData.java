@@ -17,6 +17,14 @@ public class RelativeVennData<K> implements VennCounts {
 		refData = new VennData<K>(reference);
 	}
 	
+	public VennData<K> getData() {
+		return data;
+	}
+	
+	public VennData<K> getRefData() {
+		return refData;
+	}
+	
 	public int getNrSets() {
 		return data.getNrSets();
 	}
@@ -38,7 +46,7 @@ public class RelativeVennData<K> implements VennCounts {
 	public String getUnionCountLabel(int unionIndex) {
 		int dataNr = data.getUnionCount(unionIndex);
 		int refNr = refData.getUnionCount(unionIndex);
-		return getUnionCount(unionIndex) + "% (" + dataNr + "/" + refNr + ")";
+		return dataNr + "/" + refNr;
 	}
 	
 	private double doubleRatio(int i, int j) {

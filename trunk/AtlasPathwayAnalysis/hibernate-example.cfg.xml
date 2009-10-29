@@ -13,12 +13,20 @@
 		<property name="hibernate.connection.password"></property>
 		<property name="hibernate.connection.shutdown">true</property>
 -->
+
 		<property name="connection.pool_size">1</property>
-		<property name="dialect">org.hibernate.dialect.HSQLDialect</property>
 		<property name="connection.driver_class">org.apache.derby.jdbc.ClientDriver</property>
         <property name="connection.url">jdbc:derby://localhost/atlas_analysis;create=true</property>
 		<property name="connection.pool_size">1</property>
 		<property name="dialect">org.hibernate.dialect.DerbyDialect</property>
+
+<!--
+		<property name="connection.pool_size">1</property>
+		<property name="connection.driver_class">net.rkbloom.logdriver.LogDriver</property>
+        <property name="connection.url">jdbc:log:org.apache.derby.jdbc.ClientDriver:derby://localhost/atlas_analysis;create=true</property>
+		<property name="connection.pool_size">1</property>
+		<property name="dialect">org.hibernate.dialect.DerbyDialect</property>
+-->
 	
 		<property name="hibernate.jdbc.batch_size">100</property>
 		
@@ -37,6 +45,7 @@
 		 <mapping class="org.apa.data.ExperimentAnalysis"></mapping>
 		 <mapping class="org.apa.data.ExperimentData"></mapping>
 		 <mapping class="org.apa.data.Factor"></mapping>
+		 <mapping class="org.apa.data.FactorValue"></mapping>
 		 <mapping class="org.apa.data.Pathway"></mapping>
 		 <mapping class="org.apa.data.Statistic"></mapping>
 	</session-factory>

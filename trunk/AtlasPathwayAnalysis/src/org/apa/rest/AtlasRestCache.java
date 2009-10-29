@@ -51,18 +51,25 @@ public class AtlasRestCache {
 		}
 	}
 
-	public Organism getOrganism(String accession) throws AtlasException {
+	private ExperimentInfo getExperimentInfo(String accession) throws AtlasException {
 		try {
-			ExperimentInfo info = expCache.get(accession);
-			String orgName = info.getOrganism();
+			return expCache.get(accession);
+		} catch(Exception e) {
+			throw new AtlasException(e);
+		}
+	}
+	
+	public String getName(String accession) throws AtlasException {
+		return getExperimentInfo(accession).getName();
+	}
+	
+	public Organism getOrganism(String accession) throws AtlasException {
+			String orgName = getExperimentInfo(accession).getOrganism();
 			Organism org = Organism.fromLatinName(orgName);
 			if(org == null) {
 				log.warning("Unknown organism: " + orgName);
 			}
 			return org;
-		} catch(Exception e) {
-			throw new AtlasException(e);
-		}
 	}
 
 	public AtlasExperiment getExperiment(String accession) throws AtlasException {

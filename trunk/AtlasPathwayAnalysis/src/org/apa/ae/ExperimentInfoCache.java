@@ -47,7 +47,7 @@ public class ExperimentInfoCache {
 	}
 	
 	private static class ExperimentInfoParser extends DefaultHandler {
-		enum Element { ORGANISM }
+		enum Element { ORGANISM, NAME }
 		
 		Element current;
 		ExperimentInfo info;
@@ -58,6 +58,7 @@ public class ExperimentInfoCache {
 		public void startElement(String nsURI, String strippedName, String tagName,
 				Attributes attributes) throws SAXException {
 			if("species".equals(tagName)) current = Element.ORGANISM;
+			if(info.getName() == null && "name".equals(tagName)) current = Element.NAME;
 		}
 		
 		public void endElement(String arg0, String arg1, String arg2)
@@ -70,6 +71,7 @@ public class ExperimentInfoCache {
 			if(current != null) {
 				switch(current) {
 				case ORGANISM: info.setOrganism(new String(chars, start, length));
+				case NAME: info.setName(new String(chars, start, length));
 				}
 			}
 		}

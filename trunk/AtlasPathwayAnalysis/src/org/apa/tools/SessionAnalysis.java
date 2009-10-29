@@ -115,7 +115,7 @@ public class SessionAnalysis {
 				Session session = sessionFactory.openSession();
 				Transaction tx = session.beginTransaction();
 
-				log.info("Performing " + m.getType() + " for " + factor.getName() + " / " + factor.getValue());
+				log.info("Performing " + m.getType() + " for " + factor);
 				//Get an existing analysis and update
 				ExperimentAnalysis analysis = (ExperimentAnalysis)session.get(
 						ExperimentAnalysis.class, 

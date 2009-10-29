@@ -113,10 +113,6 @@ public class ExperimentAnalysis {
 		@ManyToOne
 		Experiment experiment;
 		@ManyToOne
-		@JoinColumns({
-			@JoinColumn(referencedColumnName = "name"),
-			@JoinColumn(referencedColumnName = "value")
-		})
 		Factor factor;
 		@Column
 		String type;
@@ -131,11 +127,10 @@ public class ExperimentAnalysis {
 		}
 		
 		@Override
-		protected Object clone() throws CloneNotSupportedException {
-			// TODO Auto-generated method stub
-			return super.clone();
+		public String toString() {
+			return type + "." + experiment.getAccession() + "." + factor.toString();
 		}
-		
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -147,6 +142,7 @@ public class ExperimentAnalysis {
 			result = prime * result + ((type == null) ? 0 : type.hashCode());
 			return result;
 		}
+
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)

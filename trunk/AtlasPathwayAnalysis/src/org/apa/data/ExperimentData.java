@@ -4,12 +4,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.CollectionOfElements;
@@ -26,14 +25,14 @@ public class ExperimentData {
 	@SuppressWarnings("unused") //Used by hibernate
 	private ExperimentData() {}
 	
-	public ExperimentData(Experiment experiment, Factor factor) {
+	public ExperimentData(Experiment experiment, FactorValue factorValue) {
 		id = new PrimaryKey();
 		id.experiment = experiment;
-		id.factor = factor;
+		id.factorValue = factorValue;
 	}
 	
-	public Factor getFactor() {
-		return id.factor;
+	public FactorValue getFactorValue() {
+		return id.factorValue;
 	}
 	
 	public Experiment getExperiment() {
@@ -51,17 +50,51 @@ public class ExperimentData {
 		entries.add(entry);
 	}
 	
+	public static PrimaryKey createId(FactorValue factorValue, Experiment experiment) {
+		PrimaryKey pk = new PrimaryKey();
+		pk.experiment = experiment;
+		pk.factorValue = factorValue;
+		return pk;
+	}
+	
 	@Embeddable
 	static class PrimaryKey implements Serializable {
 		private static final long serialVersionUID = 1869044391614542280L;
 		@ManyToOne
 		Experiment experiment;
 		@ManyToOne
-		@JoinColumns({
-			@JoinColumn(referencedColumnName = "name"),
-			@JoinColumn(referencedColumnName = "value")
-		})
-		Factor factor;
+		FactorValue factorValue;
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result
+					+ ((experiment == null) ? 0 : experiment.hashCode());
+			result = prime * result
+					+ ((factorValue == null) ? 0 : factorValue.hashCode());
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			PrimaryKey other = (PrimaryKey) obj;
+			if (experiment == null) {
+				if (other.experiment != null)
+					return false;
+			} else if (!experiment.equals(other.experiment))
+				return false;
+			if (factorValue == null) {
+				if (other.factorValue != null)
+					return false;
+			} else if (!factorValue.equals(other.factorValue))
+				return false;
+			return true;
+		}
 	}
 	
 	@Embeddable

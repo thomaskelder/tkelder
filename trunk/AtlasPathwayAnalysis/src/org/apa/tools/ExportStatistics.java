@@ -49,7 +49,7 @@ public class ExportStatistics {
 			Collection<ExperimentAnalysis> analyses = AtlasSessionUtils.getAnalyses(session);
 			for(ExperimentAnalysis ea : analyses) {
 				log.fine("Exporting " + ea);
-				String f = ea.getFactor().getValue().replaceAll("/", "_");
+				String f = ea.getFactor().getName().replaceAll("/", "_");
 				File outFile = new File(
 						main.outPath, ea.getType() + "_" + ea.getExperiment() + "_" + f + ".txt"
 				);

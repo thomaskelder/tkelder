@@ -15,6 +15,7 @@ import org.bridgedb.IDMapper;
 import org.bridgedb.IDMapperException;
 import org.bridgedb.Xref;
 import org.pathvisio.debug.Logger;
+import org.pathvisio.gex.GexManager;
 import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.plugins.statistics.Column;
 import org.pathvisio.plugins.statistics.SetZScoreCalculator;
@@ -287,11 +288,20 @@ public class StatsUtil {
 		out.close();
 	}
 	
-	public static StatisticsResult calculateZscores(String expr, File pwDir, SimpleGex gex, IDMapper gdb) throws IDMapperException {
+	public static StatisticsResult calculateZscores(String expr, File pwDir, GexManager gexMgr, IDMapper gdb) throws IDMapperException {
 		Criterion crit = new Criterion();
-		crit.setExpression(expr, gex.getSampleNames());
-		ZScoreCalculator calc = new ZScoreCalculator(crit, pwDir, gex, gdb, null);
+		crit.setExpression(expr, gexMgr.getCurrentGex().getSampleNames());
+		ZScoreCalculator calc = new ZScoreCalculator(crit, pwDir, gexMgr.getCachedData(), gdb, null);
 		return calc.calculateAlternative();
+	}
+	
+	/**
+	 * @deprecated Use with GexManager instead for better performance (uses cache)
+	 */
+	public static StatisticsResult calculateZscores(String expr, File pwDir, SimpleGex gex, IDMapper gdb) throws IDMapperException {
+		GexManager gexMgr = new GexManager();
+		gexMgr.setCurrentGex(gex);
+		return calculateZscores(expr, pwDir, gexMgr, gdb);
 	}
 	
 	public static StatisticsResult calculateZscoresFromSet(Set<Xref> positive, File pwDir, SimpleGex gex, IDMapper gdb) throws IDMapperException {

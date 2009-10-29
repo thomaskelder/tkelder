@@ -34,6 +34,10 @@ public class VennData<K> implements VennCounts {
 		calculateOverlap();
 	}
 	
+	public Set<Integer> getUnionIndices() {
+		return partialSets.keySet();
+	}
+	
 	public int getUnionIndex(int...index) {
 		int get = 0;
 		for(int i : index) get |= (int)Math.pow(2, i);

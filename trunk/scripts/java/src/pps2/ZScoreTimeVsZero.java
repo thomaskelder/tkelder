@@ -132,6 +132,36 @@ public class ZScoreTimeVsZero {
 				new File(outDir, "zscores_diff_time_vs_t0_late.txt"),
 				new FilterZScoreOptions().threshold(2)
 		);
+		
+		//Versions for clustering
+		StatsUtil.writeCategorized(
+				new StatisticsResult[] {
+					resultAll[iLF][0], resultAll[iLF][1], resultAll[iLF][2], resultAll[iHF][0], resultAll[iHF][1], resultAll[iHF][2]	
+				},
+				new StatisticsResult[] {
+						resultUp[iLF][0], resultUp[iLF][1], resultUp[iLF][2], resultUp[iHF][0], resultUp[iHF][1], resultUp[iHF][2]	
+				},
+				new StatisticsResult[] {
+						resultDown[iLF][0], resultDown[iLF][1], resultDown[iLF][2], resultDown[iHF][0], resultDown[iHF][1], resultDown[iHF][2]
+				},
+				new String[] { "t0.6_vs_t0_LF", "t2_vs_t0_LF", "t48_vs_t0_LF", "t0.6_vs_t0_HF", "t2_vs_t0_HF", "t48_vs_t0_HF"},
+				new File(outDir, "zscores_diff_time_vs_t0_signed.txt"),
+				new FilterZScoreOptions().threshold(2).digitalize(false).minDifferenceRatioForSign(0)
+		);
+		StatsUtil.writeCategorized(
+				new StatisticsResult[] {
+					resultAll[iLF][0], resultAll[iLF][1], resultAll[iLF][2], resultAll[iHF][0], resultAll[iHF][1], resultAll[iHF][2]	
+				},
+				new StatisticsResult[] {
+						resultUp[iLF][0], resultUp[iLF][1], resultUp[iLF][2], resultUp[iHF][0], resultUp[iHF][1], resultUp[iHF][2]	
+				},
+				new StatisticsResult[] {
+						resultDown[iLF][0], resultDown[iLF][1], resultDown[iLF][2], resultDown[iHF][0], resultDown[iHF][1], resultDown[iHF][2]
+				},
+				new String[] { "t0.6_vs_t0_LF", "t2_vs_t0_LF", "t48_vs_t0_LF", "t0.6_vs_t0_HF", "t2_vs_t0_HF", "t48_vs_t0_HF"},
+				new File(outDir, "zscores_diff_time_vs_t0_signed_diff_0.8.txt"),
+				new FilterZScoreOptions().threshold(2).digitalize(false).minDifferenceRatioForSign(0.8)
+		);
 	}
 	
 	String[] paste(String before, String[] data, String after) {

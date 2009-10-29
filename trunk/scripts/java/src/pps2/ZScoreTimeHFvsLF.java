@@ -28,7 +28,7 @@ public class ZScoreTimeHFvsLF {
 		try {
 			ZScoreTimeHFvsLF main = new ZScoreTimeHFvsLF();
 			main.start();
-			main.togetherAtT2();
+			//main.togetherAtT2();
 		} catch(Throwable e) {
 			e.printStackTrace();
 		}
@@ -86,6 +86,23 @@ public class ZScoreTimeHFvsLF {
 				new FilterZScoreOptions());
 		StatsUtil.writeSigned(resultUp, resultDown, timePoints, new File(outDir, "zscores_signed_HFvsLF_time_z2.txt"),
 				new FilterZScoreOptions().threshold(2));
+		
+		StatsUtil.writeCategorized(
+				resultAll, 
+				resultUp, 
+				resultDown, 
+				timePoints,
+				new File(outDir, "zscores_all_HFvsLF_time_categorized.txt"), 
+				new FilterZScoreOptions().threshold(2).digitalize(false).minDifferenceRatioForSign(0)
+		);
+		StatsUtil.writeCategorized(
+				resultAll, 
+				resultUp, 
+				resultDown, 
+				timePoints,
+				new File(outDir, "zscores_all_HFvsLF_time_categorized_diff0.8.txt"), 
+				new FilterZScoreOptions().threshold(2).digitalize(false).minDifferenceRatioForSign(0.8)
+		);
 	}
 	
 	/**

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.pathvisio.visualization.colorset.Criterion.CriterionException;
 import pathvisio.venn.GexVennData;
 import pathvisio.venn.PathwayVennData;
 import venn.BallVennDiagram;
+import venn.GradientVennDiagram;
 import venn.NumberVennDiagram;
 import venn.RelativeVennData;
 import venn.VennData;
@@ -44,8 +46,8 @@ public class VennTimeHFvsLF {
 		
 		try {
 			VennTimeHFvsLF vd = new VennTimeHFvsLF();
-			vd.genes();
-			//vd.go();
+			//vd.genes();
+			vd.go();
 			//vd.pathway();
 		} catch(Throwable e) {
 			e.printStackTrace();
@@ -53,7 +55,7 @@ public class VennTimeHFvsLF {
 	}
 	
 	File outPath = new File("/home/thomas/projects/pps2/stat_results/bigcat/HFvsLF");
-	File pathOutPath = new File("/home/thomas/projects/pps2/path_results/bigcat/HFvsLF/venn");
+	File pathOutPath = new File("/home/thomas/projects/pps2/path_results/bigcat/HFvsLF/venn/carb_aa_lipid");
 	File goOutPath = pathOutPath;
 	
 	File gexFile = new File("/home/thomas/projects/pps2/stat_results/PPS2_average 2logratio_HFvsLF per tp.pgex");
@@ -116,9 +118,16 @@ public class VennTimeHFvsLF {
 		venn.saveImage(new File(outPath, "venn_HFvsLF_t0_2_48.png"), "png");
 	}
 	
+	int findMax(List<Set<Xref>> sets) {
+		int max = Integer.MIN_VALUE;
+		for(Set<?> set : sets) {
+			max = Math.max(max, set.size());
+		}
+		return max;
+	}
+	
 	void go() throws IOException, IDMapperException, CriterionException {
 		GOTree tree = GOReader.readGOTree(ConstantsPPS2.goOboFile);
-		final DataSource ds = BioDataSource.ENSEMBL_MOUSE;
 		final Set<DataSource> dsTarget = new HashSet<DataSource>();
 		dsTarget.add(BioDataSource.ENTREZ_GENE);
 		
@@ -127,26 +136,48 @@ public class VennTimeHFvsLF {
 		String[] termLabels = ConstantsPPS2.getGOTermLabels(terms);
 		
 		double q = 0.05;
+		
+		//Calculate the venn sets and find max counts
+		int maxSetCount = 0;
+		Map<String, List<Set<Xref>>> goSetsByLabel = new HashMap<String, List<Set<Xref>>>();
+		Map<String, List<Set<Xref>>> goSetsAllByLabel = new HashMap<String, List<Set<Xref>>>();
+		
 		for(String t : labels) {
-			String title = "Genes with q < 0.05 for HF vs LF at " + t;
 			String c = "[qvalue_HFvsLF_" + t + "] < " + q;
 			List<Set<Xref>> goSets = GoVenn.getAnnotatedSetsByCriterion(gex, c, tree, geneAnnot, terms);
 			List<Set<Xref>> goSetsAll = GoVenn.getAnnotatedSetsByCriterion(gex, "1<2", tree, geneAnnot, terms);
+			goSetsByLabel.put(t, goSets);
+			goSetsAllByLabel.put(t, goSetsAll);
+			maxSetCount = findMax(goSets);
+		}
+		
+		Color gradientColor = new Color(100, 100, 255);
+		
+		//Draw the venn diagrams
+		for(String t : labels) {
+			String tfile = t;
+			if(t.equals("t0")) tfile = "t0.0"; //For proper sorting in ubuntu
+			String c = "[qvalue_HFvsLF_" + t + "] < " + q;
+			String title = "Genes with q < 0.05 for HF vs LF at " + t;
+			List<Set<Xref>> goSets = goSetsByLabel.get(t);
+			List<Set<Xref>> goSetsAll = goSetsAllByLabel.get(t);
 			
 			//Create a venn diagram from the go sets
 			//Absolute counts
 			VennData<Xref> vdata = new VennData<Xref>(goSets);
-			BallVennDiagram venn = new BallVennDiagram(vdata);
+			GradientVennDiagram venn = new GradientVennDiagram(vdata);
+			venn.setGradient(maxSetCount, gradientColor);
 			venn.setLabels(termLabels);
 			venn.setTitle(title);
-			venn.saveImage(new File(goOutPath, "venn_HFvsLF_" + t + "_GO.png"), "png");
+			venn.saveImage(new File(goOutPath, "venn_HFvsLF_" + tfile + "_GO.png"), "png");
 			
 			//Relative
 			RelativeVennData<Xref> rvdata = new RelativeVennData<Xref>(goSets, goSetsAll);
-			venn = new BallVennDiagram(rvdata);
+			venn = new GradientVennDiagram(rvdata);
+			venn.setGradient(100, gradientColor);
 			venn.setLabels(termLabels);
 			venn.setTitle(title + " (scaled to total gene counts)");
-			venn.saveImage(new File(goOutPath, "venn_HFvsLF_" + t + "_GO_relative.png"), "png");
+			venn.saveImage(new File(goOutPath, "venn_HFvsLF_relative_" + tfile + "_GO.png"), "png");
 			
 			//Z-score
 			int bigN = 0;
@@ -159,10 +190,11 @@ public class VennTimeHFvsLF {
 				bigN++;
 			}
 			ZScoreVennData<Xref> zvdata = new ZScoreVennData<Xref>(goSets, goSetsAll, bigN, bigR);
-			venn = new BallVennDiagram(zvdata);
+			venn = new GradientVennDiagram(zvdata);
+			venn.setGradient(40, gradientColor);
 			venn.setLabels(termLabels);
 			venn.setTitle(title + " (scaled to z-score for area)");
-			venn.saveImage(new File(goOutPath, "venn_HFvsLF_" + t + "_GO_zscore.png"), "png");
+			venn.saveImage(new File(goOutPath, "venn_HFvsLF_zscore_" + tfile + "_GO.png"), "png");
 		}
 	}
 	

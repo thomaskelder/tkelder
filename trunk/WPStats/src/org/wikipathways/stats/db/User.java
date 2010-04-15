@@ -20,6 +20,10 @@ public class User {
 		this.fullName = fullName;
 	}
 	
+	public String getFullNameSave() {
+		return fullName != null || "".equals(fullName) ? fullName : name;
+	}
+	
 	public String getFullName() {
 		return fullName;
 	}
@@ -33,7 +37,7 @@ public class User {
 	}
 	
 	public int getEditCount(WPDatabase db) throws SQLException {
-		PreparedStatement pst = db.getPst(pstGetUserActive);
+		PreparedStatement pst = db.getPst(pstGetEditCount);
 		pst.setInt(1, id);
 		pst.setInt(2, WPDatabase.NS_PATHWAY);
 		ResultSet r = pst.executeQuery();
@@ -43,12 +47,45 @@ public class User {
 		return count;
 	}
 	
-	public static Collection<User> getSnapshot(WPDatabase db, Date from, Date to) throws SQLException, ParseException {
+	public int getEditCount(WPDatabase db, Date to) throws SQLException {
+		PreparedStatement pst = db.getPst(pstGetEditCountTo);
+		pst.setInt(1, id);
+		pst.setInt(2, WPDatabase.NS_PATHWAY);
+		pst.setString(3, WPDatabase.dateToTimestamp(to));
+		ResultSet r = pst.executeQuery();
+		r.next();
+		int count = r.getInt(1);
+		r.close();
+		return count;
+	}
+	
+	public int getEditCount(WPDatabase db, Date from, Date to) throws SQLException {
+		PreparedStatement pst = db.getPst(pstGetEditCountFromTo);
+		pst.setInt(1, id);
+		pst.setInt(2, WPDatabase.NS_PATHWAY);
+		pst.setString(3, WPDatabase.dateToTimestamp(from));
+		pst.setString(4, WPDatabase.dateToTimestamp(to));
+		ResultSet r = pst.executeQuery();
+		r.next();
+		int count = r.getInt(1);
+		r.close();
+		return count;
+	}
+	
+	public static User fromDb(WPDatabase db, int id) throws SQLException {
+		PreparedStatement pst = db.getPst(pstGetUser);
+		pst.setInt(1, id);
+		ResultSet r = pst.executeQuery();
+		r.next();
+		return new User(id, r.getString(1), r.getString(2));
+	}
+	
+	public static Collection<User> getSnapshot(WPDatabase db, Date to) throws SQLException, ParseException {
 		Set<User> users = new HashSet<User>();
 		
 		//Select all users that have registered after from date
-		PreparedStatement pst = db.getPst(pstGetUsersFrom);
-		String ts = WPDatabase.dateToTimestamp(from);
+		PreparedStatement pst = db.getPst(pstGetUsersTo);
+		String ts = WPDatabase.dateToTimestamp(to);
 		pst.setString(1, ts);
 		ResultSet r = pst.executeQuery();
 		while(r.next()) {
@@ -59,10 +96,22 @@ public class User {
 		return users;
 	}
 	
-	static final String pstGetUsersFrom = 
+	static final String pstGetUser = 
+		"SELECT user_name, user_real_name FROM user WHERE user_id = ?";
+	
+	static final String pstGetUsersTo = 
 		"SELECT user_id, user_name, user_real_name FROM user WHERE user_registration <= ?";
 	
-	static final String pstGetUserActive = 
+	static final String pstGetEditCount = 
 		"SELECT COUNT(r.rev_id) FROM revision AS r JOIN page AS p " +
-		"WHERE r.rev_user = ? AND p.page_namespace = ?";
+		"WHERE r.rev_user = ? AND p.page_namespace = ? AND p.page_id = r.rev_page";
+	
+	static final String pstGetEditCountTo = 
+		"SELECT COUNT(r.rev_id) FROM revision AS r JOIN page AS p " +
+		"WHERE r.rev_user = ? AND p.page_namespace = ? AND p.page_id = r.rev_page AND r.rev_timestamp <= ?";
+	
+	static final String pstGetEditCountFromTo = 
+		"SELECT COUNT(r.rev_id) FROM revision AS r JOIN page AS p " +
+		"WHERE r.rev_user = ? AND p.page_namespace = ? AND p.page_id = r.rev_page " +
+		"AND r.rev_timestamp > ? AND r.rev_timestamp <= ?";
 }

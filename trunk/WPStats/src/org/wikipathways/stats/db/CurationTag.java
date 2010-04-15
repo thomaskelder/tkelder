@@ -75,7 +75,7 @@ public class CurationTag {
 			PreparedStatement pstD = db.getPst(pstLatestActionBefore);
 			pstD.setString(1, CURATION_PREFIX + tag.type);
 			pstD.setInt(2, tag.pageId);
-			pstD.setString(3, "create");
+			pstD.setString(3, "remove");
 			pstD.setString(4, ts);
 			r = pstD.executeQuery();
 			if(r.next()) latestDelete = r.getString(1);

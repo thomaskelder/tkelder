@@ -4,11 +4,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.wikipathways.stats.taskimpl.CurationEvent;
 import org.wikipathways.stats.taskimpl.CurationTagCounts;
 import org.wikipathways.stats.taskimpl.EditFrequencies;
+import org.wikipathways.stats.taskimpl.NewPathways;
 import org.wikipathways.stats.taskimpl.PathwayCounts;
 import org.wikipathways.stats.taskimpl.PathwayCountsBySpecies;
 import org.wikipathways.stats.taskimpl.UserCounts;
+import org.wikipathways.stats.taskimpl.WebserviceActivity;
 import org.wikipathways.stats.taskimpl.XrefCoverage;
 
 /**
@@ -30,6 +33,9 @@ public class TaskRegistry {
 		registerTask(XrefCoverage.class.getName(), new XrefCoverage());
 		registerTask(UserCounts.class.getName(), new UserCounts());
 		registerTask(EditFrequencies.class.getName(), new EditFrequencies());
+		registerTask(CurationEvent.class.getName(), new CurationEvent());
+		registerTask(NewPathways.class.getName(), new NewPathways());
+		registerTask(WebserviceActivity.class.getName(), new WebserviceActivity());
 	}
 	
 	public Task getTask(String id) {

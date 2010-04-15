@@ -36,4 +36,7 @@ public class TaskParameters {
 	public static final String OUT_PATH = "out";
 	public static final String GRAPH_WIDTH = "graph.width";
 	public static final String GRAPH_HEIGHT = "graph.height";
+	public static final String START = "start";
+	public static final String END = "end";
+	
 }

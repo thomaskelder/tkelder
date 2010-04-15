@@ -64,6 +64,22 @@ public class PathwayInfo {
 		}
 	}
 	
+	public String getTitle() throws SQLException, ParseException, SAXException, IOException {
+		PathwayParser parsedGpml = getParsedGpml();
+		if(parsedGpml != null) {
+			return parsedGpml.getTitle();
+		} else {
+			return null;
+		}
+	}
+	
+	public boolean isPrivate() throws SQLException {
+		PreparedStatement pst = db.getPst(pstIsPrivate);
+		pst.setInt(1, getPageId());
+		ResultSet r = pst.executeQuery();
+		return r.next();
+	}
+	
 	public String getGpml() throws SQLException {
 		String gpml = null; //Disable caching of GPML to decrease memory usage
 		if(gpml == null) {
@@ -108,6 +124,36 @@ public class PathwayInfo {
 		int rev = r.getInt(1);
 		r.close();
 		return rev;
+	}
+	
+	public int getFirstRevision() throws SQLException {
+		PreparedStatement pst = db.getPst(pstFirstRevision);
+		pst.setInt(1, getPageId());
+		ResultSet r = pst.executeQuery();
+		r.next();
+		int rev = r.getInt(1);
+		r.close();
+		return rev;
+	}
+	
+	public int getRevisionUser(int rev) throws SQLException {
+		PreparedStatement pst = db.getPst(pstGetUser);
+		pst.setInt(1, rev);
+		ResultSet r = pst.executeQuery();
+		r.next();
+		int id = r.getInt(1);
+		r.close();
+		return id;
+	}
+	
+	public Date getRevisionTime(int rev) throws SQLException, java.text.ParseException {
+		PreparedStatement pst = db.getPst(pstGetRevTime);
+		pst.setInt(1, rev);
+		ResultSet r = pst.executeQuery();
+		r.next();
+		String ts = r.getString(1);
+		r.close();
+		return WPDatabase.timestampToDate(ts);
 	}
 	
 	public static Set<PathwayInfo> getSnapshot(WPDatabase db, Date date) throws SQLException {
@@ -170,15 +216,23 @@ public class PathwayInfo {
 		"SELECT MAX(rev_id) FROM revision " +
 		"WHERE rev_timestamp <= ? AND rev_page = ?";
 	
+	static final String pstFirstRevision = "SELECT MIN(rev_id) FROM revision WHERE rev_page = ?";
+	static final String pstGetUser = "SELECT rev_user FROM revision WHERE rev_id = ?";
+	static final String pstGetRevTime = "SELECT rev_timestamp FROM revision WHERE rev_id = ?";
+	
 	static final String pstGetGpml = 
 		"SELECT t.old_text FROM text AS t JOIN revision AS r " +
 		"WHERE r.rev_id = ? AND t.old_id = r.rev_text_id";
 	
+	static final String pstIsPrivate = 
+		"SELECT tag_text FROM tag WHERE tag_name = 'page_permissions' AND page_id = ?";
+		
 	static final String PREFIX_DELETED = "{{deleted";
 	static final String PREFIX_REDIRECT = "#REDIRECT";
 	
 	static class PathwayParser extends DefaultHandler {
 		String organism;
+		String title;
 		
 		public PathwayParser(Reader in, XMLReader xmlReader) throws IOException, SAXException {
 			xmlReader.setContentHandler(this);
@@ -192,11 +246,16 @@ public class PathwayInfo {
 			
 			if(localName.equals("Pathway")) {
 				organism = attributes.getValue("Organism");
+				title = attributes.getValue("Name");
 			}
 		}
 		
 		public String getOrganism() {
 			return organism;
+		}
+		
+		public String getTitle() {
+			return title;
 		}
 	}
 	

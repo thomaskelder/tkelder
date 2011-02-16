@@ -4,9 +4,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class User {
@@ -72,6 +74,57 @@ public class User {
 		return count;
 	}
 	
+	public List<Integer> getEditPages(WPDatabase db) throws SQLException {
+		PreparedStatement pst = db.getPst(pstGetEditPages);
+		pst.setInt(1, id);
+		pst.setInt(2, WPDatabase.NS_PATHWAY);
+		
+		List<Integer> pages = new ArrayList<Integer>();
+		
+		ResultSet r = pst.executeQuery();
+		
+		while(r.next()) {
+			pages.add(r.getInt(1));
+		}
+		r.close();
+		return pages;
+	}
+	
+	public List<Integer> getEditPages(WPDatabase db, Date from, Date to) throws SQLException {
+		PreparedStatement pst = db.getPst(pstGetEditPagesFromTo);
+		pst.setInt(1, id);
+		pst.setInt(2, WPDatabase.NS_PATHWAY);
+		pst.setString(3, WPDatabase.dateToTimestamp(from));
+		pst.setString(4, WPDatabase.dateToTimestamp(to));
+		
+		List<Integer> pages = new ArrayList<Integer>();
+		
+		ResultSet r = pst.executeQuery();
+		
+		while(r.next()) {
+			pages.add(r.getInt(1));
+		}
+		r.close();
+		return pages;
+	}
+	
+	public List<Integer> getEditPages(WPDatabase db, Date to) throws SQLException {
+		PreparedStatement pst = db.getPst(pstGetEditPagesTo);
+		pst.setInt(1, id);
+		pst.setInt(2, WPDatabase.NS_PATHWAY);
+		pst.setString(3, WPDatabase.dateToTimestamp(to));
+		
+		List<Integer> pages = new ArrayList<Integer>();
+		
+		ResultSet r = pst.executeQuery();
+		
+		while(r.next()) {
+			pages.add(r.getInt(1));
+		}
+		r.close();
+		return pages;
+	}
+	
 	public static User fromDb(WPDatabase db, int id) throws SQLException {
 		PreparedStatement pst = db.getPst(pstGetUser);
 		pst.setInt(1, id);
@@ -106,12 +159,26 @@ public class User {
 		"SELECT COUNT(r.rev_id) FROM revision AS r JOIN page AS p " +
 		"WHERE r.rev_user = ? AND p.page_namespace = ? AND p.page_id = r.rev_page";
 	
+	static final String pstGetEditPages = 
+		"SELECT r.rev_page FROM revision AS r JOIN page AS p " +
+		"WHERE r.rev_user = ? AND p.page_namespace = ? AND p.page_id = r.rev_page";
+	
 	static final String pstGetEditCountTo = 
 		"SELECT COUNT(r.rev_id) FROM revision AS r JOIN page AS p " +
 		"WHERE r.rev_user = ? AND p.page_namespace = ? AND p.page_id = r.rev_page AND r.rev_timestamp <= ?";
 	
+	static final String pstGetEditPagesTo = 
+		"SELECT r.rev_page FROM revision AS r JOIN page AS p " +
+		"WHERE r.rev_user = ? AND p.page_namespace = ? AND p.page_id = r.rev_page AND r.rev_timestamp <= ?";
+
+	
 	static final String pstGetEditCountFromTo = 
 		"SELECT COUNT(r.rev_id) FROM revision AS r JOIN page AS p " +
+		"WHERE r.rev_user = ? AND p.page_namespace = ? AND p.page_id = r.rev_page " +
+		"AND r.rev_timestamp > ? AND r.rev_timestamp <= ?";
+	
+	static final String pstGetEditPagesFromTo = 
+		"SELECT r.rev_page FROM revision AS r JOIN page AS p " +
 		"WHERE r.rev_user = ? AND p.page_namespace = ? AND p.page_id = r.rev_page " +
 		"AND r.rev_timestamp > ? AND r.rev_timestamp <= ?";
 }

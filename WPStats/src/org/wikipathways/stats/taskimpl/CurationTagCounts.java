@@ -4,6 +4,9 @@ import static org.wikipathways.stats.TaskParameters.GRAPH_HEIGHT;
 import static org.wikipathways.stats.TaskParameters.GRAPH_WIDTH;
 import static org.wikipathways.stats.TaskParameters.OUT_PATH;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Stroke;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -24,6 +27,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.time.Month;
 import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.TimeTableXYDataset;
+import org.jfree.ui.RectangleEdge;
 import org.wikipathways.stats.Task;
 import org.wikipathways.stats.TaskException;
 import org.wikipathways.stats.TaskParameters;
@@ -82,7 +86,7 @@ public class CurationTagCounts implements Task {
 				dataPerPage.add(period, (double)(tagCounts.get(t) / pathways.size()) * 100, t);
 			}
 			
-			db.closePsts();
+			db.resetConnection();
 		}
 
 		JFreeChart chart = ChartFactory.createTimeSeriesChart(
@@ -90,6 +94,14 @@ public class CurationTagCounts implements Task {
 				true, false, false);
 		DateAxis axis = new DateAxis("Time");
 		chart.getXYPlot().setDomainAxis(axis);
+		
+		chart.getLegend().setPosition(RectangleEdge.RIGHT);
+		chart.getXYPlot().setBackgroundPaint(Color.WHITE);
+		Stroke s = new BasicStroke(3);
+		for(int i = 0; i < chart.getXYPlot().getSeriesCount(); i++) {
+			chart.getXYPlot().getRenderer().setSeriesStroke(i, s);
+		}
+		
 		ChartUtilities.saveChartAsPNG(
 				new File(par.getFile(OUT_PATH), filePrefix + "_tagcounts.png"), 
 				chart, par.getInt(GRAPH_WIDTH), par.getInt(GRAPH_HEIGHT)

@@ -125,7 +125,7 @@ public class CurationEvent implements Task {
 					chart, par.getInt(GRAPH_WIDTH), par.getInt(GRAPH_HEIGHT)
 			);
 			
-			db.closePsts();
+			db.resetConnection();
 			
 			//Curation tags changes
 			Set<String> tags = new HashSet<String>();

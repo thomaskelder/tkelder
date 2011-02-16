@@ -51,6 +51,20 @@ public class CurationTag {
 		return types;
 	}
 	
+	public static Collection<CurationTag> getLatest(WPDatabase db) throws SQLException {
+		//Select all curation tags from history that have "create" before given date
+		Set<CurationTag> tags = new HashSet<CurationTag>();
+		
+		PreparedStatement pst = db.getPst(pstTagsLatest);
+		ResultSet r = pst.executeQuery();
+		while(r.next()) {
+			tags.add(new CurationTag(r.getString(1), r.getInt(2)));
+		}
+		r.close();
+		
+		return tags;
+	}
+	
 	public static Collection<CurationTag> getSnapshot(WPDatabase db, Date date) throws SQLException, ParseException {
 		//Select all curation tags from history that have "create" before given date
 		Set<CurationTag> tags = new HashSet<CurationTag>();
@@ -108,6 +122,10 @@ public class CurationTag {
 		"WHERE tag_name = ? AND page_id = ? " +
 		"AND action = ? AND time <= ? " +
 		"ORDER BY time DESC";
+	
+	static final String pstTagsLatest = 
+		"SELECT tag_name, page_id FROM tag " + 
+		"WHERE tag_name LIKE '" + CURATION_PREFIX + "%'";
 	
 	static final String pstTagsFromHistory = 
 		"SELECT tag_name, page_id FROM tag_history " +

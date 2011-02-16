@@ -6,10 +6,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.bridgedb.DataSource;
+import org.bridgedb.IDMapper;
 import org.bridgedb.IDMapperException;
 import org.bridgedb.Xref;
-import org.bridgedb.bio.Organism;
-import org.bridgedb.rdb.IDMapperRdb;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.go.GOAnnotation;
 import org.pathvisio.go.GOAnnotations;
@@ -49,7 +48,7 @@ public class GOMapper {
 	 * @throws DataException
 	 * @throws ConverterException
 	 */
-	public void calculate(List<File> gpmlFiles, IDMapperRdb gdb, GOAnnotations<XrefAnnotation> geneAnnotations, Organism org) throws IDMapperException, ConverterException {
+	public void calculate(List<File> gpmlFiles, IDMapper gdb, GOAnnotations<XrefAnnotation> geneAnnotations, DataSource ds) throws IDMapperException, ConverterException {
 		pathwayAnnotations = new GOAnnotations<PathwayAnnotation>();
 		
 		int i = 0;
@@ -64,18 +63,16 @@ public class GOMapper {
 			} else {
 				id = name + "(" + f.getName() + ")";
 			}
-			mapPathway(id, p, gdb, geneAnnotations, org);
+			mapPathway(id, p, gdb, geneAnnotations, ds);
 		}
 	}
 	
-	private void mapPathway(String id, Pathway p, IDMapperRdb gdb, GOAnnotations<XrefAnnotation> geneAnnotations, Organism org) throws IDMapperException {
+	private void mapPathway(String id, Pathway p, IDMapper gdb, GOAnnotations<XrefAnnotation> geneAnnotations, DataSource ds) throws IDMapperException {
 		Set<Xref> pathwayXrefs = new HashSet<Xref>();
 		for(Xref x : p.getDataNodeXrefs()) {
 			if(x.getId() == null || x.getDataSource() == null) {
 				continue; //Skip invalid xrefs
 			}
-			Set<DataSource> ds = new HashSet<DataSource>();
-			ds.add(DataSource.getBySystemCode("En" + org.code()));
 			pathwayXrefs.addAll(gdb.mapID(x, ds));
 		}
 		

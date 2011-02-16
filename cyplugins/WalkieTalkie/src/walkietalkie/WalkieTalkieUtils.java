@@ -1,18 +1,15 @@
 package walkietalkie;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.bridgedb.IDMapperException;
-import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.plugins.statistics.StatisticsPathwayResult;
 import org.pathvisio.plugins.statistics.StatisticsResult;
 import org.pathvisio.util.FileUtils;
 import org.pathvisio.util.PathwayParser;
 import org.pathvisio.util.PathwayParser.ParseException;
-import org.pathvisio.visualization.colorset.Criterion;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;

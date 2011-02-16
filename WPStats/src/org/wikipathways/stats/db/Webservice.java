@@ -4,8 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -36,17 +36,21 @@ public class Webservice {
 	}
 	
 	public static Map<String, Integer> getCountsPerIp(WPDatabase db, Date start, Date end) throws SQLException {
-		Map<String, Integer> counts = new HashMap<String, Integer>();
+		Map<String, Integer> counts = new LinkedHashMap<String, Integer>();
 
-		PreparedStatement pst = db.getPst(pstIpCount);
-
-		Set<String> ips = getIps(db, start, end);
-		int i = 0;
-		for(String ip : ips) {
-			System.out.println("Querying " + ip + " (" + i++ + " / " + ips.size() + ")");
-			counts.put(ip, getCountsForIp(db, start, end, ip));
+		PreparedStatement pst = db.getPst(pstIpFreq);
+		
+		pst.setString(1, WPDatabase.dateToTimestamp(start));
+		pst.setString(2, WPDatabase.dateToTimestamp(end));
+		
+		ResultSet r = pst.executeQuery();
+		while(r.next()) {
+			String ip = r.getString(1);
+			int count = r.getInt(2);
+			counts.put(ip, count);
 		}
-
+		r.close();
+		
 		return counts;
 	}
 
@@ -76,12 +80,33 @@ public class Webservice {
 				"saveCurationTag",
 				"updatePathway",
 		};
-		for(String op : operations) {
-			int c = getCountsForOperation(db, start, end, "%" + op + "%");
-			counts.put(op, c);
-			System.out.println("Processing operation " + op + " (" + c + ")");
+		
+		PreparedStatement pst = db.getPst(pstOperationFreq);
+		
+		pst.setString(1, WPDatabase.dateToTimestamp(start));
+		pst.setString(2, WPDatabase.dateToTimestamp(end));
+		
+		ResultSet r = pst.executeQuery();
+		while(r.next()) {
+			String command = r.getString(1);
+			int count = r.getInt(2);
+			
+			//Match the right operation
+			boolean match = false;
+			for(String operation : operations) {
+				if(command.toLowerCase().contains(operation.toLowerCase())) {
+					if(counts.containsKey(operation)) {
+						counts.put(operation, counts.get(operation) + count);
+					} else {
+						counts.put(operation, count);
+					}
+					match = true;
+				}
+			}
+			if(!match) counts.put("other (WSDL or incorrect request)", count);
 		}
-
+		r.close();
+		
 		return counts;
 	}
 	
@@ -123,6 +148,14 @@ public class Webservice {
 
 	static final String pstIpCount = 
 		"SELECT count(ip) FROM webservice_log WHERE ip = ? AND request_timestamp >= ? AND request_timestamp < ?";
+	
+	static final String pstIpFreq = 
+		"SELECT ip, count(ip) FROM webservice_log WHERE request_timestamp >= ? AND request_timestamp < ? " +
+		"GROUP BY ip ORDER BY count(ip) DESC";
+	
+	static final String pstOperationFreq = 
+		"SELECT operation, count(operation) FROM webservice_log WHERE request_timestamp >= ? AND request_timestamp < ? " +
+		"GROUP BY operation ORDER BY count(operation) DESC";
 	
 	static final String pstOperationCount = 
 		"SELECT count(operation) FROM webservice_log WHERE operation LIKE ? AND request_timestamp >= ? AND request_timestamp < ?";

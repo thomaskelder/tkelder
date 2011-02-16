@@ -28,4 +28,4 @@ java -jar gpml-go.jar
 
 This will show the available command line options. If you want to perform the mapping, run:
 
-java -jar gpml-go.jar -action map -go /path/to/gene_ontology.1_2.obo -pathways /path/to/gpmlfiles -annot /path/to/biomartfile -org "Mus musculus" -out /path/to/outputfile.txt -gdb /path/to/synonymdb.pgdb
+java -jar gpml-go.jar -action map -go /path/to/gene_ontology.1_2.obo -pathways /path/to/gpmlfiles -annot /path/to/biomartfile -org "Mus musculus" -out /path/to/outputfile.txt -idm idmapper-pgdb:/path/to/synonymdb.pgdb

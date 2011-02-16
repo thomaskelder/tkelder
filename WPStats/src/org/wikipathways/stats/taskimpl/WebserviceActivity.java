@@ -5,17 +5,20 @@ import static org.wikipathways.stats.TaskParameters.GRAPH_WIDTH;
 import static org.wikipathways.stats.TaskParameters.OUT_PATH;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
@@ -38,6 +41,10 @@ import org.wikipathways.stats.db.Webservice;
 public class WebserviceActivity implements Task {
 	public void start(WPDatabase db, TaskParameters par) throws TaskException {
 		try {
+			PrintWriter txtout = new PrintWriter(new File(par.getFile(TaskParameters.OUT_PATH), "webservice_requests.txt"));
+			txtout.println("date\ttype\tcount");
+			SimpleDateFormat dformat = new SimpleDateFormat("yyyy/MM/dd");
+			
 			Calendar cal = Calendar.getInstance();
 			cal.clear();
 			cal.set(Calendar.YEAR, 2009);
@@ -66,12 +73,24 @@ public class WebserviceActivity implements Task {
 					if(
 							ip.startsWith("137.120.14") ||
 							ip.equals("137.120.89.38") ||
-							ip.equals("137.120.89.24")) {
+							ip.equals("137.120.89.24") ||
+							ip.equals("137.120.17.25") ||
+							ip.equals("137.120.17.35") ||
+							ip.equals("137.120.17.33") ||
+							ip.equals("169.230.76.87")) {
 						own += Webservice.getCountsForIp(db, from, to, ip);
 					}
 				}
 				countData.addValue(own, "Requests (own services)", period);
 				countData.addValue(total - own, "Requests (external services)", period);
+				
+				Date time = new Date(period.getLastMillisecond());
+				txtout.println(
+						dformat.format(time) + "\town\t" + own
+				);
+				txtout.println(
+						dformat.format(time) + "\texternal\t" + (total - own)
+				);
 				
 				int opTotal = 0;
 				Map<String, Integer> operationCounts = Webservice.getCountsPerOperation(db, from, to);
@@ -80,10 +99,11 @@ public class WebserviceActivity implements Task {
 					operationData.addValue(opCount, op, period);
 					opTotal += opCount;
 				}
-				operationData.addValue(total - opTotal, "Other (e.g. wsdl or incorrect request)", period);
 			}
 
-			chart = ChartFactory.createStackedBarChart(
+			txtout.close();
+			
+			chart = ChartFactory.createBarChart(
 					"WikiPathways web service usage", "Date", "Number of requests", countData, 
 					PlotOrientation.VERTICAL, true, false, false);
 			CategoryAxis xaxis = (CategoryAxis)chart.getCategoryPlot().getDomainAxis();

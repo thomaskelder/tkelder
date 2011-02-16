@@ -14,9 +14,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bridgedb.DataSource;
+import org.bridgedb.IDMapper;
 import org.bridgedb.IDMapperException;
 import org.bridgedb.Xref;
-import org.bridgedb.rdb.IDMapperRdb;
+import org.bridgedb.bio.BioDataSource;
 import org.pathvisio.data.XrefWithSymbol;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.go.mapper.ScoreMatrix;
@@ -62,6 +63,21 @@ public class GOAnnotations<K extends GOAnnotation> {
 		annotation2terms.put(annotation.getId(), term);
 	}
 	
+	public static <K extends GOAnnotation> GOAnnotations<K> fromIDMapper(IDMapper idm, DataSource ds, GOTree tree, GOAnnotationFactory<K> f) throws IOException, IDMapperException {
+		GOAnnotations<K> annotations = new GOAnnotations<K>();
+		
+		for(GOTerm t : tree.getTerms()) {
+			String id = t.getId();
+			Xref gox = new Xref(id, BioDataSource.GENE_ONTOLOGY);
+			for(Xref x : idm.mapID(gox, ds)) {
+				for(K a : f.createAnnotations(x.getId(), "")) {
+					annotations.addAnnotation(t, a);
+				}
+			}
+		}
+		return annotations;
+	}
+	
 	public static <K extends GOAnnotation> GOAnnotations<K> read(File annotFile, GOTree tree, GOAnnotationFactory<K> f) throws IOException {
 		GOAnnotations<K> annotations = new GOAnnotations<K>();
 		
@@ -94,11 +110,9 @@ public class GOAnnotations<K extends GOAnnotation> {
 		out.close();
 	}
 	
-	public void writeXrefs(File outFile, IDMapperRdb gdb, DataSource ds) throws ParseException, IOException, IDMapperException, SAXException {
+	public void writeXrefs(File outFile, IDMapper gdb, DataSource ds) throws ParseException, IOException, IDMapperException, SAXException {
 		XMLReader xmlReader = XMLReaderFactory.createXMLReader();
 		Map<GOTerm, Set<String>> xrefMap = new HashMap<GOTerm, Set<String>>();
-		Set<DataSource> dsSet = new HashSet<DataSource>();
-		dsSet.add(ds);
 		BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
 		for(GOTerm term : annotations.keySet()) {
 			for(GOAnnotation a : getAnnotations(term)) {
@@ -113,7 +127,7 @@ public class GOAnnotations<K extends GOAnnotation> {
 				List<XrefWithSymbol> genes =  parser.getGenes();
 				
 				for(XrefWithSymbol g : genes) {
-					for(Xref x : gdb.mapID(g.asXref(), dsSet)) {
+					for(Xref x : gdb.mapID(g.asXref(), ds)) {
 						Set<String> xrefs = xrefMap.get(term);
 						if(xrefs == null) xrefMap.put(term, xrefs = new HashSet<String>());
 						xrefs.add(x.getId());

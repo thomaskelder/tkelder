@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -11,15 +12,12 @@ import java.util.List;
 import javax.swing.JFrame;
 
 import org.bridgedb.DataSource;
+import org.bridgedb.IDMapperStack;
 import org.bridgedb.bio.BioDataSource;
 import org.bridgedb.bio.Organism;
-import org.bridgedb.rdb.DBConnector;
-import org.bridgedb.rdb.IDMapperRdb;
-import org.bridgedb.rdb.SimpleGdbFactory;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.pathvisio.data.DBConnDerby;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.go.GOAnnotationFactory;
 import org.pathvisio.go.GOAnnotations;
@@ -44,8 +42,8 @@ public class GOMapperMain {
 	@Option(name = "-org", required = true, usage = "The organism you are mapping")
 	private String org;
 	
-	@Option(name = "-gdb", usage = "The Gene Database for mapping the pathway genes to Ensembl")
-	private File gdbFile;
+	@Option(name = "-idm", usage = "The BridgeDb connection string(s) for mapping the pathway genes to Ensembl")
+	private List<String> idmConn = new ArrayList<String>();
 	
 	@Option(name = "-mappings", usage = "File to read previously calculated mappings from")
 	private File mapFile;
@@ -83,11 +81,9 @@ public class GOMapperMain {
 		}
 		
 		try {
-			IDMapperRdb gdb = null;
-			if(main.gdbFile != null) {
-				gdb = SimpleGdbFactory.createInstance(
-					main.gdbFile.getAbsolutePath(), new DBConnDerby(), DBConnector.PROP_NONE
-				);
+			IDMapperStack idm = new IDMapperStack();
+			for(String c : main.idmConn) {
+				idm.addIDMapper(c);
 			}
 			GOTree goTree = GOReader.readGOTree(main.oboFile);
 			GOMapper goMapper = new GOMapper(goTree);
@@ -103,11 +99,17 @@ public class GOMapperMain {
 			}
 			
 			GOAnnotations<XrefAnnotation> geneAnnot = null;
+			final DataSource tgtds = org == null ? BioDataSource.ENSEMBL : BioDataSource.getSpeciesSpecificEnsembl(org);
 			if(main.annotFile != null) {
-				final DataSource ds = org == null ? BioDataSource.ENSEMBL : DataSource.getBySystemCode("En" + org.code());
 				geneAnnot = GOAnnotations.read(main.annotFile, goTree, new GOAnnotationFactory<XrefAnnotation>() {
 					public Collection<XrefAnnotation> createAnnotations(String id, String evidence) {
-						return Arrays.asList(new XrefAnnotation[] { new XrefAnnotation(id, ds, evidence) });
+						return Arrays.asList(new XrefAnnotation[] { new XrefAnnotation(id, tgtds, evidence) });
+					}
+				});
+			} else {
+				geneAnnot = GOAnnotations.fromIDMapper(idm, tgtds, goTree, new GOAnnotationFactory<XrefAnnotation>() {
+					public Collection<XrefAnnotation> createAnnotations(String id, String evidence) {
+						return Arrays.asList(new XrefAnnotation[] { new XrefAnnotation(id, tgtds, evidence) });
 					}
 				});
 			}
@@ -118,7 +120,10 @@ public class GOMapperMain {
 							"Invalid organism " + main.org + "; please specify correct -org parameter.");
 				}
 				
-				if(geneAnnot == null) {
+				if(main.annotFile == null) {
+					System.out.println("No gene annotation file specified, trying to get annotations from idmapper");
+				}
+				if(main.annotFile != null && geneAnnot == null) {
 					fatalParamError(
 						"Could not read gene annotations from file " + main.annotFile + "\n" +
 						"Please specify the -annot or -mapping parameter.");
@@ -127,13 +132,13 @@ public class GOMapperMain {
 					fatalParamError(
 						"Please specify the -pathways parameter.");
 				}
-				if(main.gdbFile == null) {
+				if(main.idmConn.size() == 0) {
 					fatalParamError(
-						"Please specify the -gdb parameter.");
+						"Please specify the -idm parameter.");
 				}
 				List<File> gpmlFiles = FileUtils.getFiles(main.pathwayDir, main.pathwayExt, true);
 				Logger.log.info("Mapping pathways to GO tree");
-				goMapper.calculate(gpmlFiles, gdb, geneAnnot, org);
+				goMapper.calculate(gpmlFiles, idm, geneAnnot, tgtds);
 			} else if(main.mapFile != null) {
 				//Read existing mappings
 				goMapper.setPathwayAnnotations(GOAnnotations.read(main.mapFile, goTree, new GOAnnotationFactory<PathwayAnnotation>() {
@@ -159,7 +164,7 @@ public class GOMapperMain {
 			
 			if(ACTION_XREFS.equals(main.action)) {
 				DataSource ds = DataSource.getBySystemCode(main.dbCode);
-				goMapper.getPathwayAnnotations().writeXrefs(main.outFile, gdb, ds);
+				goMapper.getPathwayAnnotations().writeXrefs(main.outFile, idm, ds);
 			}
 			
 			if(ACTION_MATRIX.equals(main.action)) {

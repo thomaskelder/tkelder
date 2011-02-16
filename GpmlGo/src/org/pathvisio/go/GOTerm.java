@@ -6,6 +6,7 @@ import java.util.Set;
 public class GOTerm implements Comparable<GOTerm> {
 	String id;
 	String name;
+	String def;
 	Set<String> parents = new HashSet<String>();
 	Set<String> synonyms = new HashSet<String>();
 	
@@ -23,6 +24,14 @@ public class GOTerm implements Comparable<GOTerm> {
 	
 	public Set<String> getSynonyms() {
 		return synonyms;
+	}
+	
+	public void setDef(String def) {
+		this.def = def;
+	}
+	
+	public String getDef() {
+		return def;
 	}
 	
 	public boolean isObsolete() {

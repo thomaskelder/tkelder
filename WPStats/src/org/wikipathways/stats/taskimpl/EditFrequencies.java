@@ -4,8 +4,6 @@ import static org.wikipathways.stats.TaskParameters.GRAPH_HEIGHT;
 import static org.wikipathways.stats.TaskParameters.GRAPH_WIDTH;
 import static org.wikipathways.stats.TaskParameters.OUT_PATH;
 
-import java.awt.Graphics2D;
-import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,12 +14,14 @@ import java.util.List;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.AxisState;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
+import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.ui.RectangleEdge;
+import org.jfree.data.xy.DefaultXYDataset;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
 import org.wikipathways.stats.Task;
 import org.wikipathways.stats.TaskException;
 import org.wikipathways.stats.TaskParameters;
@@ -48,14 +48,19 @@ public class EditFrequencies implements Task {
 			DefaultCategoryDataset catData = new DefaultCategoryDataset();
 			DefaultCategoryDataset topData = new DefaultCategoryDataset();
 			
+			XYSeries freqSeries = new XYSeries("Ranked users edit count");
+			DefaultXYDataset freqData = new DefaultXYDataset();
+			
 			for(int i = 0; i < rankedUsers.size(); i++) {
 				CountedUser cu = rankedUsers.get(i);
 				if(cu.count == 0) break; //End with inactive users
 				catData.addValue(cu.count, "Ranked users edit count", i + "");
+				freqSeries.add(i + 1, cu.count);
 				if(i < top) {
 					topData.addValue(cu.count, "Ranked users edit count", cu.user.getName());
 				}
 			}
+			freqData.addSeries(freqSeries.getKey(), freqSeries.toArray());
 			
 			//All users with minimal 1 edit
 			JFreeChart chart = ChartFactory.createBarChart(
@@ -64,6 +69,16 @@ public class EditFrequencies implements Task {
 	        
 			ChartUtilities.saveChartAsPNG(
 					new File(par.getFile(OUT_PATH), "editfrequencies.png"), 
+					chart, par.getInt(GRAPH_WIDTH), par.getInt(GRAPH_HEIGHT)
+			);
+			
+			chart = ChartFactory.createScatterPlot(
+					"WikiPathways users edit frequencies", "User rank (by number of edits)", "Number of pathway edits", freqData, 
+					PlotOrientation.VERTICAL, false, false, false);
+	        chart.getXYPlot().setRangeAxis(new LogarithmicAxis("Number of pathway edits"));
+	        chart.getXYPlot().setDomainAxis(new LogarithmicAxis("User rank (by number of edits)"));
+			ChartUtilities.saveChartAsPNG(
+					new File(par.getFile(OUT_PATH), "editfrequencies_scatter.png"), 
 					chart, par.getInt(GRAPH_WIDTH), par.getInt(GRAPH_HEIGHT)
 			);
 			

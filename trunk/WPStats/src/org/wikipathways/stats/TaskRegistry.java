@@ -6,7 +6,9 @@ import java.util.Map;
 
 import org.wikipathways.stats.taskimpl.CurationEvent;
 import org.wikipathways.stats.taskimpl.CurationTagCounts;
+import org.wikipathways.stats.taskimpl.EditCounts;
 import org.wikipathways.stats.taskimpl.EditFrequencies;
+import org.wikipathways.stats.taskimpl.GeneralReport;
 import org.wikipathways.stats.taskimpl.NewPathways;
 import org.wikipathways.stats.taskimpl.PathwayCounts;
 import org.wikipathways.stats.taskimpl.PathwayCountsBySpecies;
@@ -36,6 +38,8 @@ public class TaskRegistry {
 		registerTask(CurationEvent.class.getName(), new CurationEvent());
 		registerTask(NewPathways.class.getName(), new NewPathways());
 		registerTask(WebserviceActivity.class.getName(), new WebserviceActivity());
+		registerTask(GeneralReport.class.getName(), new GeneralReport());
+		registerTask(EditCounts.class.getName(), new EditCounts());
 	}
 	
 	public Task getTask(String id) {

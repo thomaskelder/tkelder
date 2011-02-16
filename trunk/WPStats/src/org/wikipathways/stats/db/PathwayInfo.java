@@ -7,7 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.bridgedb.DataSource;
@@ -71,6 +73,16 @@ public class PathwayInfo {
 		} else {
 			return null;
 		}
+	}
+	
+	public int getNrRevisions(WPDatabase db, boolean includeBots) throws SQLException {
+		PreparedStatement pst = null;
+		if(includeBots) pst = db.getPst(pstRevCount);
+		else pst = db.getPst(pstRevCountNoBots);
+		pst.setInt(1, getPageId());
+		ResultSet r = pst.executeQuery();
+		r.next();
+		return r.getInt(1);
 	}
 	
 	public boolean isPrivate() throws SQLException {
@@ -146,6 +158,19 @@ public class PathwayInfo {
 		return id;
 	}
 	
+	public Set<Integer> getAuthors() throws SQLException {
+		Set<Integer> users = new HashSet<Integer>();
+		
+		PreparedStatement pst = db.getPst(pstAuthors);
+		pst.setInt(1, getPageId());
+		ResultSet r = pst.executeQuery();
+		while(r.next()) {
+			users.add(r.getInt(1));
+		}
+		r.close();
+		return users;
+	}
+	
 	public Date getRevisionTime(int rev) throws SQLException, java.text.ParseException {
 		PreparedStatement pst = db.getPst(pstGetRevTime);
 		pst.setInt(1, rev);
@@ -172,6 +197,20 @@ public class PathwayInfo {
 		}
 		r.close();
 		return pathways;
+	}
+	
+	public static Map<PathwayInfo, Integer> getViewCounts(WPDatabase db) throws SQLException, ParseException, SAXException, IOException {
+		Map<PathwayInfo, Integer> counts = new HashMap<PathwayInfo, Integer>();
+		
+		PreparedStatement pst = db.getPst(pstAllViewCount);
+		ResultSet r = pst.executeQuery();
+		while(r.next()) {
+			PathwayInfo i = new PathwayInfo(db, r.getString(2), r.getInt(3), r.getInt(4));
+			if(i.isDeleted(i.getGpml())) continue;
+			counts.put(i, r.getInt(1));
+		}
+		r.close();
+		return counts;
 	}
 	
 	public static Set<String> getSpecies(WPDatabase db) throws SQLException {
@@ -226,6 +265,21 @@ public class PathwayInfo {
 	
 	static final String pstIsPrivate = 
 		"SELECT tag_text FROM tag WHERE tag_name = 'page_permissions' AND page_id = ?";
+	
+	static final String pstRevCountNoBots = 
+		"SELECT COUNT(rev_id) FROM revision WHERE rev_page = ? AND rev_user_text != 'MaintBot'";
+	
+	static final String pstRevCount = 
+		"SELECT COUNT(rev_id) FROM revision WHERE rev_page = ?";
+	
+	static final String pstAuthors = 
+		"SELECT DISTINCT(rev_user) FROM revision WHERE rev_page = ?";
+	
+	static final String pstAllViewCount = 
+		"SELECT page_counter, page_title, page_id, page_latest FROM page " +
+		"WHERE page_is_redirect = 0 " +
+		"AND page_namespace = " + WPDatabase.NS_PATHWAY + " " +
+		"ORDER BY page_counter DESC";
 		
 	static final String PREFIX_DELETED = "{{deleted";
 	static final String PREFIX_REDIRECT = "#REDIRECT";

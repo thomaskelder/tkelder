@@ -7,14 +7,15 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
 import java.util.List;
 
 import cytoscape.Cytoscape;
 import cytoscape.data.CyAttributes;
 
-public class PieGraphic extends Graphic {
-	public PieGraphic(List<String> attributes, Gradient gradient) {
-		super(attributes, gradient);
+public class PieGraphic<E> extends Graphic {
+	public PieGraphic(List<String> attributes, ColorMapper mapper) {
+		super(attributes, mapper);
 	}
 
 	protected Shape getShape(NodeView nv) {
@@ -26,31 +27,41 @@ public class PieGraphic extends Graphic {
 	}
 
 	protected void paint(Graphics graphics, NodeView nv, Rectangle bounds) {
-		int angle = 360 / getAttributes().size();
-		
-		CyAttributes cyAttr = Cytoscape.getNodeAttributes();
-		
-		List<String> attributes = getAttributes();
-		for(int i = 0; i < attributes.size(); i++) {
-			String attr = attributes.get(i);
-			double value = 0;
-			try {
-				Object obj = cyAttr.getAttribute(nv.getNode().getIdentifier(), attr);
-				value = Double.parseDouble(obj == null ? "" : obj.toString());
-			} catch(NumberFormatException e) {
-				System.err.println(e.getMessage());
-				return;
-			}
-			Color color = getGradient().calculate(value);
-			graphics.setColor(color);
-			
-			graphics.fillArc(bounds.x, bounds.y, bounds.width, bounds.height, 
-					angle * i, angle);
+		int nrParts = getAttributes().size();
 
-			graphics.setColor(Color.BLACK);
-			graphics.drawArc(bounds.x, bounds.y, bounds.width, bounds.height, 
-					angle * i, angle);
-			
+		//If one of the attributes is a list, also create a part for each list item
+		List<String> attributes = getAttributes();
+		CyAttributes cyAttr = Cytoscape.getNodeAttributes();
+		for(String attr : attributes) {
+			if(cyAttr.getType(attr) == CyAttributes.TYPE_SIMPLE_LIST) {
+				List values = cyAttr.getListAttribute(nv.getNode().getIdentifier(), attr);
+				if(values.size() > 0) nrParts += values.size() - 1;
+			}
 		}
-	}	 
+		int angle = 360 / nrParts;
+
+		int part = 0;
+		for(String attr : attributes) {
+			List<Object> values = new ArrayList<Object>();
+			if(cyAttr.getType(attr) == CyAttributes.TYPE_SIMPLE_LIST) {
+				List vs = cyAttr.getListAttribute(nv.getNode().getIdentifier(), attr);
+				for(Object v : vs) {
+					values.add(v);
+				}
+			} else {
+				values.add(cyAttr.getAttribute(nv.getNode().getIdentifier(), attr));
+			}
+
+			for(int j = 0; j < values.size(); j++) {
+				Object value = values.get(j);
+				Color color = getMapper().calculate(value);
+				System.err.println(j + ": Color " + color + " for value " + value);
+				graphics.setColor(color);
+
+				graphics.fillArc(bounds.x, bounds.y, bounds.width, bounds.height, 
+						angle * part, angle);
+				part++;
+			}
+		}
+	}
 }

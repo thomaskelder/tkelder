@@ -8,14 +8,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.bridgedb.BridgeDb;
 import org.bridgedb.DataSource;
-import org.bridgedb.rdb.DataDerby;
-import org.bridgedb.rdb.IDMapperRdb;
-import org.bridgedb.rdb.SimpleGdbFactory;
+import org.bridgedb.IDMapper;
+import org.bridgedb.rdb.construct.DataDerby;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.pathvisio.debug.Logger;
+import org.pathvisio.gex.CachedData;
 import org.pathvisio.gex.SimpleGex;
 import org.pathvisio.plugins.statistics.ZScoreCalculator;
 import org.pathvisio.visualization.colorset.Criterion;
@@ -80,11 +81,13 @@ public class WalkieTalkieMain {
 		}
 
 		try {
+			Class.forName("org.bridgedb.rdb.IDMapperRdb");
+			
 			SimpleGex gex = null;
 			if(main.gexFile != null) {
 				gex = new SimpleGex("" + main.gexFile, false, new DataDerby());
 			}
-			IDMapperRdb gdb =SimpleGdbFactory.createInstance("" + main.gdbFile, new DataDerby(), 0);
+			IDMapper gdb = BridgeDb.connect("idmapper-pgdb:" + main.gdbFile);
 			
 			Criterion crit = null;
 			if(main.criterion != null) {
@@ -95,8 +98,9 @@ public class WalkieTalkieMain {
 			//Read the pathway information
 			Set<PathwayInfo> pathways = null;
 			if(main.filterZscore > Double.MIN_VALUE) { //Filter by z-score
+				CachedData cd = new CachedData(gex);
 				ZScoreCalculator zsc = new ZScoreCalculator(
-						crit, main.pathwayDir, gex, gdb, null
+						crit, main.pathwayDir, cd, gdb, null
 				);
 				pathways = WalkieTalkieUtils.pathwaysByZScore(
 						main.pathwayDir, zsc.calculateAlternative(), main.filterZscore

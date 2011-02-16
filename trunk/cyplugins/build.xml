@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="bridgedb" default="dest" basedir=".">
+<project name="cyplugins" default="dest" basedir=".">
   <target name="clean">
 	<antcall target="_allmodules">
 		<param name="allmodules.target" value="clean"/>

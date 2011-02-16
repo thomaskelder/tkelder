@@ -30,16 +30,16 @@ public class PathwayCounts implements Task {
 			TimeSeriesCollection data = new TimeSeriesCollection();
 			TimeSeries tsPw = new TimeSeries("Number of pathways");
 
+			int i = 0;
+			
 			RegularTimePeriod period = null;
 			while((period = timeInterval.getNext()) != null) {
 				System.out.println("Processing " + period);
 				Date time = new Date(period.getMiddleMillisecond());
 				tsPw.add(period, PathwayInfo.getSnapshot(db, time).size());
 				
-				System.err.println(Runtime.getRuntime().totalMemory() / 1000);
+				if(i++ % 10 == 0) db.resetConnection();
 				Runtime.getRuntime().gc();
-				System.err.println(Runtime.getRuntime().totalMemory() / 1000);
-				System.err.println("---");
 			}
 			
 			data.addSeries(tsPw);

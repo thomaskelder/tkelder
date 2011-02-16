@@ -1,6 +1,7 @@
 package rainbownodes;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -12,11 +13,13 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.swing.JPanel;
+
 /**
  * A Color gradient.
  * @author thomas
  */
-public class Gradient implements Serializable {
+public class Gradient implements ColorMapper, Serializable {
 	private static final long serialVersionUID = -1533851816647153152L;
 	SortedMap<Double, Color> pointColors;
 
@@ -45,6 +48,10 @@ public class Gradient implements Serializable {
 		return pointColors.lastKey();
 	}
 
+	public Color calculate(Object value) {
+		return calculate(parseValue(value));
+	}
+	
 	public Color calculate(double value) {
 		double valueStart = getMin();
 		double valueEnd = getMax();
@@ -82,6 +89,18 @@ public class Gradient implements Serializable {
 		return new Color((int)red, (int)green, (int)blue);
 	}
 
+	public JPanel createLegend() {
+		return new JPanel() {
+			public Dimension getPreferredSize() {
+				return new Dimension(100, 30);
+			}
+			
+			protected void paintComponent(Graphics g) {
+				paintLegend(g, getBounds());
+			}
+		};
+	}
+	
 	public void paintLegend(Graphics graphics, Rectangle bounds) {
 		Graphics2D g = (Graphics2D)graphics.create();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -104,6 +123,15 @@ public class Gradient implements Serializable {
 					bounds.y + bounds.height / 2 + (int)(fb.getHeight() / 2)
 			);
 			x += w / (pointColors.size() - 1);
+		}
+	}
+	
+	public static double parseValue(Object v) {
+		try {
+			return Double.parseDouble(v == null ? "" : v.toString());
+		} catch(NumberFormatException e) {
+			System.err.println(e.getMessage());
+			return Double.NaN;
 		}
 	}
 }

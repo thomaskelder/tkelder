@@ -3,10 +3,14 @@ package rainbownodes;
 import giny.view.NodeView;
 
 import java.awt.Color;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.swing.SwingConstants;
 
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;
@@ -16,9 +20,12 @@ import cytoscape.data.CyAttributes;
 import cytoscape.logger.CyLogger;
 import cytoscape.plugin.CytoscapePlugin;
 import cytoscape.view.CyNetworkView;
+import cytoscape.view.CytoscapeDesktop;
+import cytoscape.view.cytopanels.CytoPanelImp;
 
 public class RainbowNodesPlugin extends CytoscapePlugin {
 	private GraphicsManager graphicsManager;
+	private LegendPanel legend;
 	
 	private static RainbowNodesPlugin instance;
 	
@@ -30,6 +37,22 @@ public class RainbowNodesPlugin extends CytoscapePlugin {
 		//Testing, set from code
 		if(CytoscapeInit.getCyInitParams().getProps().get("test") != null) {
 			fromCode();
+		}
+	}
+	
+	public void activateLegend() {
+		if(legend == null) {
+			legend = new LegendPanel(this);
+			CytoPanelImp cyPanel = (CytoPanelImp) Cytoscape.getDesktop().getCytoPanel(SwingConstants.EAST);
+			cyPanel.add("RainbowNodes legend", legend);
+			
+			Cytoscape.getDesktop().getSwingPropertyChangeSupport().addPropertyChangeListener(CytoscapeDesktop.NETWORK_VIEW_FOCUSED,
+					new PropertyChangeListener() {
+						public void propertyChange(PropertyChangeEvent e) {
+							legend.reset();
+						}
+					}
+			);
 		}
 	}
 	
@@ -83,6 +106,7 @@ public class RainbowNodesPlugin extends CytoscapePlugin {
 		NodeView nv2 = view.getNodeView(n2.getRootGraphIndex());
 		nv2.setXPosition(100);
 		nv2.setYPosition(100);
+		nv2.setBorderWidth(10);
 		view.redrawGraph(true, true);
 		view.fitContent();
 

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -117,7 +118,8 @@ public class GraphicsManager implements Serializable {
 	 * @param view
 	 */
 	public void reset(CyNetworkView view) {
-		for(Graphic g : registeredGraphics.get(view.getNetwork().getIdentifier())) {
+		List<Graphic> remove = new ArrayList<Graphic>(registeredGraphics.get(view.getNetwork().getIdentifier()));
+		for(Graphic g : remove) {
 			removeGraphic(g, view);
 		}
 	}

@@ -53,6 +53,8 @@ public class GOReader {
 				String syn = match.group(1);
 				term.addSynonym(syn);
 			}
+		} else if(line.startsWith(DEF_PREFIX)) {
+			term.setDef(line.replace(DEF_PREFIX, ""));
 		}
 	}
 	
@@ -64,4 +66,5 @@ public class GOReader {
 	private static final String ID_PREFIX = "id: ";
 	private static final String NAME_PREFIX = "name: ";
 	private static final String SYNONYM_PREFIX = "synonym: ";
+	private static final String DEF_PREFIX = "def: ";
 }

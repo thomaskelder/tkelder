@@ -15,8 +15,8 @@ public class BarGraphic extends Graphic {
 	private int barWidth = 8;
 	private int totalHeight = 25;
 	
-	public BarGraphic(List<String> attributes, Gradient gradient) {
-		super(attributes, gradient);
+	public BarGraphic(List<String> attributes, ColorMapper mapper) {
+		super(attributes, mapper);
 		setScaleImg(1);
 	}
 	
@@ -45,22 +45,20 @@ public class BarGraphic extends Graphic {
 		CyAttributes cyAttr = Cytoscape.getNodeAttributes();
 		for(int i = 0; i < attributes.size(); i++) {
 			String attr = attributes.get(i);
-			double value = 0;
-			try {
-				Object obj = cyAttr.getAttribute(nv.getNode().getIdentifier(), attr);
-				value = Double.parseDouble(obj == null ? "" : obj.toString());
-			} catch(NumberFormatException e) {
-				System.err.println(e.getMessage());
-				return;
-			}
-			Color color = getGradient().calculate(value);
+			Object value = cyAttr.getAttribute(nv.getNode().getIdentifier(), attr);
+			Color color = getMapper().calculate(value);
 			graphics.setColor(color);
 			
 			int baseline = bounds.y + scaledHeight / 2;
 			
-			double range = getGradient().getMax() - getGradient().getMin();
-			int height = (int)((scaledHeight / range) * value);
-			if(value > 0) {
+			int height = scaledHeight;
+			
+			if(getMapper() instanceof Gradient) {
+				double dvalue = Gradient.parseValue(value);
+				double range = ((Gradient)getMapper()).getMax() - ((Gradient)getMapper()).getMin();
+				height = (int)((scaledHeight / range) * dvalue);
+			}
+			if(value != null) {
 				graphics.fillRect(bounds.x + i * scaledWidth, baseline - height, scaledWidth, height);
 			} else {
 				graphics.fillRect(bounds.x + i * scaledWidth, baseline + 1, scaledWidth, -height);

@@ -8,9 +8,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.TimeZone;
+
+import sun.util.logging.resources.logging;
 
 public class WPDatabase {
 	String server;
@@ -39,7 +39,8 @@ public class WPDatabase {
         con.setReadOnly(true);
 	}
 	
-	public void closePsts() throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public void resetConnection() throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+		System.out.println("Reset connection");
 		con.close();
 		connect();
 	}
@@ -50,14 +51,8 @@ public class WPDatabase {
 		return c.getTime();
 	}
 	
-	Map<String, PreparedStatement> statements = new HashMap<String, PreparedStatement>();
-	
 	public PreparedStatement getPst(String sql) throws SQLException {
-		PreparedStatement pst = statements.get(con);
-		if(pst == null) {
-			statements.put(sql, pst = con.prepareStatement(sql));
-		}
-		return pst;
+		return con.prepareStatement(sql);
 	}
 	
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat ("yyyyMMddHHmmss");

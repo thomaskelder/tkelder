@@ -10,10 +10,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bridgedb.DataSource;
+import org.bridgedb.IDMapper;
 import org.bridgedb.IDMapperException;
 import org.bridgedb.Xref;
 import org.bridgedb.bio.BioDataSource;
-import org.bridgedb.rdb.IDMapperRdb;
 import org.pathvisio.data.XrefWithSymbol;
 import org.pathvisio.debug.Logger;
 import org.pathvisio.gex.ReporterData;
@@ -32,7 +32,7 @@ public class WalkieTalkie {
 	
 	private static final String EDGE = "in_pathway";
 
-	private IDMapperRdb gdb;
+	private IDMapper gdb;
 	private SimpleGex gex;
 	private Criterion criterion;
 	private Collection<PathwayInfo> pathways;
@@ -43,7 +43,7 @@ public class WalkieTalkie {
 	SetMultimap<PathwayInfo, Xref> pathway2xref;
 	SetMultimap<Xref, PathwayInfo> xref2pathway;
 
-	public WalkieTalkie(Parameters par, Criterion crit, Collection<PathwayInfo> pathways, IDMapperRdb gdb, SimpleGex gex) throws CriterionException, IDMapperException {
+	public WalkieTalkie(Parameters par, Criterion crit, Collection<PathwayInfo> pathways, IDMapper gdb, SimpleGex gex) throws CriterionException, IDMapperException {
 		this.gdb = gdb;
 		this.gex = gex;
 		this.criterion = crit;
@@ -78,8 +78,15 @@ public class WalkieTalkie {
 			Logger.log.trace("Processing pathway " + i++ + " out of " + pathways.size());
 			Set<Xref> srcRefs = pwi.getXrefs();
 			for(Xref src : srcRefs) {
+				if(src.getId() == null || src.getDataSource() == null) continue;
 				String symbol = pwi.getSymbol(src);
-				for(Xref ref : gdb.mapID(src, par.getDataSourceSet())) {
+				if(par.getDataSource().equals(src.getDataSource())) {
+					if(gex == null || sigXrefs.contains(src)) {
+						pathway2xref.put(pwi, src);
+						xref2pathway.put(src, pwi);
+					}
+				}
+				for(Xref ref : gdb.mapID(src, par.getDataSource())) {
 					symbols.put(ref, symbol);
 					if(gex == null) {
 						sigXrefs.add(ref);
@@ -104,7 +111,7 @@ public class WalkieTalkie {
 				if(criterion == null || criterion.evaluate(row.getByName())) {
 					//Significant rpeporter, add gene to set
 					if(reporter.getDataSource() != par.getDataSource()) {
-						sigXrefs.addAll(gdb.mapID(reporter, par.getDataSourceSet()));
+						sigXrefs.addAll(gdb.mapID(reporter, par.getDataSource()));
 					} else {
 						sigXrefs.add(reporter);
 					}
@@ -159,7 +166,9 @@ public class WalkieTalkie {
 
 		//Write the mappings to sif
 		for(Xref xref : filtered.keySet()) {
-			for(PathwayInfo pwi : myXref2pathway.get(xref)) {
+			Set<PathwayInfo> pws = myXref2pathway.get(xref);
+			
+			for(PathwayInfo pwi : pws) {
 				out.append(xref.getId());
 				out.append("\t");
 				out.append(EDGE);

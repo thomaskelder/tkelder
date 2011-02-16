@@ -1,4 +1,4 @@
-#summary Scripts to find interactions between pathways.
+#summary Pathway interactions in insulin resistant mouse liver
 
 *Source code* for the pathway interaction analysis can be found *[http://code.google.com/p/tkelder/source/browse/#svn%2Ftrunk%2Fpathway-interactions here]*.
 

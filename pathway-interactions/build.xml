@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<project name="Pathway Cross Talk" default="jar" basedir=".">
+	<property name="src.dir" value="src"/>
+	<property name="build.dir" value="build"/>
+	<property name="lib.dir" value="lib"/>
+	<property name="class.dir" value="class" />
+	<property name="dist.dir" value="dist"/>
+	<property name="jar.name" value="pct.jar"/>
+	<property name="cytoscape.dir" value="/home/thomas/programs/cytoscape" />
+	<property name="cytoscape.plugin.dir" value="${cytoscape.dir}/plugins" />
+	<property name="src.cyplugin.dir" value="src-cyplugin" />
+	<property name="plugin.name" value="pctplugin" />
+	
+	<path id="class.path">
+		<pathelement location="${build.dir}"/>
+		<fileset dir="lib">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+
+	<path id="class.path.cytoscape">
+			<pathelement location="${cytoscape.dir}/cytoscape.jar" />
+	</path>
+	
+	<target name="prepare">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${dist.dir}"/>
+		<mkdir dir="${class.dir}"/>
+	</target>
+
+	<target name="clean" description="Remove all generated files.">
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
+		<delete dir="${class.dir}"/>
+	</target>
+
+	<target name="compile" depends="prepare" description="Compile sources">
+		<javac srcdir="${src.dir}"
+			   includes="**"
+			   destdir="${build.dir}"
+			   debug="true"
+			   source="1.5">
+			<classpath refid="class.path"/>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile" description="Generates executable jar file">
+		<pathconvert refid="class.path" property="class.path.manifest" pathsep=" ">
+			<mapper>
+				<chainedmapper>
+					<!-- remove absolute path -->
+					<flattenmapper />
+					<!-- add lib/ prefix -->
+					<globmapper from="*" to="lib/*" />
+				</chainedmapper>
+			</mapper>
+		</pathconvert>
+
+		<jar jarfile="${jar.name}">
+			<manifest>
+				<attribute name="Class-Path" value="${class.path.manifest}"/>
+			</manifest>
+			<fileset dir="${build.dir}" includes="**/*.class"/>
+			<fileset dir="${src.dir}" includes="**/*.groovy"/>
+		</jar>
+	</target>
+
+	<target name="dist" depends="jar" description="Copies jar and external libraries to dist path">
+		<copy file="${jar.name}" toDir="${dist.dir}"/>
+		<copy toDir="${dist.dir}/lib">
+			<fileset dir="${lib.dir}">
+				<include name="**/*.jar"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="cyplugin-compile" depends="prepare" description="Compile sources for cytoscape plugin">
+		<javac srcdir="${src.cyplugin.dir}"
+			   includes="**"
+			   destdir="${class.dir}"
+			   debug="true"
+			   source="1.5">
+			<classpath refid="class.path.cytoscape"/>
+			<classpath refid="class.path"/>
+		</javac>
+	</target>
+	
+	<target name="cyplugin-jar" depends="jar, cyplugin-compile" description="Generate jar file">
+		<unjar dest="${class.dir}">
+			<fileset dir="${lib.dir}">
+				<include name="*.jar"/>
+				<exclude name="gsea2_lib-2.02.jar"/>
+				<exclude name="ext_lib_for_gsea.jar"/>
+			</fileset>
+		</unjar>
+
+		<jar jarfile="${plugin.name}.jar">
+			<fileset dir="${build.dir}" includes="**/*.class" />
+			<fileset dir="${build.dir}" includes="**/*.props" />
+			<fileset dir="${build.dir}" includes="**/*.png" />
+			<fileset dir="${build.dir}" includes="**/*.gif" />
+			<fileset dir="${build.dir}" includes="**/*.txt" />
+			<fileset dir="${src.dir}" includes="**/*.groovy"/>
+			<fileset dir="${class.dir}">
+				<include name="**/*"/>
+				<exclude name="META-INF/"/>
+			</fileset>
+			<manifest>
+				<attribute name="Cytoscape-Plugin" value="org.pct.cyplugin.CrossTalkPlugin" />
+			</manifest>
+		</jar>
+
+	</target>
+
+	<target name="cyplugin-dist" depends="cyplugin-jar" description="Copy the jars to the Cytoscape plugin directory">
+		<copy file="${plugin.name}.jar" todir="${cytoscape.plugin.dir}" />
+	</target>
+</project>

@@ -1,0 +1,33 @@
+package org.pct.model;
+
+public enum AttributeKey {
+	Args,
+	Authors,
+	ConversionReport,
+	DetectionMethod,
+	Fishern,
+	FisherNn,
+	FisherOdds,
+	FisherPvalue,
+	FisherQvalue,
+	Fisherr,
+	FisherRr,
+	Interaction,
+	InteractionCount,
+	InteractionScore,
+	InteractionValue,
+	Label,
+	Merged,
+	NrUnmappedXrefs,
+	NrXrefs,
+	OriginalXref,
+	Overlap,
+	PathwayId,
+	PathwayName,
+	PubmedId,
+	Pvalue,
+	Source,
+	XrefDatasource,
+	XrefId,
+	CrossPathway
+}

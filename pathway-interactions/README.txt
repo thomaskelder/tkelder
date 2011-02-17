@@ -38,7 +38,7 @@ Used to convert a flatfile from the STRING or STITCH database to a .gml network 
 
 Comand used in pps2 analysis:
 
-java -cp pct.jar org.pct.conversion.StitchImporter --idm idmapper-pgdb:idm/Mm_Derby_20090720.bridge idmapper-pgdb:idm/metabolites_100227.bridge --ds EnMm --ens data/string/biomart_ens_gene2protein46.txt data/string/biomart_ens_gene2protein56.txt data/string/biomart_ens_gene2protein57.txt data/string/biomart_ens_gene2protein58.txt --species "Mus musculus" --excludeSources NLP --in data/string/protein.actions.detailed.v8.3.txt --out input/interactions/mouse-directed/string.mouse.400.dir.gml
+java -cp pct.jar org.pct.conversion.StitchStringImporter --idm idmapper-pgdb:idm/Mm_Derby_20090720.bridge --ds EnMm --ens data/string/biomart_ens_gene2protein46.txt data/string/biomart_ens_gene2protein56.txt data/string/biomart_ens_gene2protein57.txt data/string/biomart_ens_gene2protein58.txt --species "Mus musculus" --excludeSources NLP --in data/string/protein.actions.detailed.v8.3.txt --out input/interactions/mouse-directed/string.mouse.400.dir.gml
 
 NOTE: The files named biomart_ens_gene2proteinXX.txt are BioMART exports Ensembl, necessary because the BridgeDb databases don't contain the Ensembl peptide IDs. These files contain the Ensembl gene ID in the first column and Ensembl peptide ID in the second. Note that several versions of Ensembl are used, this is because STRING often uses outdated peptide identifiers that are superseded in newer versions of Ensembl.
 

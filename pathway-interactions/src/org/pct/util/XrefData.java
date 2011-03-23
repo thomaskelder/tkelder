@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import org.bridgedb.IDMapper;
 import org.bridgedb.IDMapperException;
 import org.bridgedb.Xref;
 import org.pct.util.ArgsData.DIDMapper;
+import org.pct.util.ArgsParser.AHelp;
 import org.pct.util.ArgsParser.AIDMapper;
 import org.pct.util.ArgsParser.AWeights;
 
@@ -168,6 +170,7 @@ public class XrefData {
 			DataSource ds = null;
 			if(pargs.getWeightsSys() != null) ds = DataSource.getBySystemCode(pargs.getWeightsSys());
 			
+			log.info("Converting from " + ds + " to " + Arrays.toString(didm.getDataSources()));
 			writeMappedData(pargs.getWeights(), pargs.getOut(), 
 					didm.getIDMapper(), pargs.isWeightsHeader(), ds, pargs.getIdCol(), pargs.getSysCol(), didm.getDataSources()
 			);
@@ -176,7 +179,7 @@ public class XrefData {
 		}
 	}
 	
-	interface Args extends AIDMapper, AWeights {
+	interface Args extends AIDMapper, AWeights, AHelp {
 		@Option(shortName = "o", description = "Output file")
 		File getOut();
 	}

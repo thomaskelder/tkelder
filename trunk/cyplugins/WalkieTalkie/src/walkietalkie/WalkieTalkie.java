@@ -74,6 +74,8 @@ public class WalkieTalkie {
 		xref2pathway = new HashMultimap<Xref, PathwayInfo>();
 		symbols = new HashMap<Xref, String>();
 
+		for(Xref x : sigXrefs) addSymbol(x, null);
+		
 		int i = 1;
 		for(PathwayInfo pwi : pathways) {
 			Logger.log.trace("Processing pathway " + i++ + " out of " + pathways.size());
@@ -97,12 +99,9 @@ public class WalkieTalkie {
 						xref2pathway.put(src, pwi);
 					}
 				}
+				
 				for(Xref ref : gdb.mapID(src, par.getDataSource())) {
-					if(symbol == null || "".equals(symbol)) {
-						Set<String> res = ((AttributeMapper)gdb).getAttributes(ref, "Symbol");
-						if(res.size() > 0) symbol = res.iterator().next();
-					}
-					symbols.put(ref, symbol);
+					addSymbol(ref, symbol);
 					if(gex == null) {
 						sigXrefs.add(ref);
 						pathway2xref.put(pwi, ref);
@@ -116,6 +115,22 @@ public class WalkieTalkie {
 		}
 	}
 
+	private void addSymbol(Xref x, String symbol) throws IDMapperException {
+		if(symbol == null || "".equals(symbol)) symbol = symbolFromXref(x);
+		
+		if(symbol == null || "".equals(symbol)) { //Fallback on id if no symbol
+			symbol = x.getId();
+		}
+		symbols.put(x, symbol);
+	}
+	
+	private String symbolFromXref(Xref x) throws IDMapperException {
+		String symbol = null;
+		Set<String> res = ((AttributeMapper)gdb).getAttributes(x, "Symbol");
+		if(res.size() > 0) symbol = res.iterator().next();
+		return symbol;
+	}
+	
 	private void findSigXrefs() throws CriterionException, IDMapperException {
 		sigXrefs = new HashSet<Xref>();
 		if(gex != null) {

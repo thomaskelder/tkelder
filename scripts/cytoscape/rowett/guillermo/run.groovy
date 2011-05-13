@@ -12,7 +12,7 @@ File outFile = new File("/home/thomas/data/rowett/guillermo/output")
 File dataFile = new File("/home/thomas/data/rowett/guillermo/input/guillermo.pgex")
 def pathwayFiles = [
     "KEGG" : new File("/home/thomas/data/rowett/guillermo/pathways/Rno_KEGG_20100917"),
-    "WikiPathways" : new File("/home/thomas/data/rowett/guillermo/pathways/wikipathways-analysis-20110426"),
+    "WikiPathways" : new File("/home/thomas/data/rowett/guillermo/pathways/wikipathways-analysis-20110513"),
     "Reactome" : new File("/home/thomas/data/rowett/guillermo/pathways/Reactome_20110509"),
     "KEGG, WikiPathways and Reactome" : new File("/home/thomas/data/rowett/guillermo/pathways")
 ]

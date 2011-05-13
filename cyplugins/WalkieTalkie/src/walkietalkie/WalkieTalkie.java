@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.bridgedb.AttributeMapper;
 import org.bridgedb.DataSource;
 import org.bridgedb.IDMapper;
 import org.bridgedb.IDMapperException;
@@ -80,6 +81,16 @@ public class WalkieTalkie {
 			for(Xref src : srcRefs) {
 				if(src.getId() == null || src.getDataSource() == null) continue;
 				String symbol = pwi.getSymbol(src);
+				//Trick for KEGG converted pathways including all synonyms: only use first
+				if(symbol.contains(",")) {
+					String[] sym = symbol.split(",");
+					//Find first id without colon
+					for(String s : sym) if(!s.contains(":")) {
+						symbol = s;
+						break;
+					}
+				}
+				
 				if(par.getDataSource().equals(src.getDataSource())) {
 					if(gex == null || sigXrefs.contains(src)) {
 						pathway2xref.put(pwi, src);
@@ -87,6 +98,10 @@ public class WalkieTalkie {
 					}
 				}
 				for(Xref ref : gdb.mapID(src, par.getDataSource())) {
+					if(symbol == null || "".equals(symbol)) {
+						Set<String> res = ((AttributeMapper)gdb).getAttributes(ref, "Symbol");
+						if(res.size() > 0) symbol = res.iterator().next();
+					}
 					symbols.put(ref, symbol);
 					if(gex == null) {
 						sigXrefs.add(ref);
@@ -175,6 +190,13 @@ public class WalkieTalkie {
 				out.append("\t");
 				out.append(pwi.getFile().getName());
 				out.append("\n");
+			}
+		}
+		
+		//In case minConnections == 0, also include xrefs without pathway annotation
+		if(par.getMinGeneConnections() == 0) {
+			for(Xref xref : sigXrefs) {
+				if(!myXref2pathway.containsKey(xref)) out.append(xref.getId() + "\n");
 			}
 		}
 	}

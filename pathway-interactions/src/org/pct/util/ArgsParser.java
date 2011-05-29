@@ -34,10 +34,10 @@ public class ArgsParser {
 		@Option(defaultValue = "-1", description = "Set this parameter to a value between 0 and 1 to merge pathways of which the overlap exceeds this threshold.")
 		public double getMergeThreshold();
 
-		@Option(defaultValue = "true", description = "Should the Kegg meta pathways be filtered out?")
+		@Option(description = "Should the Kegg meta pathways be filtered out?")
 		public boolean isExclKeggMeta();
 		
-		@Option(defaultValue = "true", description = "Should the Kegg disease pathways be filtered out?")
+		@Option(description = "Should the Kegg disease pathways be filtered out?")
 		public boolean isExclKeggDisease();
 	}
 

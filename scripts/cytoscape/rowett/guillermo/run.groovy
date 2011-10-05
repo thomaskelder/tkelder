@@ -1,3 +1,4 @@
+/*
 import walkietalkie.*
 import walkietalkie.WalkieTalkie.Parameters
 import walkietalkie.WalkieTalkie.PathwayInfo
@@ -67,6 +68,7 @@ import cytoscape.layout.*
 for(CyNetworkView view in Cytoscape.getNetworkViewMap().values()) {
 	CyLayouts.getLayout("Kamada-Kawai-Noweight").doLayout(view);
 }
+*/
 
 //Add charts for data values
 import cytoscape.*
@@ -77,7 +79,16 @@ CyAttributes attr = Cytoscape.getNodeAttributes();
 Cytoscape.getCyNodesList().each { node ->
 	def labels = [ "DHPG", "HT", "AE" ];
 	def values = labels.collect { l ->
-		attr.getListAttribute(node.getIdentifier(), l)
+		def v = attr.getListAttribute(node.getIdentifier(), l)
+		v = v.collect { n ->
+			//Convert from ratio to foldchange
+			if(n < 1) {
+				n = -1.0 / n
+			} else {
+				n = n - 1.0
+			}
+		}
+		v
 	}
 	values = GroovyCollections.transpose(values);
 
